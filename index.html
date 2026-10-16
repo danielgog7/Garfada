@@ -133,13 +133,17 @@ details summary{cursor:pointer;color:var(--sub);font-size:14px;margin:10px 0 8px
 #atalho{position:fixed;inset:0;z-index:25;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}
 #atalho .foto{margin:0;width:104px;height:104px}
 #atalho .foto svg{width:42px;height:42px}
+.ponto{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:8px;vertical-align:middle;background:var(--fraco)}
+.ponto.ok{background:var(--kcal)}
+.ponto.pend{background:var(--hid)}
+.ponto.erro{background:var(--aviso)}
 </style>
 </head>
 <body>
 
 <header class="topo" id="topo">
   <button class="ic" id="diaAnt" aria-label="Dia anterior">&#8249;</button>
-  <div class="dia"><div id="diaTitulo">Hoje</div><div class="sub" id="diaSub"></div></div>
+  <div class="dia"><div><span id="diaTitulo">Hoje</span><span id="syncPonto" class="ponto" hidden></span></div><div class="sub" id="diaSub"></div></div>
   <button class="ic" id="diaSeg" aria-label="Dia seguinte">&#8250;</button>
 </header>
 
@@ -208,11 +212,22 @@ details summary{cursor:pointer;color:var(--sub);font-size:14px;margin:10px 0 8px
 
     <h2>Inteligência artificial</h2>
     <div class="card">
-      <label for="fChave" class="sub">Chave da API do Gemini (fica guardada só neste telemóvel)</label>
+      <label for="fChave" class="sub">Chave da API do Gemini (fica guardada só neste dispositivo)</label>
       <div class="chave"><input id="fChave" type="password" autocomplete="off" spellcheck="false" placeholder="Cola aqui a chave"><button class="bt" id="verChave">Ver</button></div>
       <button class="bt larg" id="testar">Testar ligação</button>
       <div class="campo"><label for="fModelo">Modelo</label><select id="fModelo"></select></div>
       <div class="campo"><label for="fMostrar">Mostrar o resultado logo após a foto</label><input id="fMostrar" type="checkbox"></div>
+    </div>
+
+    <h2>Sincronização (Android e PC)</h2>
+    <div class="card">
+      <p class="sub" id="syncTxt"></p>
+      <div class="campo"><label for="gDono">Utilizador GitHub</label><input id="gDono" autocomplete="off" spellcheck="false" autocapitalize="off"></div>
+      <div class="campo"><label for="gRepo">Repositório privado</label><input id="gRepo" autocomplete="off" spellcheck="false" autocapitalize="off"></div>
+      <label for="gToken" class="sub">Token do GitHub (fica guardado só neste dispositivo)</label>
+      <div class="chave"><input id="gToken" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…"><button class="bt" id="gVer">Ver</button></div>
+      <button class="bt larg pri" id="gLigar">Ligar e sincronizar</button>
+      <button class="bt larg" id="gDesligar" hidden>Desligar neste dispositivo</button>
     </div>
 
     <h2>Reserva: ChatGPT</h2>
@@ -227,7 +242,7 @@ details summary{cursor:pointer;color:var(--sub);font-size:14px;margin:10px 0 8px
       <button class="bt larg" id="exportar">Exportar cópia de segurança</button>
       <button class="bt larg" id="importar">Importar cópia</button>
       <button class="bt larg mau" id="apagarTudo">Apagar refeições e água</button>
-      <p class="nota">Os dados ficam só neste telemóvel. Exporta uma cópia de vez em quando.</p>
+      <p class="nota">Com a sincronização ligada, os dados ficam também no teu repositório privado. A cópia de segurança continua útil como reserva.</p>
     </div>
   </div>
 </main>
@@ -444,9 +459,10 @@ async function guardarNova(est, extra){
   const d = new Date(dia); d.setHours(agora.getHours(), agora.getMinutes(), 0, 0);
   const e = Object.assign({
     id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-    ts: d.getTime(), data: chaveData(dia), refeicao: refPorHora(agora.getHours()), fator: 1, thumb: ''
+    ts: d.getTime(), data: chaveData(dia), refeicao: refPorHora(agora.getHours()), fator: 1, thumb: '', atualizado: Date.now()
   }, est, extra);
   await DB.put(e);
+  marcarSujo(e.data);
   return e;
 }
 function depoisDeGuardar(e){
@@ -575,7 +591,8 @@ function desenharDetalhe(){
     <div class="linha-bts"><button class="bt mau" id="dApagar">Apagar</button><button class="bt pri" id="dFechar">Feito</button></div>`;
 }
 async function salvarAtual(){
-  try { await DB.put(atual); } catch(e){ toast('Não consegui guardar.'); }
+  atual.atualizado = Date.now();
+  try { await DB.put(atual); marcarSujo(atual.data); } catch(e){ toast('Não consegui guardar.'); }
   render();
 }
 $('#shDet').addEventListener('click', async ev => {
@@ -584,7 +601,10 @@ $('#shDet').addEventListener('click', async ev => {
   if (t.dataset.f){ atual.fator = parseFloat(t.dataset.f); await salvarAtual(); desenharDetalhe(); }
   else if (t.id === 'dFechar') fecharSheets();
   else if (t.id === 'dApagar'){
-    if (confirm('Apagar esta refeição?')){ await DB.del(atual.id); fecharSheets(); render(); }
+    if (confirm('Apagar esta refeição?')){
+      apagados[atual.id] = {data: atual.data, ts: Date.now()}; LS.set('apagados', apagados);
+      await DB.del(atual.id); marcarSujo(atual.data); fecharSheets(); render();
+    }
   }
   else if (t.id === 'dRefazer') refazer();
 });
@@ -604,8 +624,9 @@ async function refazer(){
   try {
     const imagem = (memoria && memoria.id === atual.id) ? memoria.imagem : null;
     const est = await perguntarGemini({imagem, texto: atual.descricao, nota});
-    Object.assign(atual, est, {fator: 1});
+    Object.assign(atual, est, {fator: 1, atualizado: Date.now()});
     await DB.put(atual);
+    marcarSujo(atual.data);
     desenharDetalhe(); render();
   } catch(err){ toast(err.message || 'Algo correu mal.'); }
   finally { carregar(false); }
@@ -669,15 +690,21 @@ $('#cColar').onclick = () => abrirTexto('colar');
 $('#atalhoBt').onclick = () => { $('#atalho').hidden = true; $('#inCam').click(); };
 $('#atalhoFechar').onclick = () => { $('#atalho').hidden = true; };
 
-function somarAgua(ml){ const k = chaveData(dia); agua[k] = Math.max(0, (agua[k] || 0) + ml); LS.set('agua', agua); render(); }
+function somarAgua(ml){
+  const k = chaveData(dia);
+  agua[k] = Math.max(0, (agua[k] || 0) + ml); aguaTs[k] = Date.now();
+  LS.set('agua', agua); LS.set('aguaTs', aguaTs); marcarSujo(k); render();
+}
 $('#aMenos').onclick = () => somarAgua(-250);
 $('#a250').onclick = () => somarAgua(250);
 $('#a500').onclick = () => somarAgua(500);
 
-$('#diaAnt').onclick = () => { dia.setDate(dia.getDate() - 1); render(); };
-$('#diaSeg').onclick = () => { if (chaveData(dia) < chaveData(new Date())){ dia.setDate(dia.getDate() + 1); render(); } };
+$('#diaAnt').onclick = () => { dia.setDate(dia.getDate() - 1); render(); agendarSync(800); };
+$('#diaSeg').onclick = () => { if (chaveData(dia) < chaveData(new Date())){ dia.setDate(dia.getDate() + 1); render(); agendarSync(800); } };
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && seguirHoje){ dia = new Date(); dia.setHours(12, 0, 0, 0); render(); }
+  if (document.visibilityState !== 'visible') return;
+  if (seguirHoje){ dia = new Date(); dia.setHours(12, 0, 0, 0); render(); }
+  sincronizar();
 });
 
 /* ---------- Definições ---------- */
@@ -696,24 +723,25 @@ function preencherDef(){
   $('#fChave').value = cfg.chave; $('#fMostrar').checked = cfg.mostrar;
   if (!$('#fModelo').options.length) preencherModelos();
   $('#instrTxt').value = PROMPT_GPT;
+  preencherSync();
 }
 const CAMPOS_PERFIL = {fSexo: 'sexo', fIdade: 'idade', fAltura: 'altura', fPeso: 'peso', fAtiv: 'atividade', fObj: 'objetivo'};
 for (const [id, k] of Object.entries(CAMPOS_PERFIL)){
   $('#' + id).addEventListener('change', ev => {
     const v = ev.target.value;
     cfg[k] = ['sexo', 'atividade', 'objetivo'].includes(k) ? v : (parseFloat(v) || cfg[k]);
-    cfg.perfilOk = true; guardarCfg(); verMetas(); preencherMetasMan(); render();
+    cfg.perfilOk = true; guardarPerfil(); verMetas(); preencherMetasMan(); render();
   });
 }
 $('#fManual').onchange = ev => {
   cfg.manual = ev.target.checked;
   if (cfg.manual) cfg.metas = calcMetas(cfg);
-  guardarCfg(); $('#metasMan').hidden = !cfg.manual; preencherMetasMan(); verMetas(); render();
+  guardarPerfil(); $('#metasMan').hidden = !cfg.manual; preencherMetasMan(); verMetas(); render();
 };
 for (const [id, k] of Object.entries(CAMPOS_META)){
   $('#' + id).addEventListener('change', ev => {
     const x = Math.round(parseFloat(ev.target.value));
-    if (x > 0 && cfg.metas){ cfg.metas[k] = x; guardarCfg(); verMetas(); render(); }
+    if (x > 0 && cfg.metas){ cfg.metas[k] = x; guardarPerfil(); verMetas(); render(); }
   });
 }
 $('#fChave').addEventListener('change', ev => { cfg.chave = ev.target.value.trim(); guardarCfg(); render(); });
@@ -752,17 +780,215 @@ $('#inImp').onchange = async ev => {
   try {
     const d = JSON.parse(await f.text());
     if (d.app !== 'garfada' || !Array.isArray(d.refeicoes)) throw new Error();
-    for (const e of d.refeicoes) await DB.put(e);
+    const agora = Date.now();
+    for (const e of d.refeicoes){ e.atualizado = e.atualizado || agora; await DB.put(e); marcarSujo(e.data); }
     agua = Object.assign({}, agua, d.agua || {}); LS.set('agua', agua);
-    cfg = Object.assign({}, DEF, d.cfg || {}, {chave: cfg.chave, modelo: cfg.modelo}); guardarCfg();
+    Object.keys(d.agua || {}).forEach(k => { aguaTs[k] = agora; marcarSujo(k); }); LS.set('aguaTs', aguaTs);
+    cfg = Object.assign({}, DEF, d.cfg || {}, {chave: cfg.chave, modelo: cfg.modelo}); guardarPerfil();
     toast(`Importadas ${d.refeicoes.length} refeições.`);
     preencherDef(); render();
   } catch(e){ toast('Ficheiro inválido.'); }
 };
 $('#apagarTudo').onclick = async () => {
-  if (!confirm('Apagar todas as refeições e registos de água? Não dá para desfazer.')) return;
-  await DB.limpar(); agua = {}; LS.set('agua', agua);
+  if (!confirm('Apagar todas as refeições e registos de água? Com a sincronização ligada, apaga também nos outros dispositivos. Não dá para desfazer.')) return;
+  const todas = await DB.todas(), agora = Date.now();
+  todas.forEach(e => { apagados[e.id] = {data: e.data, ts: agora}; });
+  const dias = new Set([...todas.map(e => e.data), ...Object.keys(agua)]);
+  Object.keys(agua).forEach(k => { aguaTs[k] = agora; });
+  await DB.limpar(); agua = {}; LS.set('agua', agua); LS.set('aguaTs', aguaTs); LS.set('apagados', apagados);
+  dias.forEach(k => marcarSujo(k));
   toast('Dados apagados.'); render();
+};
+
+/* ---------- Sincronização entre dispositivos (repositório privado no GitHub) ---------- */
+// Cada dia é um ficheiro dias/AAAA-MM/AAAA-MM-DD.json; o perfil fica em perfil.json.
+// Os dados vivem no dispositivo (funciona offline) e são fundidos com o repositório:
+// cada refeição tem "atualizado" (ganha a versão mais recente) e as apagadas deixam marca em "apagados".
+const PARTILHADO = ['sexo', 'idade', 'altura', 'peso', 'atividade', 'objetivo', 'perfilOk', 'manual', 'metas'];
+let gh = Object.assign({dono: 'danielgog7', repo: 'garfada-dados', token: ''}, LS.get('gh', {}));
+let sync = Object.assign({shas: {}, sujos: {}, ultimo: 0, erro: ''}, LS.get('sync', {}));
+let apagados = LS.get('apagados', {});
+let aguaTs = LS.get('aguaTs', {});
+if (cfg.perfilOk && !cfg.ts){ cfg.ts = 1; guardarCfg(); }
+
+const guardarSync = () => LS.set('sync', sync);
+const guardarPerfil = () => { cfg.ts = Date.now(); guardarCfg(); agendarSync(); };
+const ghLigado = () => !!(gh.token && gh.dono && gh.repo);
+const mesDe = k => k.slice(0, 7);
+const caminhoDia = k => `dias/${mesDe(k)}/${k}.json`;
+const b64enc = s => { const b = new TextEncoder().encode(s); let bin = ''; for (let i = 0; i < b.length; i += 0x8000) bin += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000)); return btoa(bin); };
+const b64dec = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g, '')), c => c.charCodeAt(0)));
+
+function marcarSujo(k){ sync.sujos[k] = Date.now(); guardarSync(); estadoSync(); agendarSync(); }
+let tSync;
+function agendarSync(ms){ if (!ghLigado()) return; clearTimeout(tSync); tSync = setTimeout(sincronizar, ms || 1500); }
+
+async function ghPedido(caminho, opt = {}){
+  try {
+    return await fetch(`https://api.github.com/repos/${encodeURIComponent(gh.dono)}/${encodeURIComponent(gh.repo)}${caminho}`, Object.assign({cache: 'no-store'}, opt, {
+      headers: Object.assign({'Authorization': 'Bearer ' + gh.token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'}, opt.headers || {})
+    }));
+  } catch(e){ throw new Error('Sem ligação ao GitHub.'); }
+}
+function erroGH(r){
+  if (r.status === 401) return new Error('Token do GitHub inválido ou expirado.');
+  if (r.status === 403) return new Error('Sem permissão: o token precisa de "Contents: Read and write" neste repositório.');
+  if (r.status === 404) return new Error('Repositório não encontrado, ou o token não tem acesso a ele.');
+  return new Error('Erro do GitHub: ' + r.status);
+}
+async function lerRemoto(p){
+  const r = await ghPedido('/contents/' + p);
+  if (r.status === 404) return null;
+  if (!r.ok) throw erroGH(r);
+  const j = await r.json();
+  if (Array.isArray(j)) return null;
+  let txt = j.content ? b64dec(j.content) : '';
+  if (!txt){  // ficheiros acima de 1 MB vêm sem conteúdo; pede-se em bruto
+    const r2 = await ghPedido('/contents/' + p, {headers: {'Accept': 'application/vnd.github.raw+json'}});
+    if (!r2.ok) throw erroGH(r2);
+    txt = await r2.text();
+  }
+  return {sha: j.sha, dados: JSON.parse(txt)};
+}
+async function escreverRemoto(p, dados, sha){
+  const corpo = {message: 'Garfada: ' + p, content: b64enc(JSON.stringify(dados))};
+  if (sha) corpo.sha = sha;
+  const r = await ghPedido('/contents/' + p, {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(corpo)});
+  if (r.status === 409 || r.status === 422) return {conflito: true};
+  if (!r.ok) throw erroGH(r);
+  return {sha: (await r.json()).content.sha};
+}
+async function listarRemoto(p){
+  const r = await ghPedido('/contents/' + p);
+  if (r.status === 404) return [];
+  if (!r.ok) throw erroGH(r);
+  const j = await r.json();
+  return Array.isArray(j) ? j : [];
+}
+
+async function diaLocal(k){
+  const refeicoes = (await DB.doDia(k)).sort((a, b) => a.ts - b.ts);
+  const ap = {};
+  for (const [id, v] of Object.entries(apagados)) if (v.data === k) ap[id] = v.ts;
+  return {data: k, agua: {ml: agua[k] || 0, ts: aguaTs[k] || 0}, refeicoes, apagados: ap};
+}
+const assinatura = d => JSON.stringify([
+  d.agua ? [d.agua.ml || 0, d.agua.ts || 0] : [0, 0],
+  (d.refeicoes || []).map(e => e.id + ':' + (e.atualizado || 0)).sort(),
+  Object.entries(d.apagados || {}).map(([id, ts]) => id + ':' + ts).sort()
+]);
+async function fundirDia(rem){
+  const k = rem.data;
+  for (const [id, ts] of Object.entries(rem.apagados || {})) if (!apagados[id] || apagados[id].ts < ts) apagados[id] = {data: k, ts};
+  const locais = new Map((await DB.doDia(k)).map(e => [e.id, e]));
+  for (const e of rem.refeicoes || []){
+    const l = locais.get(e.id);
+    if (!l || (e.atualizado || 0) > (l.atualizado || 0)) await DB.put(e);
+  }
+  for (const e of await DB.doDia(k)){
+    const a = apagados[e.id];
+    if (a && a.ts >= (e.atualizado || 0)) await DB.del(e.id);
+  }
+  if (rem.agua && (rem.agua.ts || 0) > (aguaTs[k] || 0)){ agua[k] = rem.agua.ml || 0; aguaTs[k] = rem.agua.ts; }
+  LS.set('apagados', apagados); LS.set('agua', agua); LS.set('aguaTs', aguaTs);
+  // Se este dispositivo tinha algo que o repositório ainda não tem, fica marcado para enviar.
+  if (assinatura(await diaLocal(k)) !== assinatura(rem) && !sync.sujos[k]) sync.sujos[k] = Date.now();
+}
+async function empurrarDia(k){
+  for (let i = 0; i < 3; i++){
+    const marca = sync.sujos[k];
+    const dados = await diaLocal(k);
+    const vazio = !dados.refeicoes.length && !dados.agua.ml && !Object.keys(dados.apagados).length;
+    if (vazio && !sync.shas[k]){ if (sync.sujos[k] === marca) delete sync.sujos[k]; guardarSync(); return; }
+    const r = await escreverRemoto(caminhoDia(k), dados, sync.shas[k]);
+    if (!r.conflito){ sync.shas[k] = r.sha; if (sync.sujos[k] === marca) delete sync.sujos[k]; guardarSync(); return; }
+    // O outro dispositivo alterou este dia entretanto: junta as duas versões e tenta de novo.
+    const rem = await lerRemoto(caminhoDia(k));
+    if (rem){ await fundirDia(rem.dados); sync.shas[k] = rem.sha; } else delete sync.shas[k];
+  }
+  throw new Error('Conflito ao sincronizar o dia ' + k + '. Tenta outra vez.');
+}
+async function sincPerfil(){
+  const rem = await lerRemoto('perfil.json');
+  const remTs = rem ? (rem.dados.ts || 0) : 0;
+  if (rem && remTs > (cfg.ts || 0)){
+    for (const c of PARTILHADO) if (c in rem.dados.cfg) cfg[c] = rem.dados.cfg[c];
+    cfg.ts = remTs; guardarCfg();
+    if (!$('#vDef').hidden) preencherDef();
+  } else if ((cfg.ts || 0) > remTs){
+    await escreverRemoto('perfil.json', {ts: cfg.ts, cfg: Object.fromEntries(PARTILHADO.map(c => [c, cfg[c]]))}, rem && rem.sha);
+  }
+}
+
+let aSinc = false, outraVez = false;
+async function sincronizar(){
+  if (!ghLigado() || !navigator.onLine){ estadoSync(); return; }
+  if (aSinc){ outraVez = true; return; }
+  aSinc = true; estadoSync();
+  try {
+    const hoje = new Date(), mesAntes = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 15);
+    const meses = new Set([mesDe(chaveData(hoje)), mesDe(chaveData(mesAntes)), mesDe(chaveData(dia)), ...Object.keys(sync.sujos).map(mesDe)]);
+    for (const m of meses){
+      for (const f of await listarRemoto('dias/' + m)){
+        if (f.type !== 'file' || !/^\d{4}-\d{2}-\d{2}\.json$/.test(f.name)) continue;
+        const k = f.name.slice(0, 10);
+        if (sync.shas[k] === f.sha) continue;
+        const rem = await lerRemoto(f.path);
+        if (rem){ await fundirDia(rem.dados); sync.shas[k] = rem.sha; guardarSync(); }
+      }
+    }
+    for (const k of Object.keys(sync.sujos)) await empurrarDia(k);
+    await sincPerfil();
+    sync.ultimo = Date.now(); sync.erro = '';
+  } catch(e){ sync.erro = e.message || 'Erro ao sincronizar.'; }
+  finally {
+    guardarSync(); aSinc = false; estadoSync(); render();
+    if (outraVez){ outraVez = false; agendarSync(500); }
+  }
+}
+function estadoSync(){
+  const p = $('#syncPonto'), t = $('#syncTxt');
+  if (!ghLigado()){ p.hidden = true; t.textContent = 'Desligada: os dados ficam só neste dispositivo.'; return; }
+  const n = Object.keys(sync.sujos).length;
+  let cls = 'ok', txt = sync.ultimo ? 'Sincronizado às ' + new Date(sync.ultimo).toLocaleTimeString('pt-PT', {hour: '2-digit', minute: '2-digit'}) : 'Ainda não sincronizado.';
+  if (aSinc){ cls = 'pend'; txt = 'A sincronizar…'; }
+  else if (sync.erro){ cls = 'erro'; txt = sync.erro; }
+  else if (n){ cls = 'pend'; txt = `${n} ${n === 1 ? 'dia' : 'dias'} por enviar` + (navigator.onLine ? '.' : ' (sem internet).'); }
+  p.hidden = false; p.className = 'ponto ' + cls; p.title = txt;
+  t.textContent = txt;
+}
+function preencherSync(){
+  $('#gDono').value = gh.dono; $('#gRepo').value = gh.repo; $('#gToken').value = gh.token;
+  $('#gDesligar').hidden = !gh.token;
+  estadoSync();
+}
+$('#gVer').onclick = () => {
+  const i = $('#gToken'); i.type = i.type === 'password' ? 'text' : 'password';
+  $('#gVer').textContent = i.type === 'password' ? 'Ver' : 'Ocultar';
+};
+$('#gLigar').onclick = async () => {
+  gh = {dono: $('#gDono').value.trim(), repo: $('#gRepo').value.trim(), token: $('#gToken').value.trim()};
+  if (!ghLigado()){ toast('Preenche o utilizador, o repositório e o token.'); return; }
+  carregar(true, 'A ligar ao GitHub…');
+  try {
+    const r = await ghPedido('');
+    if (!r.ok) throw erroGH(r);
+    if (!(await r.json()).private) throw new Error('O repositório tem de ser privado.');
+    LS.set('gh', gh);
+    // Tudo o que já existe neste dispositivo é enviado na primeira sincronização.
+    const dias = new Set([...(await DB.todas()).map(e => e.data), ...Object.keys(agua).filter(k => agua[k] > 0)]);
+    dias.forEach(k => { if (!sync.shas[k] && !sync.sujos[k]) sync.sujos[k] = Date.now(); });
+    guardarSync();
+    await sincronizar();
+    toast(sync.erro || 'Sincronização ligada.');
+  } catch(err){ toast(err.message); }
+  finally { carregar(false); preencherSync(); }
+};
+$('#gDesligar').onclick = () => {
+  if (!confirm('Desligar a sincronização neste dispositivo? Os dados que estão cá ficam guardados.')) return;
+  gh.token = ''; LS.set('gh', gh);
+  sync = {shas: {}, sujos: {}, ultimo: 0, erro: ''}; guardarSync();
+  preencherSync();
 };
 
 /* ---------- Arranque ---------- */
@@ -779,6 +1005,10 @@ $('#apagarTudo').onclick = async () => {
   }
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+  estadoSync();
+  sincronizar();
+  setInterval(() => { if (document.visibilityState === 'visible') sincronizar(); }, 120000);
+  window.addEventListener('online', () => sincronizar());
 })();
 </script>
 </body>
