@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e0f12">
+<title>Garfada</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#0e0f12;--card:#17191e;--card2:#1f2229;--linha:#2a2e37;
+  --txt:#eceef2;--sub:#9aa1ad;--fraco:#6b7280;
+  --kcal:#c6f36b;--prot:#ff8a65;--hid:#ffd166;--gord:#c792ea;--agua:#4fc3f7;--aviso:#ff5d5d;
+  --r:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{color-scheme:dark}
+body{background:var(--bg);color:var(--txt);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent;min-height:100dvh;padding-bottom:calc(100px + env(safe-area-inset-bottom))}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+[hidden]{display:none!important}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:520px;margin:0 auto;padding:0 16px}
+.topo{display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 16px 4px;max-width:520px;margin:0 auto}
+.topo .ic{width:40px;height:40px;border-radius:12px;background:var(--card);font-size:22px;line-height:1}
+.topo .ic:disabled{opacity:.25}
+.dia{text-align:center}
+#diaTitulo{font-weight:700;font-size:18px;text-transform:capitalize}
+.sub{color:var(--sub);font-size:13px}
+.tit{font-size:22px;font-weight:800;padding-top:calc(18px + env(safe-area-inset-top))}
+.card{background:var(--card);border:1px solid var(--linha);border-radius:var(--r);padding:16px;margin-top:12px}
+.resumo{display:grid;grid-template-columns:128px 1fr;gap:16px;align-items:center}
+.anel{position:relative;width:128px;height:128px}
+.anel svg{width:100%;height:100%;transform:rotate(-90deg)}
+.anel .fundo{stroke:var(--card2)}
+.anel .prog{stroke:var(--kcal);transition:stroke-dashoffset .6s ease,stroke .3s}
+.anel .centro{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.anel .grande{font-size:28px;font-weight:800;letter-spacing:-.5px;line-height:1.1}
+.anel .peq{font-size:11px;color:var(--sub);text-transform:uppercase;letter-spacing:.06em}
+.anel .tot{font-size:11px;color:var(--fraco);margin-top:3px}
+.barra-m{margin-bottom:11px}
+.barra-m:last-child{margin-bottom:0}
+.barra-m .lin{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+.barra-m .lin b{font-weight:600}
+.barra-m .lin span{color:var(--sub)}
+.trilho{height:8px;border-radius:99px;background:var(--card2);overflow:hidden}
+.trilho i{display:block;height:100%;border-radius:99px;width:0;transition:width .6s ease}
+.chips{display:flex;gap:8px;margin-top:12px}
+.chip{flex:1;background:var(--card);border:1px solid var(--linha);border-radius:14px;padding:10px 4px;font-size:13px;color:var(--sub)}
+.chip:active{background:var(--card2)}
+.agua{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.copo{width:36px;height:50px;border:2px solid var(--agua);border-top:0;border-radius:0 0 10px 10px;position:relative;overflow:hidden;flex:none}
+.copo i{position:absolute;left:0;right:0;bottom:0;background:var(--agua);opacity:.85;height:0;transition:height .5s ease}
+.agua .txt{flex:1;min-width:90px}
+.agua .txt b{font-size:18px;display:block}
+.agua .bts{display:flex;gap:6px}
+.agua .bts button{background:var(--card2);border-radius:10px;padding:9px 10px;font-size:13px;font-weight:700}
+.agua .bts .mais{color:var(--agua)}
+.grupo{margin-top:18px}
+.grupo h3{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin:0 4px 8px}
+.ref{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--linha);border-radius:16px;padding:10px;margin-bottom:8px;width:100%;text-align:left}
+.ref:active{background:var(--card2)}
+.ref img,.ref .sem{width:52px;height:52px;border-radius:12px;object-fit:cover;flex:none;background:var(--card2)}
+.ref .sem{display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--sub)}
+.ref .info{flex:1;min-width:0}
+.ref .nome{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ref .mac{font-size:12px;color:var(--sub)}
+.ref .kc{font-weight:800;text-align:right}
+.ref .kc span{display:block;font-size:11px;color:var(--fraco);font-weight:500}
+.incerta{color:var(--hid)}
+.vazio{text-align:center;color:var(--sub);padding:28px 12px;border:1px dashed var(--linha);border-radius:var(--r);margin-top:18px}
+.aviso{background:#2a2414;border:1px solid #5a4a1a;color:#ffe08a;border-radius:14px;padding:12px 14px;margin-top:12px;display:flex;gap:10px;align-items:center;font-size:14px}
+.aviso button{margin-left:auto;background:#ffe08a;color:#1a1608;border-radius:10px;padding:6px 10px;font-weight:700;white-space:nowrap}
+nav.barra{position:fixed;left:0;right:0;bottom:0;background:rgba(14,15,18,.94);backdrop-filter:blur(12px);border-top:1px solid var(--linha);padding:8px 16px calc(8px + env(safe-area-inset-bottom));display:flex;justify-content:space-around;align-items:center;z-index:5}
+nav.barra .tab{color:var(--fraco);font-size:12px;font-weight:600;padding:6px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:84px}
+nav.barra .tab svg{width:22px;height:22px}
+nav.barra .tab.ativo{color:var(--txt)}
+.foto{width:64px;height:64px;border-radius:50%;background:var(--kcal);color:#10140a;display:flex;align-items:center;justify-content:center;margin-top:-30px;box-shadow:0 8px 24px rgba(198,243,107,.22),0 0 0 6px var(--bg);transition:transform .1s}
+.foto svg{width:28px;height:28px}
+.foto:active{transform:scale(.94)}
+.sec h2{font-size:12px;color:var(--sub);text-transform:uppercase;letter-spacing:.06em;margin:22px 4px 0}
+.campo{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--linha)}
+.campo:last-child{border-bottom:0}
+.campo label{flex:1}
+.campo input,.campo select{background:var(--card2);border:1px solid var(--linha);border-radius:10px;padding:8px 10px;width:150px;text-align:right}
+.campo select{text-align:left}
+.campo input[type=checkbox]{width:22px;height:22px;flex:none;accent-color:var(--kcal)}
+.chave{display:flex;gap:8px;margin-top:8px}
+.chave input{flex:1;min-width:0;background:var(--card2);border:1px solid var(--linha);border-radius:10px;padding:10px}
+.bt{background:var(--card2);border:1px solid var(--linha);border-radius:12px;padding:10px 14px;font-weight:600}
+.bt.pri{background:var(--kcal);color:#10140a;border-color:transparent}
+.bt.mau{color:var(--aviso)}
+.bt.larg{width:100%;margin-top:8px}
+.metas{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;text-align:center;margin-bottom:6px}
+.metas div{background:var(--card2);border-radius:12px;padding:8px 2px}
+.metas b{display:block;font-size:14px}
+.metas span{font-size:11px;color:var(--sub)}
+.nota{font-size:12px;color:var(--fraco);margin-top:8px}
+textarea{width:100%;background:var(--card2);border:1px solid var(--linha);border-radius:12px;padding:10px;resize:vertical;min-height:110px}
+details summary{cursor:pointer;color:var(--sub);font-size:14px;margin:10px 0 8px}
+#veu{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10;opacity:0;pointer-events:none;transition:opacity .2s}
+#veu.vis{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:11;background:var(--card);border-radius:22px 22px 0 0;border-top:1px solid var(--linha);max-height:88dvh;overflow:auto;padding:10px 16px calc(18px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .25s ease;max-width:560px;margin:0 auto}
+.sheet.vis{transform:none}
+.pega{width:40px;height:4px;border-radius:9px;background:var(--linha);margin:0 auto 12px}
+.sheet h4{font-size:17px;margin-bottom:10px}
+.det-topo{display:flex;gap:12px;align-items:center}
+.det-topo img{width:72px;height:72px;border-radius:14px;object-fit:cover}
+.det-topo input{flex:1;min-width:0;background:transparent;border:0;border-bottom:1px solid var(--linha);font-size:18px;font-weight:700;padding:4px 0}
+.porcao{display:flex;gap:6px;margin:12px 0}
+.porcao button{flex:1;background:var(--card2);border:1px solid var(--linha);border-radius:10px;padding:8px 0;font-weight:700}
+.porcao button.sel{background:var(--kcal);color:#10140a;border-color:transparent}
+.grelha{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.grelha label{background:var(--card2);border-radius:12px;padding:8px;font-size:11px;color:var(--sub);display:flex;flex-direction:column;gap:2px}
+.grelha input{background:transparent;border:0;font-size:17px;font-weight:800;color:var(--txt);width:100%;padding:0}
+.extra{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px;font-size:11px;color:var(--sub);text-align:center}
+.extra b{display:block;color:var(--txt);font-size:14px}
+.itens{margin-top:12px;font-size:13px}
+.itens div{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--linha);color:var(--sub)}
+.itens div span:first-child{color:var(--txt)}
+.linha-bts{display:flex;gap:8px;margin-top:14px}
+.linha-bts .bt{flex:1}
+.obs{font-size:13px;color:var(--sub);margin-top:10px}
+#toast{position:fixed;left:16px;right:16px;bottom:calc(104px + env(safe-area-inset-bottom));max-width:488px;margin:0 auto;background:#262a33;border:1px solid var(--linha);border-radius:14px;padding:12px 14px;display:flex;gap:12px;align-items:center;z-index:20;opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s}
+#toast.vis{opacity:1;transform:none;pointer-events:auto}
+#toast span{flex:1}
+#toast button{color:var(--kcal);font-weight:800}
+#carregar{position:fixed;inset:0;z-index:30;background:rgba(14,15,18,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.roda{width:54px;height:54px;border-radius:50%;border:4px solid var(--card2);border-top-color:var(--kcal);animation:gira .8s linear infinite}
+@keyframes gira{to{transform:rotate(360deg)}}
+#atalho{position:fixed;inset:0;z-index:25;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}
+#atalho .foto{margin:0;width:104px;height:104px}
+#atalho .foto svg{width:42px;height:42px}
+</style>
+</head>
+<body>
+
+<header class="topo" id="topo">
+  <button class="ic" id="diaAnt" aria-label="Dia anterior">&#8249;</button>
+  <div class="dia"><div id="diaTitulo">Hoje</div><div class="sub" id="diaSub"></div></div>
+  <button class="ic" id="diaSeg" aria-label="Dia seguinte">&#8250;</button>
+</header>
+
+<main class="wrap" id="vHoje">
+  <div id="avisoCfg"></div>
+  <section class="card resumo">
+    <div class="anel">
+      <svg viewBox="0 0 120 120"><circle class="fundo" cx="60" cy="60" r="52" fill="none" stroke-width="10"/><circle class="prog" id="anelProg" cx="60" cy="60" r="52" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73"/></svg>
+      <div class="centro"><div class="grande num" id="kRest">0</div><div class="peq" id="kRestLbl">restantes</div><div class="tot num" id="kTot"></div></div>
+    </div>
+    <div>
+      <div class="barra-m"><div class="lin"><b>Proteína</b><span class="num" id="tProt"></span></div><div class="trilho"><i id="bProt" style="background:var(--prot)"></i></div></div>
+      <div class="barra-m"><div class="lin"><b>Hidratos</b><span class="num" id="tHid"></span></div><div class="trilho"><i id="bHid" style="background:var(--hid)"></i></div></div>
+      <div class="barra-m"><div class="lin"><b>Gordura</b><span class="num" id="tGord"></span></div><div class="trilho"><i id="bGord" style="background:var(--gord)"></i></div></div>
+    </div>
+  </section>
+  <div class="chips">
+    <button class="chip" id="cGal">Galeria</button>
+    <button class="chip" id="cDesc">Descrever</button>
+    <button class="chip" id="cColar">Colar do ChatGPT</button>
+  </div>
+  <section class="card agua">
+    <div class="copo"><i id="aguaNivel"></i></div>
+    <div class="txt"><div class="sub">Água</div><b class="num" id="aguaTxt">0 ml</b><div class="sub num" id="aguaMeta"></div></div>
+    <div class="bts"><button id="aMenos" aria-label="Retirar 250 ml">&minus;250</button><button class="mais" id="a250">+250</button><button class="mais" id="a500">+500</button></div>
+  </section>
+  <div id="lista"></div>
+</main>
+
+<main class="wrap" id="vDef" hidden>
+  <h1 class="tit">Definições</h1>
+  <div class="sec">
+    <h2>Perfil</h2>
+    <div class="card">
+      <div class="campo"><label for="fSexo">Sexo</label><select id="fSexo"><option value="H">Homem</option><option value="M">Mulher</option></select></div>
+      <div class="campo"><label for="fIdade">Idade</label><input id="fIdade" type="number" inputmode="numeric" min="14" max="99"></div>
+      <div class="campo"><label for="fAltura">Altura (cm)</label><input id="fAltura" type="number" inputmode="numeric"></div>
+      <div class="campo"><label for="fPeso">Peso (kg)</label><input id="fPeso" type="number" inputmode="decimal" step="0.1"></div>
+      <div class="campo"><label for="fAtiv">Atividade</label><select id="fAtiv">
+        <option value="1.2">Sedentário</option>
+        <option value="1.375">Ligeira (1–3 dias/sem.)</option>
+        <option value="1.55">Moderada (3–5 dias/sem.)</option>
+        <option value="1.725">Intensa (6–7 dias/sem.)</option>
+        <option value="1.9">Muito intensa</option>
+      </select></div>
+      <div class="campo"><label for="fObj">Objetivo</label><select id="fObj">
+        <option value="perder">Perder peso</option>
+        <option value="manter">Manter</option>
+        <option value="ganhar">Ganhar massa</option>
+      </select></div>
+    </div>
+
+    <h2>Metas diárias</h2>
+    <div class="card">
+      <div class="metas num" id="metasVer"></div>
+      <div class="campo"><label for="fManual">Ajustar metas à mão</label><input id="fManual" type="checkbox"></div>
+      <div id="metasMan" hidden>
+        <div class="campo"><label for="mKcal">Calorias (kcal)</label><input id="mKcal" type="number" inputmode="numeric"></div>
+        <div class="campo"><label for="mProt">Proteína (g)</label><input id="mProt" type="number" inputmode="numeric"></div>
+        <div class="campo"><label for="mHid">Hidratos (g)</label><input id="mHid" type="number" inputmode="numeric"></div>
+        <div class="campo"><label for="mGord">Gordura (g)</label><input id="mGord" type="number" inputmode="numeric"></div>
+        <div class="campo"><label for="mAgua">Água (ml)</label><input id="mAgua" type="number" inputmode="numeric" step="100"></div>
+      </div>
+      <p class="nota">Cálculo pela fórmula Mifflin-St Jeor. São valores de referência, não aconselhamento médico.</p>
+    </div>
+
+    <h2>Inteligência artificial</h2>
+    <div class="card">
+      <label for="fChave" class="sub">Chave da API do Gemini (fica guardada só neste telemóvel)</label>
+      <div class="chave"><input id="fChave" type="password" autocomplete="off" spellcheck="false" placeholder="Cola aqui a chave"><button class="bt" id="verChave">Ver</button></div>
+      <button class="bt larg" id="testar">Testar ligação</button>
+      <div class="campo"><label for="fModelo">Modelo</label><select id="fModelo"></select></div>
+      <div class="campo"><label for="fMostrar">Mostrar o resultado logo após a foto</label><input id="fMostrar" type="checkbox"></div>
+    </div>
+
+    <h2>Reserva: ChatGPT</h2>
+    <div class="card">
+      <p class="sub">Cria um Projeto no ChatGPT, cola estas instruções e depois usa "Colar do ChatGPT" no ecrã Hoje.</p>
+      <button class="bt larg" id="copiarInstr">Copiar instruções</button>
+      <details><summary>Ver instruções</summary><textarea id="instrTxt" readonly></textarea></details>
+    </div>
+
+    <h2>Dados</h2>
+    <div class="card">
+      <button class="bt larg" id="exportar">Exportar cópia de segurança</button>
+      <button class="bt larg" id="importar">Importar cópia</button>
+      <button class="bt larg mau" id="apagarTudo">Apagar refeições e água</button>
+      <p class="nota">Os dados ficam só neste telemóvel. Exporta uma cópia de vez em quando.</p>
+    </div>
+  </div>
+</main>
+
+<nav class="barra">
+  <button class="tab ativo" data-v="vHoje"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8" opacity=".4"/><path d="M12 4a8 8 0 0 1 8 8"/></svg>Hoje</button>
+  <button class="foto" id="btnFoto" aria-label="Fotografar refeição"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
+  <button class="tab" data-v="vDef"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Definições</button>
+</nav>
+
+<div id="veu"></div>
+<section class="sheet" id="shDet" aria-label="Detalhe da refeição"></section>
+<section class="sheet" id="shTxt">
+  <div class="pega"></div>
+  <h4 id="txtTitulo"></h4>
+  <textarea id="txtIn"></textarea>
+  <div class="linha-bts"><button class="bt" id="txtColar">Colar</button><button class="bt pri" id="txtOk">Estimar</button></div>
+</section>
+
+<div id="atalho" hidden>
+  <button class="foto" id="atalhoBt" aria-label="Fotografar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
+  <div class="sub">Toca para fotografar o prato</div>
+  <button class="bt" id="atalhoFechar">Abrir a app</button>
+</div>
+<div id="carregar" hidden><div class="roda"></div><div id="carregarTxt">A analisar o prato…</div></div>
+<div id="toast"></div>
+<input type="file" id="inCam" accept="image/*" capture="environment" hidden>
+<input type="file" id="inGal" accept="image/*" hidden>
+<input type="file" id="inImp" accept="application/json,.json" hidden>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const LS = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+};
+const API = 'https://generativelanguage.googleapis.com/v1beta/';
+
+const PROMPT = `És um nutricionista experiente a estimar refeições a partir de fotografias, com bom conhecimento de cozinha portuguesa.
+Tarefa: identifica os alimentos, estima a porção de cada um em gramas (usa o prato, os talheres e os copos como referência de tamanho) e calcula os valores nutricionais.
+Regras:
+- Inclui as gorduras e molhos de confeção prováveis (azeite, óleo, manteiga, natas), mesmo que pouco visíveis; é a fonte de erro mais comum.
+- Se tiveres dúvidas, escolhe o valor mais provável e baixa o campo "confianca".
+- Se receberes uma descrição em vez de fotografia, estima a partir da descrição.
+- Se houver uma nota do utilizador, dá-lhe prioridade sobre o que vês.
+- Nomes em português de Portugal.
+- Se a imagem não mostrar comida nem bebida, responde {"erro": "motivo curto"}.
+Responde APENAS com JSON válido, sem texto antes ou depois, neste formato (números sem unidades):
+{"prato":"nome curto do prato","itens":[{"nome":"...","gramas":0,"kcal":0}],"total":{"kcal":0,"proteina":0,"hidratos":0,"gordura":0,"fibra":0,"acucar":0,"gordura_saturada":0,"sodio_mg":0},"micros":{"potassio_mg":0,"calcio_mg":0,"ferro_mg":0,"vitamina_c_mg":0},"confianca":"alta|media|baixa","observacao":"uma frase curta, opcional"}`;
+const PROMPT_GPT = PROMPT + `
+
+Apresenta o JSON dentro de um único bloco de código, para eu o copiar e colar na minha app.`;
+
+const REF = [['peq','Pequeno-almoço'],['alm','Almoço'],['lan','Lanche'],['jan','Jantar'],['out','Outro']];
+const refPorHora = h => (h >= 5 && h < 11) ? 'peq' : (h >= 11 && h < 15) ? 'alm' : (h >= 15 && h < 19) ? 'lan' : (h >= 19 && h < 23) ? 'jan' : 'out';
+const chaveData = d => { const z = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}`; };
+
+const DEF = {sexo:'H', idade:30, altura:175, peso:75, atividade:'1.375', objetivo:'manter', perfilOk:false, manual:false, metas:null, chave:'', modelo:'gemini-flash-latest', mostrar:false};
+let cfg = Object.assign({}, DEF, LS.get('cfg', {}));
+const guardarCfg = () => LS.set('cfg', cfg);
+let agua = LS.get('agua', {});
+let dia = new Date(); dia.setHours(12, 0, 0, 0);
+let seguirHoje = true;
+let memoria = null;  // última imagem enviada, só nesta sessão (para "Refazer")
+let atual = null;    // refeição aberta no detalhe
+let cacheDia = [];
+
+/* ---------- Base de dados (IndexedDB) ---------- */
+const DB = (() => {
+  let dbp;
+  const abrir = () => dbp || (dbp = new Promise((res, rej) => {
+    const r = indexedDB.open('garfada', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('refeicoes', {keyPath:'id'}).createIndex('data', 'data');
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  }));
+  const tx = async (modo, fn) => {
+    const db = await abrir();
+    return new Promise((res, rej) => {
+      const t = db.transaction('refeicoes', modo);
+      const pedido = fn(t.objectStore('refeicoes'));
+      t.oncomplete = () => res(pedido ? pedido.result : undefined);
+      t.onerror = () => rej(t.error);
+    });
+  };
+  return {
+    put: o => tx('readwrite', s => s.put(o)),
+    del: id => tx('readwrite', s => s.delete(id)),
+    doDia: d => tx('readonly', s => s.index('data').getAll(d)),
+    todas: () => tx('readonly', s => s.getAll()),
+    limpar: () => tx('readwrite', s => s.clear())
+  };
+})();
+
+/* ---------- Metas ---------- */
+function calcMetas(p){
+  const peso = +p.peso || 75, altura = +p.altura || 175, idade = +p.idade || 30;
+  const bmr = 10 * peso + 6.25 * altura - 5 * idade + (p.sexo === 'H' ? 5 : -161);
+  let kcal = bmr * parseFloat(p.atividade || 1.375);
+  if (p.objetivo === 'perder') kcal *= 0.85; else if (p.objetivo === 'ganhar') kcal *= 1.10;
+  kcal = Math.round(Math.max(kcal, p.sexo === 'H' ? 1500 : 1200) / 10) * 10;
+  const prot = Math.round(peso * (p.objetivo === 'manter' ? 1.4 : 1.8));
+  const gord = Math.round(kcal * 0.28 / 9);
+  const hid = Math.max(0, Math.round((kcal - prot * 4 - gord * 9) / 4));
+  const aguaMl = Math.round(peso * 35 / 100) * 100;
+  return {kcal, prot, hid, gord, agua: aguaMl};
+}
+const metas = () => (cfg.manual && cfg.metas) ? cfg.metas : calcMetas(cfg);
+
+/* ---------- Imagem ---------- */
+function lerImagem(file){
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); res(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Não consegui abrir a imagem.')); };
+    img.src = url;
+  });
+}
+function redimensionar(img, max, q){
+  const r = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement('canvas');
+  c.width = Math.round(img.naturalWidth * r); c.height = Math.round(img.naturalHeight * r);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL('image/jpeg', q);
+}
+function miniatura(img, s){
+  const c = document.createElement('canvas'); c.width = s; c.height = s;
+  const m = Math.min(img.naturalWidth, img.naturalHeight);
+  c.getContext('2d').drawImage(img, (img.naturalWidth - m) / 2, (img.naturalHeight - m) / 2, m, m, 0, 0, s, s);
+  return c.toDataURL('image/jpeg', 0.7);
+}
+
+/* ---------- IA ---------- */
+function interpretar(txt){
+  const s = String(txt).replace(/```(?:json)?/gi, '').trim();
+  const a = s.indexOf('{'), b = s.lastIndexOf('}');
+  if (a < 0 || b < a) throw new Error('Não encontrei dados válidos na resposta.');
+  let o;
+  try { o = JSON.parse(s.slice(a, b + 1)); } catch(e){ throw new Error('Os dados vieram num formato inválido.'); }
+  if (o.erro) throw new Error('A IA diz: ' + o.erro);
+  const n = v => { const x = parseFloat(v); return isFinite(x) && x > 0 ? x : 0; };
+  const t = o.total || {}, mi = o.micros || {};
+  const itens = Array.isArray(o.itens) ? o.itens.map(i => ({nome: String(i.nome || '?').slice(0, 60), g: n(i.gramas), kcal: n(i.kcal)})) : [];
+  const base = {kcal:n(t.kcal), prot:n(t.proteina), hid:n(t.hidratos), gord:n(t.gordura), fibra:n(t.fibra), acucar:n(t.acucar), sat:n(t.gordura_saturada), sodio:n(t.sodio_mg)};
+  if (!base.kcal && itens.length) base.kcal = itens.reduce((x, i) => x + i.kcal, 0);
+  if (!base.kcal) throw new Error('A estimativa veio sem calorias.');
+  const cf = String(o.confianca || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  return {
+    prato: String(o.prato || 'Refeição').slice(0, 80), itens, base,
+    micros: {potassio:n(mi.potassio_mg), calcio:n(mi.calcio_mg), ferro:n(mi.ferro_mg), vitc:n(mi.vitamina_c_mg)},
+    confianca: ['alta', 'media', 'baixa'].includes(cf) ? cf : 'media',
+    obs: String(o.observacao || '').slice(0, 200)
+  };
+}
+async function perguntarGemini({imagem, texto, nota}){
+  if (!cfg.chave) throw new Error('Falta a chave do Gemini em Definições.');
+  const parts = [];
+  if (imagem) parts.push({inline_data: {mime_type: 'image/jpeg', data: imagem.split(',')[1]}});
+  let pedido = PROMPT;
+  if (texto) pedido += '\n\nDescrição da refeição: ' + texto;
+  if (nota) pedido += '\n\nNota do utilizador (prioritária): ' + nota;
+  parts.push({text: pedido});
+  const modelo = String(cfg.modelo || 'gemini-flash-latest').replace(/^models\//, '');
+  let r;
+  try {
+    r = await fetch(`${API}models/${encodeURIComponent(modelo)}:generateContent`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'x-goog-api-key': cfg.chave},
+      body: JSON.stringify({contents: [{role: 'user', parts}], generationConfig: {temperature: 0.2, responseMimeType: 'application/json'}})
+    });
+  } catch(e){ throw new Error('Sem ligação à internet.'); }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok){
+    const msg = (j.error && j.error.message) || '';
+    if (r.status === 429) throw new Error('Limite gratuito do Gemini atingido. Tenta daqui a pouco ou usa "Colar do ChatGPT".');
+    if (r.status === 401 || r.status === 403 || /api key/i.test(msg)) throw new Error('Chave do Gemini inválida. Verifica em Definições.');
+    if (r.status === 404) throw new Error('Modelo não encontrado. Em Definições, toca em "Testar ligação" e escolhe outro.');
+    throw new Error('Erro do Gemini: ' + (msg || r.status));
+  }
+  const txt = ((j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts) || [])
+    .filter(p => !p.thought).map(p => p.text || '').join('');
+  if (!txt) throw new Error('A IA não devolveu resposta. Tenta outra foto.');
+  return interpretar(txt);
+}
+async function listarModelos(){
+  let r;
+  try { r = await fetch(API + 'models?pageSize=1000', {headers: {'x-goog-api-key': cfg.chave}}); }
+  catch(e){ throw new Error('Sem ligação à internet.'); }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error([400, 401, 403].includes(r.status) ? 'Chave inválida.' : 'Erro: ' + ((j.error && j.error.message) || r.status));
+  const pts = n => (/latest/.test(n) ? 100 : 0) - (/lite/.test(n) ? 10 : 0) - (/preview/.test(n) ? 5 : 0) + (parseFloat((n.match(/\d+(\.\d+)?/) || [])[0]) || 0);
+  const nomes = (j.models || [])
+    .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
+    .map(m => m.name.replace(/^models\//, ''))
+    .filter(n => /flash/i.test(n) && !/(image|tts|audio|live|embed|exp)/i.test(n))
+    .sort((a, b) => pts(b) - pts(a));
+  if (nomes.length && !nomes.includes(cfg.modelo)){ cfg.modelo = nomes[0]; guardarCfg(); }
+  preencherModelos(nomes);
+  return nomes.length;
+}
+function preencherModelos(nomes){
+  const lista = (nomes && nomes.length) ? nomes : [cfg.modelo];
+  if (!lista.includes(cfg.modelo)) lista.unshift(cfg.modelo);
+  $('#fModelo').innerHTML = lista.map(n => `<option>${esc(n)}</option>`).join('');
+  $('#fModelo').value = cfg.modelo;
+}
+
+/* ---------- Registo ---------- */
+async function guardarNova(est, extra){
+  const agora = new Date();
+  const d = new Date(dia); d.setHours(agora.getHours(), agora.getMinutes(), 0, 0);
+  const e = Object.assign({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    ts: d.getTime(), data: chaveData(dia), refeicao: refPorHora(agora.getHours()), fator: 1, thumb: ''
+  }, est, extra);
+  await DB.put(e);
+  return e;
+}
+function depoisDeGuardar(e){
+  mostrarVista('vHoje');
+  render();
+  if (cfg.mostrar) abrirDetalhe(e);
+  else toast(`Guardado: ${e.prato} · ${Math.round(e.base.kcal)} kcal`, {txt: 'Ver', fn: () => abrirDetalhe(e)});
+}
+function semChave(){ toast('Falta a chave do Gemini.', {txt: 'Configurar', fn: () => mostrarVista('vDef')}); }
+
+async function processarFoto(file){
+  if (!file) return;
+  if (!cfg.chave){ semChave(); return; }
+  carregar(true, 'A analisar o prato…');
+  try {
+    const img = await lerImagem(file);
+    const imagem = redimensionar(img, 1024, 0.8);
+    const thumb = miniatura(img, 160);
+    const est = await perguntarGemini({imagem});
+    const e = await guardarNova(est, {thumb, fonte: 'foto'});
+    memoria = {id: e.id, imagem};
+    depoisDeGuardar(e);
+  } catch(err){ toast(err.message || 'Algo correu mal.'); }
+  finally { carregar(false); }
+}
+async function registarTexto(txt){
+  if (!cfg.chave){ semChave(); return; }
+  carregar(true, 'A estimar…');
+  try {
+    const est = await perguntarGemini({texto: txt});
+    depoisDeGuardar(await guardarNova(est, {fonte: 'texto', descricao: txt}));
+  } catch(err){ toast(err.message || 'Algo correu mal.'); }
+  finally { carregar(false); }
+}
+async function importarColado(txt){
+  try { depoisDeGuardar(await guardarNova(interpretar(txt), {fonte: 'chatgpt'})); }
+  catch(err){ toast(err.message || 'Não consegui importar.'); }
+}
+
+/* ---------- Ecrã Hoje ---------- */
+function barra(id, v, meta){
+  $('#t' + id).textContent = `${Math.round(v)} / ${meta} g`;
+  $('#b' + id).style.width = Math.min(100, meta ? v / meta * 100 : 0) + '%';
+}
+function aviso(){
+  const falta = [];
+  if (!cfg.perfilOk) falta.push('o perfil');
+  if (!cfg.chave) falta.push('a chave do Gemini');
+  $('#avisoCfg').innerHTML = falta.length ? `<div class="aviso"><span>Falta configurar ${falta.join(' e ')}.</span><button id="avisoBt">Configurar</button></div>` : '';
+  if (falta.length) $('#avisoBt').onclick = () => mostrarVista('vDef');
+}
+async function render(){
+  const k = chaveData(dia), hoje = chaveData(new Date());
+  const ontem = new Date(); ontem.setDate(ontem.getDate() - 1);
+  seguirHoje = k === hoje;
+  $('#diaTitulo').textContent = k === hoje ? 'Hoje' : k === chaveData(ontem) ? 'Ontem' : dia.toLocaleDateString('pt-PT', {weekday: 'long'});
+  $('#diaSub').textContent = dia.toLocaleDateString('pt-PT', {day: 'numeric', month: 'long'});
+  $('#diaSeg').disabled = k >= hoje;
+
+  let lista = [];
+  try { lista = await DB.doDia(k); } catch(e){ toast('Não consegui ler os dados guardados.'); }
+  lista.sort((a, b) => a.ts - b.ts);
+  cacheDia = lista;
+  const m = metas();
+  const t = {kcal: 0, prot: 0, hid: 0, gord: 0};
+  lista.forEach(e => { for (const c in t) t[c] += (e.base[c] || 0) * e.fator; });
+
+  const C = 326.73, pct = m.kcal ? Math.min(t.kcal / m.kcal, 1) : 0;
+  const prog = $('#anelProg');
+  prog.style.strokeDashoffset = C * (1 - pct);
+  const resta = Math.round(m.kcal - t.kcal);
+  prog.style.stroke = resta < 0 ? 'var(--aviso)' : 'var(--kcal)';
+  $('#kRest').textContent = Math.abs(resta);
+  $('#kRestLbl').textContent = resta < 0 ? 'acima da meta' : 'restantes';
+  $('#kTot').textContent = `${Math.round(t.kcal)} de ${m.kcal}`;
+  barra('Prot', t.prot, m.prot); barra('Hid', t.hid, m.hid); barra('Gord', t.gord, m.gord);
+
+  const ml = agua[k] || 0;
+  $('#aguaTxt').textContent = `${ml} ml`;
+  $('#aguaMeta').textContent = `de ${m.agua} ml`;
+  $('#aguaNivel').style.height = Math.min(100, m.agua ? ml / m.agua * 100 : 0) + '%';
+  aviso();
+
+  const L = $('#lista');
+  if (!lista.length){
+    L.innerHTML = `<div class="vazio">Nada registado${k === hoje ? ' hoje' : ' neste dia'}.<br>Toca na câmara para fotografar o prato.</div>`;
+    return;
+  }
+  let html = '';
+  for (const [id, nome] of REF){
+    const g = lista.filter(e => e.refeicao === id);
+    if (!g.length) continue;
+    const sk = g.reduce((s, e) => s + e.base.kcal * e.fator, 0);
+    html += `<div class="grupo"><h3><span>${nome}</span><span class="num">${Math.round(sk)} kcal</span></h3>`;
+    for (const e of g){
+      const v = c => Math.round((e.base[c] || 0) * e.fator);
+      html += `<button class="ref" data-id="${esc(e.id)}">${e.thumb ? `<img src="${e.thumb}" alt="">` : `<div class="sem">${esc((e.prato || '?').charAt(0).toUpperCase())}</div>`}<div class="info"><div class="nome">${esc(e.prato)}</div><div class="mac num">P ${v('prot')} · H ${v('hid')} · G ${v('gord')}${e.confianca === 'baixa' ? ' · <span class="incerta">incerta</span>' : ''}</div></div><div class="kc num">${v('kcal')}<span>kcal</span></div></button>`;
+    }
+    html += '</div>';
+  }
+  L.innerHTML = html;
+}
+$('#lista').addEventListener('click', ev => {
+  const b = ev.target.closest('.ref');
+  if (!b) return;
+  const e = cacheDia.find(x => x.id === b.dataset.id);
+  if (e) abrirDetalhe(e);
+});
+
+/* ---------- Detalhe ---------- */
+function abrirDetalhe(e){ atual = e; desenharDetalhe(); abrirSheet('#shDet'); }
+function desenharDetalhe(){
+  const e = atual, v = c => Math.round((e.base[c] || 0) * e.fator);
+  const podeRefazer = (memoria && memoria.id === e.id) || e.descricao;
+  const fLbl = f => f === 0.5 ? '½' : f === 1.5 ? '1½' : String(f);
+  $('#shDet').innerHTML = `
+    <div class="pega"></div>
+    <div class="det-topo">${e.thumb ? `<img src="${e.thumb}" alt="">` : ''}<input id="dPrato" value="${esc(e.prato)}" aria-label="Nome do prato"></div>
+    <div class="campo"><label for="dRef">Refeição</label><select id="dRef">${REF.map(([id, n]) => `<option value="${id}"${id === e.refeicao ? ' selected' : ''}>${n}</option>`).join('')}</select></div>
+    <div class="porcao">${[0.5, 1, 1.5, 2].map(f => `<button data-f="${f}" class="${f === e.fator ? 'sel' : ''}">${fLbl(f)}×</button>`).join('')}</div>
+    <div class="grelha num">${[['kcal', 'kcal'], ['prot', 'Proteína g'], ['hid', 'Hidratos g'], ['gord', 'Gordura g']].map(([c, n]) => `<label>${n}<input type="number" inputmode="numeric" data-c="${c}" value="${v(c)}"></label>`).join('')}</div>
+    <div class="extra num"><div><b>${v('fibra')} g</b>fibra</div><div><b>${v('acucar')} g</b>açúcar</div><div><b>${v('sat')} g</b>saturada</div><div><b>${v('sodio')} mg</b>sódio</div></div>
+    ${e.itens && e.itens.length ? `<div class="itens">${e.itens.map(i => `<div><span>${esc(i.nome)}</span><span class="num">${Math.round(i.g * e.fator)} g · ${Math.round(i.kcal * e.fator)} kcal</span></div>`).join('')}</div>` : ''}
+    <p class="obs">Confiança da estimativa: ${e.confianca === 'alta' ? 'alta' : e.confianca === 'baixa' ? 'baixa' : 'média'}${e.obs ? ' · ' + esc(e.obs) : ''}</p>
+    ${podeRefazer ? `<div class="chave"><input id="dNota" placeholder="Corrigir: ex. tinha muito azeite"><button class="bt" id="dRefazer">Refazer</button></div>` : ''}
+    <div class="linha-bts"><button class="bt mau" id="dApagar">Apagar</button><button class="bt pri" id="dFechar">Feito</button></div>`;
+}
+async function salvarAtual(){
+  try { await DB.put(atual); } catch(e){ toast('Não consegui guardar.'); }
+  render();
+}
+$('#shDet').addEventListener('click', async ev => {
+  const t = ev.target;
+  if (!atual) return;
+  if (t.dataset.f){ atual.fator = parseFloat(t.dataset.f); await salvarAtual(); desenharDetalhe(); }
+  else if (t.id === 'dFechar') fecharSheets();
+  else if (t.id === 'dApagar'){
+    if (confirm('Apagar esta refeição?')){ await DB.del(atual.id); fecharSheets(); render(); }
+  }
+  else if (t.id === 'dRefazer') refazer();
+});
+$('#shDet').addEventListener('change', async ev => {
+  const t = ev.target;
+  if (!atual) return;
+  if (t.id === 'dPrato') atual.prato = t.value.trim() || 'Refeição';
+  else if (t.id === 'dRef') atual.refeicao = t.value;
+  else if (t.dataset.c){ const x = parseFloat(t.value); if (isFinite(x) && x >= 0) atual.base[t.dataset.c] = x / atual.fator; }
+  else return;
+  await salvarAtual();
+});
+async function refazer(){
+  const nota = ($('#dNota').value || '').trim();
+  if (!nota){ $('#dNota').focus(); return; }
+  carregar(true, 'A refazer a estimativa…');
+  try {
+    const imagem = (memoria && memoria.id === atual.id) ? memoria.imagem : null;
+    const est = await perguntarGemini({imagem, texto: atual.descricao, nota});
+    Object.assign(atual, est, {fator: 1});
+    await DB.put(atual);
+    desenharDetalhe(); render();
+  } catch(err){ toast(err.message || 'Algo correu mal.'); }
+  finally { carregar(false); }
+}
+
+/* ---------- Folhas, avisos, vistas ---------- */
+function abrirSheet(sel){ $('#toast').classList.remove('vis'); $('#veu').classList.add('vis'); $(sel).classList.add('vis'); }
+function fecharSheets(){ $('#veu').classList.remove('vis'); document.querySelectorAll('.sheet').forEach(s => s.classList.remove('vis')); atual = null; }
+$('#veu').onclick = fecharSheets;
+
+let tTimer;
+function toast(msg, acao){
+  const t = $('#toast');
+  t.innerHTML = '';
+  const s = document.createElement('span'); s.textContent = msg; t.append(s);
+  if (acao){ const b = document.createElement('button'); b.textContent = acao.txt; b.onclick = () => { t.classList.remove('vis'); acao.fn(); }; t.append(b); }
+  t.classList.add('vis');
+  clearTimeout(tTimer); tTimer = setTimeout(() => t.classList.remove('vis'), acao ? 6000 : 4000);
+}
+function carregar(on, txt){ $('#carregar').hidden = !on; if (txt) $('#carregarTxt').textContent = txt; }
+
+function mostrarVista(v){
+  $('#vHoje').hidden = v !== 'vHoje';
+  $('#vDef').hidden = v !== 'vDef';
+  $('#topo').hidden = v !== 'vHoje';
+  document.querySelectorAll('nav .tab').forEach(b => b.classList.toggle('ativo', b.dataset.v === v));
+  if (v === 'vDef') preencherDef();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('nav .tab').forEach(b => b.onclick = () => mostrarVista(b.dataset.v));
+
+let modoTxt = 'desc';
+function abrirTexto(modo){
+  modoTxt = modo;
+  const desc = modo === 'desc';
+  $('#txtTitulo').textContent = desc ? 'Descrever a refeição' : 'Colar a resposta do ChatGPT';
+  $('#txtIn').value = '';
+  $('#txtIn').placeholder = desc ? 'Ex.: 2 pastéis de nata e um galão' : 'Cola aqui o bloco de dados que o ChatGPT devolveu';
+  $('#txtOk').textContent = desc ? 'Estimar' : 'Importar';
+  $('#txtColar').hidden = desc;
+  abrirSheet('#shTxt');
+  if (desc) setTimeout(() => $('#txtIn').focus(), 250);
+}
+$('#txtColar').onclick = async () => {
+  try { $('#txtIn').value = await navigator.clipboard.readText(); }
+  catch(e){ toast('Não consegui ler a área de transferência. Cola à mão.'); }
+};
+$('#txtOk').onclick = async () => {
+  const v = $('#txtIn').value.trim();
+  if (!v) return;
+  fecharSheets();
+  if (modoTxt === 'desc') await registarTexto(v); else await importarColado(v);
+};
+
+/* ---------- Ligações dos botões ---------- */
+$('#btnFoto').onclick = () => $('#inCam').click();
+$('#cGal').onclick = () => $('#inGal').click();
+$('#cDesc').onclick = () => abrirTexto('desc');
+$('#cColar').onclick = () => abrirTexto('colar');
+['#inCam', '#inGal'].forEach(id => $(id).onchange = ev => { const f = ev.target.files[0]; ev.target.value = ''; processarFoto(f); });
+$('#atalhoBt').onclick = () => { $('#atalho').hidden = true; $('#inCam').click(); };
+$('#atalhoFechar').onclick = () => { $('#atalho').hidden = true; };
+
+function somarAgua(ml){ const k = chaveData(dia); agua[k] = Math.max(0, (agua[k] || 0) + ml); LS.set('agua', agua); render(); }
+$('#aMenos').onclick = () => somarAgua(-250);
+$('#a250').onclick = () => somarAgua(250);
+$('#a500').onclick = () => somarAgua(500);
+
+$('#diaAnt').onclick = () => { dia.setDate(dia.getDate() - 1); render(); };
+$('#diaSeg').onclick = () => { if (chaveData(dia) < chaveData(new Date())){ dia.setDate(dia.getDate() + 1); render(); } };
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && seguirHoje){ dia = new Date(); dia.setHours(12, 0, 0, 0); render(); }
+});
+
+/* ---------- Definições ---------- */
+function verMetas(){
+  const m = metas();
+  $('#metasVer').innerHTML = [[m.kcal, 'kcal'], [m.prot + ' g', 'proteína'], [m.hid + ' g', 'hidratos'], [m.gord + ' g', 'gordura'], [(m.agua / 1000).toFixed(1).replace('.', ',') + ' L', 'água']]
+    .map(([v, n]) => `<div><b>${v}</b><span>${n}</span></div>`).join('');
+}
+const CAMPOS_META = {mKcal: 'kcal', mProt: 'prot', mHid: 'hid', mGord: 'gord', mAgua: 'agua'};
+function preencherMetasMan(){ const m = metas(); for (const [id, k] of Object.entries(CAMPOS_META)) $('#' + id).value = m[k]; }
+function preencherDef(){
+  $('#fSexo').value = cfg.sexo; $('#fIdade').value = cfg.idade; $('#fAltura').value = cfg.altura; $('#fPeso').value = cfg.peso;
+  $('#fAtiv').value = cfg.atividade; $('#fObj').value = cfg.objetivo;
+  $('#fManual').checked = cfg.manual; $('#metasMan').hidden = !cfg.manual;
+  preencherMetasMan(); verMetas();
+  $('#fChave').value = cfg.chave; $('#fMostrar').checked = cfg.mostrar;
+  if (!$('#fModelo').options.length) preencherModelos();
+  $('#instrTxt').value = PROMPT_GPT;
+}
+const CAMPOS_PERFIL = {fSexo: 'sexo', fIdade: 'idade', fAltura: 'altura', fPeso: 'peso', fAtiv: 'atividade', fObj: 'objetivo'};
+for (const [id, k] of Object.entries(CAMPOS_PERFIL)){
+  $('#' + id).addEventListener('change', ev => {
+    const v = ev.target.value;
+    cfg[k] = ['sexo', 'atividade', 'objetivo'].includes(k) ? v : (parseFloat(v) || cfg[k]);
+    cfg.perfilOk = true; guardarCfg(); verMetas(); preencherMetasMan(); render();
+  });
+}
+$('#fManual').onchange = ev => {
+  cfg.manual = ev.target.checked;
+  if (cfg.manual) cfg.metas = calcMetas(cfg);
+  guardarCfg(); $('#metasMan').hidden = !cfg.manual; preencherMetasMan(); verMetas(); render();
+};
+for (const [id, k] of Object.entries(CAMPOS_META)){
+  $('#' + id).addEventListener('change', ev => {
+    const x = Math.round(parseFloat(ev.target.value));
+    if (x > 0 && cfg.metas){ cfg.metas[k] = x; guardarCfg(); verMetas(); render(); }
+  });
+}
+$('#fChave').addEventListener('change', ev => { cfg.chave = ev.target.value.trim(); guardarCfg(); render(); });
+$('#verChave').onclick = () => {
+  const i = $('#fChave'); i.type = i.type === 'password' ? 'text' : 'password';
+  $('#verChave').textContent = i.type === 'password' ? 'Ver' : 'Ocultar';
+};
+$('#testar').onclick = async () => {
+  cfg.chave = $('#fChave').value.trim(); guardarCfg();
+  if (!cfg.chave){ toast('Cola primeiro a chave.'); return; }
+  carregar(true, 'A testar a ligação…');
+  try { const n = await listarModelos(); toast(n ? `Ligação OK. Modelo escolhido: ${cfg.modelo}` : 'Ligação OK, mas não encontrei modelos Flash.'); }
+  catch(err){ toast(err.message); }
+  finally { carregar(false); render(); }
+};
+$('#fModelo').onchange = ev => { cfg.modelo = ev.target.value; guardarCfg(); };
+$('#fMostrar').onchange = ev => { cfg.mostrar = ev.target.checked; guardarCfg(); };
+$('#copiarInstr').onclick = async () => {
+  try { await navigator.clipboard.writeText(PROMPT_GPT); toast('Instruções copiadas.'); }
+  catch(e){ $('#instrTxt').closest('details').open = true; toast('Copia à mão o texto abaixo.'); }
+};
+$('#exportar').onclick = async () => {
+  try {
+    const dados = {app: 'garfada', versao: 1, exportado: new Date().toISOString(), cfg: Object.assign({}, cfg, {chave: ''}), agua, refeicoes: await DB.todas()};
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(dados)], {type: 'application/json'}));
+    a.download = `garfada-${chaveData(new Date())}.json`;
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  } catch(e){ toast('Não consegui exportar.'); }
+};
+$('#importar').onclick = () => $('#inImp').click();
+$('#inImp').onchange = async ev => {
+  const f = ev.target.files[0]; ev.target.value = '';
+  if (!f) return;
+  try {
+    const d = JSON.parse(await f.text());
+    if (d.app !== 'garfada' || !Array.isArray(d.refeicoes)) throw new Error();
+    for (const e of d.refeicoes) await DB.put(e);
+    agua = Object.assign({}, agua, d.agua || {}); LS.set('agua', agua);
+    cfg = Object.assign({}, DEF, d.cfg || {}, {chave: cfg.chave, modelo: cfg.modelo}); guardarCfg();
+    toast(`Importadas ${d.refeicoes.length} refeições.`);
+    preencherDef(); render();
+  } catch(e){ toast('Ficheiro inválido.'); }
+};
+$('#apagarTudo').onclick = async () => {
+  if (!confirm('Apagar todas as refeições e registos de água? Não dá para desfazer.')) return;
+  await DB.limpar(); agua = {}; LS.set('agua', agua);
+  toast('Dados apagados.'); render();
+};
+
+/* ---------- Arranque ---------- */
+(async function iniciar(){
+  const p = new URLSearchParams(location.search);
+  const partilha = [p.get('title'), p.get('text')].filter(Boolean).join('\n').trim();
+  if (p.has('acao') || partilha) history.replaceState(null, '', location.pathname);
+  await render();
+  if (p.get('acao') === 'foto') $('#atalho').hidden = false;
+  if (partilha){
+    if (partilha.includes('{')) importarColado(partilha);
+    else if (cfg.chave) registarTexto(partilha);
+    else { abrirTexto('desc'); $('#txtIn').value = partilha; }
+  }
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+})();
+</script>
+</body>
+</html>
