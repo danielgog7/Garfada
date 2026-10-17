@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0B0D0A">
-<title>Fiel</title>
+<title>Garfada</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -406,7 +406,7 @@ body.com-capa nav.barra{display:none}
 <body class="com-capa">
 
 <section id="capa" aria-label="Balança do dia">
-  <div class="capa-topo"><div class="capa-marca">Fiel</div><div class="capa-data" id="capaData"></div></div>
+  <div class="capa-topo"><div class="capa-marca">Garfada</div><div class="capa-data" id="capaData"></div></div>
   <svg id="balanca" viewBox="0 0 360 330" role="img" aria-label="Balança do dia"></svg>
   <div class="capa-pratos">
     <div><span>Comeste</span><b class="num" id="capaComi">0</b><small>kcal</small></div>
@@ -585,7 +585,7 @@ body.com-capa nav.barra{display:none}
     <li>Abre o <b>Chrome</b> e toca em <b>⋮</b> e depois em <b>Definições</b>.</li>
     <li>Entra em <b>Definições do site</b> e depois em <b>Sensores de movimento</b>.</li>
     <li>Liga <b>Permitir que os sites acedam aos sensores</b>. Se <b>danielgog7.github.io</b> estiver na lista de bloqueados, toca nele e escolhe <b>Permitir</b>.</li>
-    <li>Volta à Fiel e toca em <b>Já ativei, testar</b>.</li>
+    <li>Volta à Garfada e toca em <b>Já ativei, testar</b>.</li>
   </ol>
   <p class="nota" id="sensorRes"></p>
   <div class="linha-bts"><button class="bt" id="sensorAdiar">Agora não</button><button class="bt pri" id="sensorTestar">Já ativei, testar</button></div>
@@ -1152,7 +1152,7 @@ $('#exportar').onclick = async () => {
     const dados = {app: 'garfada', versao: 1, exportado: new Date().toISOString(), cfg: Object.assign({}, cfg, {chave: ''}), agua, pesos, refeicoes: await DB.todas()};
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([JSON.stringify(dados)], {type: 'application/json'}));
-    a.download = `fiel-${chaveData(new Date())}.json`;
+    a.download = `garfada-${chaveData(new Date())}.json`;
     document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 5000);
   } catch(e){ toast('Não consegui exportar.'); }
@@ -1272,7 +1272,7 @@ async function renderPeso(){
 }
 function vazioPesoHTML(){
   return `<section class="card"><div class="sub">Peso real</div><div class="hp-num num">—</div>
-    <p class="sub" style="margin-top:8px">Pesa-te de manhã, sempre nas mesmas condições. A partir daí a Fiel:</p>
+    <p class="sub" style="margin-top:8px">Pesa-te de manhã, sempre nas mesmas condições. A partir daí a Garfada:</p>
     <ul class="lista-intro">
       <li><b>Filtra o ruído</b> da balança e mostra o teu peso real.</li>
       <li><b>Explica as subidas</b> com o que comeste na véspera: sal, hidratos, volume.</li>
@@ -1935,7 +1935,7 @@ async function lerRemoto(p){
   return {sha: j.sha, dados: JSON.parse(txt)};
 }
 async function escreverRemoto(p, dados, sha){
-  const corpo = {message: 'Fiel: ' + p, content: b64enc(JSON.stringify(dados))};
+  const corpo = {message: 'Garfada: ' + p, content: b64enc(JSON.stringify(dados))};
   if (sha) corpo.sha = sha;
   const r = await ghPedido('/contents/' + p, {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(corpo)});
   if (r.status === 409 || r.status === 422) return {conflito: true};
@@ -2352,7 +2352,7 @@ async function abrirRelatorio(mes){
   const diario = comN.map(d => `<tr><td>${comDia(d.t)}</td><td>${fmtInt(d.kcal)}</td><td>${fmtInt(d.prot)}</td><td>${fmtInt(d.hid)}</td><td>${fmtInt(d.gord)}</td><td>${agua[d.k] ? fmt1(agua[d.k] / 1000) + ' L' : '—'}</td></tr>`).join('');
   $('#relatorio').innerHTML = `<div class="rel-barra"><button class="bt" id="relFechar">Fechar</button><button class="bt pri" id="relPdf">Guardar PDF</button></div>
   <article class="rel">
-    <div class="rel-sub">Fiel · relatório mensal</div>
+    <div class="rel-sub">Garfada · relatório mensal</div>
     <h1>${nomeMes.replace(/^./, c => c.toUpperCase())}</h1>
     <div class="rel-sub">Gerado a ${new Date().toLocaleDateString('pt-PT', {day: 'numeric', month: 'long', year: 'numeric'})}${base.length < comN.length ? ` · médias com os ${base.length} dias completos (1000 kcal ou mais)` : ''}</div>
     <div class="rel-kpis">${kpis.map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join('')}</div>
