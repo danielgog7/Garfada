@@ -2727,63 +2727,159 @@ const PIV = {x: 180, y: 96}, BRACO = 110;
 let capaAtiva = true, ultimoToque = Date.now();
 const B = {th: 0, v: 0, alvo: 0, L: {phi: 0, v: 0}, R: {phi: 0, v: 0}, raf: 0, ult: 0};
 (function construirBalanca(){
-  let ticks = '';
-  for (let a = -25; a <= 25; a += 5){
-    const rad = (a - 90) * Math.PI / 180, r1 = a === 0 ? 39 : Math.abs(a) === 25 ? 41 : 43.5, r2 = 48;
-    ticks += `<line x1="${(PIV.x + r1 * Math.cos(rad)).toFixed(1)}" y1="${(PIV.y + r1 * Math.sin(rad)).toFixed(1)}" x2="${(PIV.x + r2 * Math.cos(rad)).toFixed(1)}" y2="${(PIV.y + r2 * Math.sin(rad)).toFixed(1)}" stroke="#C9A86A" stroke-opacity="${a === 0 ? .95 : .45}" stroke-width="${a === 0 ? 1.4 : 1}"/>`;
+  // Latão polido em camadas, à maneira da bigorna da Forja: cor base, chanfros (luz em cima, sombra em baixo),
+  // um reflexo especular, contornos finos e marcas gravadas. Sem filtros nas peças que se mexem, para a animação não pesar.
+  const f1 = n => +n.toFixed(2);
+  const pol = (r, a) => [f1(PIV.x + r * Math.sin(a * Math.PI / 180)), f1(PIV.y - r * Math.cos(a * Math.PI / 180))];
+  // Cilindro de latão torneado (vista ligeiramente de cima): lado, aresta de baixo, tampo com riscas de torno e aresta de luz.
+  const cil = (cx, y, rx, ry, h, riscas) => {
+    const L = cx - rx, R = cx + rx;
+    let s = `<path d="M${L} ${y}V${y + h}A${rx} ${ry} 0 0 0 ${R} ${y + h}V${y}A${rx} ${ry} 0 0 1 ${L} ${y}Z" fill="url(#gCil)"/>`
+      + `<path d="M${L} ${y}V${y + h}A${rx} ${ry} 0 0 0 ${R} ${y + h}V${y}A${rx} ${ry} 0 0 1 ${L} ${y}Z" fill="url(#gCilV)"/>`
+      + `<path d="M${L} ${y + h}A${rx} ${ry} 0 0 0 ${R} ${y + h}" fill="none" stroke="#0E0A05" stroke-width=".9"/>`
+      + `<ellipse cx="${cx}" cy="${y}" rx="${rx}" ry="${ry}" fill="url(#gTampo)"/>`;
+    for (let i = 1; i <= (riscas || 0); i++){ const k = 1 - i / (riscas + 1); s += `<ellipse cx="${cx}" cy="${y}" rx="${f1(rx * k)}" ry="${f1(ry * k)}" fill="none" stroke="${i % 2 ? '#FFF3D0' : '#4E3B1E'}" stroke-width=".35" opacity="${i % 2 ? .28 : .35}"/>`; }
+    return s + `<path d="M${L} ${y}A${rx} ${ry} 0 0 1 ${R} ${y}" fill="none" stroke="#5E4826" stroke-width=".6" opacity=".8"/>`
+      + `<path d="M${L + .6} ${y + .25}A${rx - .6} ${ry - .2} 0 0 0 ${R - .6} ${y + .25}" fill="none" stroke="#FFF6DC" stroke-width=".8" opacity=".75"/>`;
+  };
+  // Contas em relevo ao longo da frente de um cilindro.
+  const contas = (cx, y, rx, ry) => { let s = ''; for (let a = 12; a <= 168; a += 8){ const t = a * Math.PI / 180, x = f1(cx + rx * Math.cos(t)), yy = f1(y + ry * Math.sin(t)), r = f1(.55 + .45 * Math.sin(t));
+    s += `<circle cx="${f1(x + .35)}" cy="${f1(yy + .45)}" r="${r}" fill="#1E160A" opacity=".7"/><circle cx="${x}" cy="${yy}" r="${r}" fill="#E9D29C"/><circle cx="${f1(x - r * .3)}" cy="${f1(yy - r * .35)}" r="${f1(r * .38)}" fill="#FFF8E6" opacity=".85"/>`; } return s; };
+  // Corrente: elos de frente (ovais) alternados com elos de lado (traços), como numa corrente verdadeira.
+  const corrente = (x1, y1, x2, y2, op) => {  // um path por tipo de elo, para a animação ter poucos elementos
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy), n = Math.floor(L / 3.3), ang = f1(Math.atan2(dy, dx) * 180 / Math.PI), ux = dx / L, uy = dy / L;
+    let ov = '', lad = '', luz = '';
+    for (let i = 0; i < n; i++){
+      const t = (i + .5) / n, x = x1 + dx * t, y = y1 + dy * t;
+      if (i % 2){ lad += `M${f1(x - ux * 1.5)} ${f1(y - uy * 1.5)}L${f1(x + ux * 1.5)} ${f1(y + uy * 1.5)}`; luz += `M${f1(x - ux * 1.2 - uy * .25)} ${f1(y - uy * 1.2 + ux * .25)}L${f1(x + ux * 1.2 - uy * .25)} ${f1(y + uy * 1.2 + ux * .25)}`; }
+      else { const ax = f1(x - ux * 2.05), ay = f1(y - uy * 2.05), bx = f1(x + ux * 2.05), by = f1(y + uy * 2.05);
+        ov += `M${ax} ${ay}A2.05 1.1 ${ang} 0 1 ${bx} ${by}A2.05 1.1 ${ang} 0 1 ${ax} ${ay}`; }
+    }
+    return `<g opacity="${op}" stroke-linecap="round" fill="none"><path d="${lad}" stroke="#6E5530" stroke-width="1.25"/><path d="${luz}" stroke="#F3E1B0" stroke-width=".4"/><path d="${ov}" stroke="#D9BE84" stroke-width=".7"/></g>`;
+  };
+  // Mostrador fixo: leque de esmalte escuro com orla de latão e graduação.
+  const [o1, o2, i1, i2] = [pol(50, -34), pol(50, 34), pol(37, 34), pol(37, -34)];
+  let escala = '';
+  for (let a = -30; a <= 30; a += 3.75){
+    const maior = Math.abs(a % 15) < .01, [xa, ya] = pol(maior ? 39.5 : 44, a), [xb, yb] = pol(48.5, a);
+    escala += `<line x1="${xa}" y1="${ya}" x2="${xb}" y2="${yb}" stroke="${a === 0 ? '#FFF1C8' : '#C9A86A'}" stroke-opacity="${a === 0 ? 1 : maior ? .85 : .5}" stroke-width="${a === 0 ? 1.5 : maior ? 1.1 : .7}" stroke-linecap="round"/>`;
   }
+  // Prato: bacia de latão, aro com lábio, faixa gravada, pé e argolas das correntes.
   const prato = lado => `<g id="prato${lado}">
-    <path d="M0 3L-45 116M0 3L45 116M0 3L0 111" stroke="#C9A86A" stroke-opacity=".8" stroke-width="1.1" stroke-dasharray="2.6 1.6" stroke-linecap="round" fill="none"/>
-    <path d="M-52 116Q0 147 52 116Z" fill="url(#gPrato)"/>
-    <ellipse cx="0" cy="116" rx="52" ry="5.5" fill="#241C11"/>
-    <path d="M-52 116A52 5.5 0 0 1 52 116" fill="none" stroke="#8A6D3B" stroke-width="1"/>
+    ${corrente(0, 4.5, 0, 110.5, .55)}
+    <path d="M-54 116C-50 134-28 143.5 0 143.5C28 143.5 50 134 54 116Z" fill="url(#gPratoLado)"/>
+    <path d="M-54 116C-50 134-28 143.5 0 143.5C28 143.5 50 134 54 116Z" fill="url(#gPratoSombra)"/>
+    <path d="M-53 121.5A53 6 0 0 0 53 121.5" fill="none" stroke="#3A2C15" stroke-width=".6" opacity=".6"/>
+    <path d="M-52.6 122.3A52.6 6 0 0 0 52.6 122.3" fill="none" stroke="#FFF3D0" stroke-width=".45" opacity=".3"/>
+    <path d="M-47 125C-41 134.5-27 140.3-9 141.6" fill="none" stroke="#FFF6DC" stroke-width="1.2" opacity=".42" stroke-linecap="round"/>
+    <path d="M44 128C38 135 28 140 15 141.8" fill="none" stroke="#000" stroke-width="1.4" opacity=".25" stroke-linecap="round"/>
+    <ellipse cx="0" cy="144.6" rx="13" ry="2.6" fill="url(#gCil)"/><path d="M-13 144.6A13 2.6 0 0 0 13 144.6" fill="none" stroke="#FFF3D0" stroke-width=".5" opacity=".5"/>
+    <ellipse cx="0" cy="116" rx="54" ry="6" fill="url(#gInterior)"/>
+    <ellipse cx="0" cy="116.6" rx="44" ry="4.2" fill="none" stroke="#000" stroke-width=".5" opacity=".22"/>
+    <path d="M-54 116A54 6 0 0 1 54 116" fill="none" stroke="#7A5F33" stroke-width="1.3"/>
+    <path d="M-53.2 115.4A53.2 5.6 0 0 1 53.2 115.4" fill="none" stroke="#F3E1B0" stroke-width=".4" opacity=".55"/>
     <g id="moedas${lado}"></g>
-    <path d="M-52 116A52 5.5 0 0 0 52 116" fill="none" stroke="#F0DCA8" stroke-width="1.3"/>
-    <circle r="3" fill="#E2C88C"/>
+    <path d="M-54 116A54 6 0 0 0 54 116" fill="none" stroke="#5E4826" stroke-width="2.6"/>
+    <path d="M-54 115.6A54 6 0 0 0 54 115.6" fill="none" stroke="url(#gLabio)" stroke-width="1.7"/>
+    <path d="M-50 117.6A50 5.2 0 0 0 30 121.4" fill="none" stroke="#FFFAEB" stroke-width=".55" opacity=".8" stroke-linecap="round"/>
+    ${[-46, 46].map(x => `<circle cx="${x}" cy="${x < 0 ? 118.4 : 118.4}" r="1.9" fill="none" stroke="#E2C88C" stroke-width=".9"/><circle cx="${x - .5}" cy="117.8" r=".45" fill="#FFF8E6" opacity=".8"/>`).join('')}
+    ${corrente(0, 4.5, -45.5, 116.6, 1)}${corrente(0, 4.5, 45.5, 116.6, 1)}
+    <circle cx="0" cy="2.4" r="2.6" fill="none" stroke="#6E5530" stroke-width="1.8"/><circle cx="0" cy="2.4" r="2.6" fill="none" stroke="#E9D29C" stroke-width=".9"/>
+    <circle cx="0" cy="5.6" r="1.6" fill="url(#gBola)"/>
   </g>`;
   $('#balanca').innerHTML = `<defs>
-    <linearGradient id="gOuro" x1="0" x2="1"><stop offset="0" stop-color="#7A5F33"/><stop offset=".42" stop-color="#E9D29C"/><stop offset=".58" stop-color="#C9A86A"/><stop offset="1" stop-color="#5E4826"/></linearGradient>
-    <linearGradient id="gOuroV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3E1B0"/><stop offset=".5" stop-color="#C9A86A"/><stop offset="1" stop-color="#6E5530"/></linearGradient>
-    <linearGradient id="gPrato" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D9BE84"/><stop offset="1" stop-color="#4E3B1E"/></linearGradient>
-    <linearGradient id="gMoedaL" x1="0" x2="1"><stop offset="0" stop-color="#6FA834"/><stop offset=".5" stop-color="#D9F98A"/><stop offset="1" stop-color="#5F9230"/></linearGradient>
-    <linearGradient id="gMoedaR" x1="0" x2="1"><stop offset="0" stop-color="#8A6A36"/><stop offset=".5" stop-color="#F1DDA6"/><stop offset="1" stop-color="#7A5C2C"/></linearGradient>
-    <radialGradient id="gChao"><stop offset="0" stop-color="#C9A86A" stop-opacity=".16"/><stop offset="1" stop-color="#C9A86A" stop-opacity="0"/></radialGradient>
-    <radialGradient id="gSombra"><stop offset="0" stop-color="#000" stop-opacity=".6"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+    <linearGradient id="gCil" x1="0" x2="1"><stop offset="0" stop-color="#2E2311"/><stop offset=".1" stop-color="#6A5130"/><stop offset=".28" stop-color="#C4A267"/><stop offset=".38" stop-color="#FAEDC8"/><stop offset=".46" stop-color="#DCC28A"/><stop offset=".68" stop-color="#8F7140"/><stop offset=".86" stop-color="#4E3B1E"/><stop offset=".95" stop-color="#7A5F33"/><stop offset="1" stop-color="#2A1F0E"/></linearGradient>
+    <linearGradient id="gCilV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF3D0" stop-opacity=".18"/><stop offset=".35" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient>
+    <radialGradient id="gTampo" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="#FBEFCD"/><stop offset=".4" stop-color="#D6B87C"/><stop offset=".8" stop-color="#8A6D3B"/><stop offset="1" stop-color="#5E4826"/></radialGradient>
+    <linearGradient id="gViga" gradientUnits="userSpaceOnUse" x1="0" y1="86" x2="0" y2="106"><stop offset="0" stop-color="#FFF6DA"/><stop offset=".14" stop-color="#EED7A0"/><stop offset=".42" stop-color="#C29E5C"/><stop offset=".72" stop-color="#7E6034"/><stop offset="1" stop-color="#36280F"/></linearGradient>
+    <radialGradient id="gBola" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#FFF8E2"/><stop offset=".3" stop-color="#E9D29C"/><stop offset=".75" stop-color="#8A6D3B"/><stop offset="1" stop-color="#3E2F17"/></radialGradient>
+    <linearGradient id="gMostrador" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2C2314"/><stop offset="1" stop-color="#0F0C07"/></linearGradient>
+    <linearGradient id="gPratoLado" x1="0" x2="1"><stop offset="0" stop-color="#3E2F17"/><stop offset=".16" stop-color="#9A7C45"/><stop offset=".32" stop-color="#F3E3B6"/><stop offset=".42" stop-color="#D3B77C"/><stop offset=".68" stop-color="#8A6D3B"/><stop offset=".9" stop-color="#4A3819"/><stop offset="1" stop-color="#2A1F0E"/></linearGradient>
+    <linearGradient id="gPratoSombra" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset=".5" stop-color="#000" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".5"/></linearGradient>
+    <linearGradient id="gInterior" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B8995C"/><stop offset=".45" stop-color="#6E5530"/><stop offset="1" stop-color="#2A2012"/></linearGradient>
+    <linearGradient id="gLabio" x1="0" x2="1"><stop offset="0" stop-color="#8A6D3B"/><stop offset=".3" stop-color="#FFF1C8"/><stop offset=".55" stop-color="#E2C88C"/><stop offset="1" stop-color="#6E5530"/></linearGradient>
+    <linearGradient id="gMoedaL" x1="0" x2="1"><stop offset="0" stop-color="#4F7E22"/><stop offset=".3" stop-color="#A8DB5C"/><stop offset=".42" stop-color="#E9FFB0"/><stop offset=".7" stop-color="#7DB23C"/><stop offset="1" stop-color="#3F6A1A"/></linearGradient>
+    <linearGradient id="gMoedaR" x1="0" x2="1"><stop offset="0" stop-color="#6E5228"/><stop offset=".3" stop-color="#D8BC80"/><stop offset=".42" stop-color="#FFF3D0"/><stop offset=".7" stop-color="#A88A52"/><stop offset="1" stop-color="#5E4620"/></linearGradient>
+    <radialGradient id="gTopoL" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="#F6FFD2"/><stop offset=".5" stop-color="#D4F587"/><stop offset="1" stop-color="#93C24A"/></radialGradient>
+    <radialGradient id="gTopoR" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="#FFF9E6"/><stop offset=".5" stop-color="#F0DBA2"/><stop offset="1" stop-color="#BF9C5C"/></radialGradient>
+    <radialGradient id="gHalo" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#C9A86A" stop-opacity=".13"/><stop offset=".6" stop-color="#C9A86A" stop-opacity=".04"/><stop offset="1" stop-color="#C9A86A" stop-opacity="0"/></radialGradient>
+    <radialGradient id="gChao"><stop offset="0" stop-color="#C9A86A" stop-opacity=".2"/><stop offset="1" stop-color="#C9A86A" stop-opacity="0"/></radialGradient>
+    <radialGradient id="gSombra"><stop offset="0" stop-color="#000" stop-opacity=".65"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+    <linearGradient id="gReflexo" gradientUnits="userSpaceOnUse" x1="0" y1="318" x2="0" y2="332"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <mask id="mReflexo" maskUnits="userSpaceOnUse" x="0" y="318" width="360" height="16"><rect x="0" y="318" width="360" height="16" fill="url(#gReflexo)"/></mask>
   </defs>
-  <ellipse cx="180" cy="318" rx="175" ry="18" fill="url(#gChao)"/>
+  <ellipse cx="180" cy="170" rx="185" ry="170" fill="url(#gHalo)"/>
+  <ellipse cx="180" cy="318" rx="178" ry="18" fill="url(#gChao)"/>
+  <use href="#pe" transform="matrix(1 0 0 -1 0 638)" mask="url(#mReflexo)"/>
+  <ellipse cx="180" cy="317" rx="80" ry="7" fill="url(#gSombra)"/>
   <ellipse id="sombraL" cx="70" cy="318" rx="46" ry="6" fill="url(#gSombra)"/>
   <ellipse id="sombraR" cx="290" cy="318" rx="46" ry="6" fill="url(#gSombra)"/>
-  <ellipse cx="180" cy="317" rx="60" ry="5" fill="url(#gSombra)"/>
-  <path d="M126 316h108l-9-10H135z" fill="url(#gOuro)"/>
-  <path d="M138 306h84l-11-13h-62z" fill="url(#gOuro)" opacity=".9"/>
-  <rect x="148" y="289" width="64" height="5" rx="2.5" fill="url(#gOuroV)"/>
-  <path d="M174 289L176.5 112h7L186 289z" fill="url(#gOuro)"/>
-  <rect x="168" y="252" width="24" height="5" rx="2.5" fill="url(#gOuroV)"/>
-  <rect x="171" y="182" width="18" height="4" rx="2" fill="url(#gOuroV)"/>
-  <path d="M168 116h24l-4-9h-16z" fill="url(#gOuro)"/>
-  <path d="M159.7 52.5A48 48 0 0 1 200.3 52.5" fill="none" stroke="#C9A86A" stroke-opacity=".45"/>
-  ${ticks}
-  <path id="marcaEq" d="M180 38l3.6 4.2-3.6 4.2-3.6-4.2z" fill="#E9D29C"/>
+  <g id="pe">
+    ${cil(180, 300, 68, 8, 11, 4)}
+    <g font-family="Fraunces, Georgia, serif" font-size="5.6" font-weight="600" letter-spacing="2.4" text-anchor="middle">
+      <text x="180.4" y="316.1" fill="#120D06" opacity=".85">GARFADA</text><text x="179.7" y="315.3" fill="#FFF1C8" opacity=".35">GARFADA</text><text x="180" y="315.7" fill="#4E3B1E">GARFADA</text>
+    </g>
+    ${cil(180, 292, 52, 6.2, 8, 3)}${contas(180, 296.2, 52, 6.2)}
+    ${cil(180, 285, 27, 3.8, 7, 2)}
+    <path d="M153 289A27 3.8 0 0 0 207 289" fill="none" stroke="#1E160A" stroke-width=".7" opacity=".7"/>
+    ${cil(180, 280, 12.5, 2.6, 5)}
+    <path d="M172.2 280L175.2 120H184.8L187.8 280Z" fill="url(#gCil)"/>
+    <path d="M172.2 280L175.2 120H184.8L187.8 280Z" fill="url(#gCilV)" opacity=".6"/>
+    ${[-.5, 0, .5].map(f => `<path d="M${f1(180 + 7.8 * f)} 279L${f1(180 + 4.8 * f)} 121" stroke="#2A1F0E" stroke-width=".6" opacity=".45"/><path d="M${f1(180.7 + 7.8 * f)} 279L${f1(180.6 + 4.8 * f)} 121" stroke="#FFF3D0" stroke-width=".4" opacity=".28"/>`).join('')}
+    ${cil(180, 250, 10.5, 2.2, 4.2, 1)}${cil(180, 184, 8.6, 1.9, 3.6, 1)}
+    ${cil(180, 113, 12, 2.5, 6.5, 2)}
+    <path d="M171 113L174.5 104H185.5L189 113Z" fill="url(#gCil)"/><path d="M174.5 104H185.5" stroke="#FFF6DC" stroke-width=".6" opacity=".7"/>
+    <path d="M173.5 112C166.5 99 161.3 83 159.6 ${i2[1] + 1}" fill="none" stroke="#3E2F17" stroke-width="3.6" stroke-linecap="round"/>
+    <path d="M173.5 112C166.5 99 161.3 83 159.6 ${i2[1] + 1}" fill="none" stroke="#C9A86A" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M172.8 111.6C165.9 98.8 160.7 83 159 ${i2[1] + 1.6}" fill="none" stroke="#FFF3D0" stroke-width=".6" opacity=".7"/>
+    <path d="M186.5 112C193.5 99 198.7 83 200.4 ${i2[1] + 1}" fill="none" stroke="#3E2F17" stroke-width="3.6" stroke-linecap="round"/>
+    <path d="M186.5 112C193.5 99 198.7 83 200.4 ${i2[1] + 1}" fill="none" stroke="#B08E52" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M185.9 111.6C192.9 98.8 198.1 83 199.8 ${i2[1] + 1.6}" fill="none" stroke="#FFF3D0" stroke-width=".5" opacity=".45"/>
+    <path d="M${o1[0]} ${o1[1]}A50 50 0 0 1 ${o2[0]} ${o2[1]}L${i1[0]} ${i1[1]}A37 37 0 0 0 ${i2[0]} ${i2[1]}Z" fill="url(#gMostrador)" stroke="#6E5530" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M${o1[0]} ${o1[1]}A50 50 0 0 1 ${o2[0]} ${o2[1]}L${i1[0]} ${i1[1]}A37 37 0 0 0 ${i2[0]} ${i2[1]}Z" fill="none" stroke="#E2C88C" stroke-width="1" stroke-linejoin="round"/>
+    <path d="M${pol(51.2, -33)[0]} ${pol(51.2, -33)[1]}A51.2 51.2 0 0 1 ${pol(51.2, 10)[0]} ${pol(51.2, 10)[1]}" fill="none" stroke="#FFF6DC" stroke-width=".6" opacity=".7"/>
+    ${escala}
+    ${[o1, o2].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.3" fill="url(#gBola)"/>`).join('')}
+    ${[i1, i2].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.7" fill="url(#gBola)"/>`).join('')}
+  </g>
+  <path id="marcaEq" d="M180 32.6l3.8 4.4-3.8 4.4-3.8-4.4z" fill="#F3E1B0" stroke="#8A6D3B" stroke-width=".5"/>
   <g id="travessao">
-    <path d="M180 96L178.6 55h2.8z" fill="url(#gOuroV)"/>
-    <circle cx="180" cy="54" r="2" fill="#F3E1B0"/>
-    <path d="M66 96Q123 89.5 180 87.5Q237 89.5 294 96Q237 102.5 180 104.5Q123 102.5 66 96Z" fill="url(#gOuroV)"/>
-    <path d="M70 95.2Q125 91 180 90" stroke="#FFF3D0" stroke-opacity=".5" stroke-width=".8" fill="none"/>
-    <circle cx="70" cy="96" r="4.6" fill="none" stroke="#E2C88C" stroke-width="2"/>
-    <circle cx="290" cy="96" r="4.6" fill="none" stroke="#E2C88C" stroke-width="2"/>
-    <circle cx="180" cy="96" r="9" fill="url(#gOuro)" stroke="#F3E1B0" stroke-width="1"/>
-    <circle cx="180" cy="96" r="2.6" fill="#2A2012"/>
+    <path d="M180 46.5L181.5 90H178.5Z" fill="#3E2F17"/>
+    <path d="M180 46.5L181.1 90H180Z" fill="#FFF1C8"/><path d="M180 46.5L180 90H178.9Z" fill="#C9A86A"/>
+    <circle cx="180" cy="46.2" r="1.2" fill="#FFF8E2"/>
+    <path d="M62 96Q121 89 180 86.6Q239 89 298 96Q239 103 180 105.4Q121 103 62 96Z" fill="#2A1F0E"/>
+    <path d="M63.5 96Q122 89.6 180 87.4Q238 89.6 296.5 96Q238 102.4 180 104.6Q122 102.4 63.5 96Z" fill="url(#gViga)"/>
+    <path d="M66 95.3Q123 89.9 180 88Q237 89.9 294 95.3" fill="none" stroke="#FFFAEB" stroke-width=".7" opacity=".8"/>
+    <path d="M84 96H164M196 96H276" stroke="#3A2C15" stroke-width=".6" opacity=".55"/><path d="M84 96.7H164M196 96.7H276" stroke="#FFF3D0" stroke-width=".45" opacity=".3"/>
+    ${Array.from({length: 15}, (_, i) => { const x = 88 + i * 5.5; return `<path d="M${f1(x)} 93.7V96M${f1(360 - x)} 93.7V96" stroke="#3A2C15" stroke-width=".5" opacity=".5"/>`; }).join('')}
+    ${[[66, 1], [294, -1]].map(([x, s]) => `<circle cx="${x - s * 4.6}" cy="96" r="3.2" fill="url(#gBola)"/>
+      <circle cx="${x + s * 4}" cy="96" r="5" fill="none" stroke="#3E2F17" stroke-width="3"/><circle cx="${x + s * 4}" cy="96" r="5" fill="none" stroke="#E2C88C" stroke-width="1.7"/>
+      <path d="M${x + s * 4 - 3.6} 93A5 5 0 0 1 ${x + s * 4 + 2.6} 91.7" fill="none" stroke="#FFF8E2" stroke-width=".6" opacity=".9"/>`).join('')}
+    <circle cx="180" cy="96" r="12" fill="#2A1F0E"/>
+    <circle cx="180" cy="96" r="11.2" fill="url(#gBola)"/>
+    <circle cx="180" cy="96" r="8" fill="none" stroke="#5E4826" stroke-width=".8"/><circle cx="180" cy="96" r="7.3" fill="none" stroke="#FFF3D0" stroke-width=".4" opacity=".5"/>
+    <circle cx="180" cy="96" r="4.3" fill="url(#gCil)" stroke="#3E2F17" stroke-width=".6"/>
+    <path d="M177.2 94.4L182.8 97.6" stroke="#1E160A" stroke-width="1"/><path d="M177.5 94.9L182.6 97.8" stroke="#FFF3D0" stroke-width=".35" opacity=".5"/>
   </g>
   ${prato('L')}${prato('R')}`;
 })();
 
 function moedasCapa(lado, n, animar, atraso){
+  // Moedas com aresta serrilhada, tampo em relevo e um ponto de brilho.
   const G = $('#moedas' + lado), xs = [-9, 9, -27, 27];
-  const topo = lado === 'L' ? '#E6FF94' : '#F4E3B4', borda = lado === 'L' ? '#86C24A' : '#B38E4D';
+  const borda = lado === 'L' ? '#5E8F2C' : '#8A6D3B', aro = lado === 'L' ? '#7FB43E' : '#B8955A';
+  let serra = '';
+  for (let x = -7.5; x <= 7.5; x += 1.5) serra += `M${x} ${(-3.2).toFixed(1)}V${(Math.sqrt(1 - (x / 9) ** 2) * 2.6 - .3).toFixed(2)}`;
   let h = '';
   for (let i = 0; i < n; i++){
     const x = xs[i % 4], lvl = Math.floor(i / 4);
-    h += `<g transform="translate(${x} ${(117 - lvl * 3.6).toFixed(1)})"><g class="moeda${animar ? '' : ' on'}" style="transition-delay:${animar ? atraso + i * 55 : 0}ms"><rect x="-9" y="-3.6" width="18" height="3.6" fill="url(#gMoeda${lado})"/><ellipse cy="-3.6" rx="9" ry="2.8" fill="${topo}" stroke="${borda}" stroke-width=".6"/></g></g>`;
+    h += `<g transform="translate(${x} ${(117 - lvl * 3.6).toFixed(1)})"><g class="moeda${animar ? '' : ' on'}" style="transition-delay:${animar ? atraso + i * 55 : 0}ms">`
+      + `<path d="M-9 -3.6V0A9 2.8 0 0 0 9 0V-3.6Z" fill="url(#gMoeda${lado})"/>`
+      + `<path d="${serra}" stroke="#000" stroke-width=".35" opacity=".28"/>`
+      + `<path d="M-9 0A9 2.8 0 0 0 9 0" fill="none" stroke="#120D06" stroke-width=".5" opacity=".7"/>`
+      + `<ellipse cy="-3.6" rx="9" ry="2.8" fill="url(#gTopo${lado})" stroke="${borda}" stroke-width=".5"/>`
+      + `<ellipse cy="-3.6" rx="6.6" ry="1.95" fill="none" stroke="${aro}" stroke-width=".55"/>`
+      + `<ellipse cx="-3" cy="-4.5" rx="2.6" ry=".55" fill="#fff" opacity=".55"/></g></g>`;
   }
   G.innerHTML = h;
   if (animar) requestAnimationFrame(() => requestAnimationFrame(() => G.querySelectorAll('.moeda').forEach(m => m.classList.add('on'))));
