@@ -221,6 +221,43 @@ details summary{cursor:pointer;color:var(--sub);font-size:14px;margin:10px 0 8px
 .regua-trilho{flex:0 0 auto;position:relative;height:64px;background-image:repeating-linear-gradient(90deg,var(--sub) 0 2px,transparent 2px 80px),repeating-linear-gradient(90deg,var(--fraco) 0 1px,transparent 1px 40px),repeating-linear-gradient(90deg,var(--linha) 0 1px,transparent 1px 8px);background-size:100% 30px,100% 22px,100% 14px;background-position:left bottom;background-repeat:no-repeat}
 .regua-trilho span{position:absolute;top:6px;transform:translateX(-50%);font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums}
 .ponteiro{position:absolute;left:50%;bottom:0;width:3px;height:46px;margin-left:-1px;border-radius:3px;background:var(--kcal);box-shadow:0 0 12px rgba(198,243,107,.55);pointer-events:none}
+/* Navegação com 4 separadores */
+nav.barra{padding-left:6px;padding-right:6px}
+nav.barra .tab{padding:6px 2px;min-width:0;flex:1}
+nav.barra .foto{flex:none;margin-left:4px;margin-right:4px}
+/* Repetir */
+.repetir{margin-top:14px}
+.rep-lista{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px 2px}
+.rep-lista::-webkit-scrollbar{display:none}
+.rep{flex:0 0 auto;display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--linha);border-radius:14px;padding:6px 12px 6px 6px;max-width:220px}
+.rep:active{background:var(--card2)}
+.rep img,.rep .sem{width:36px;height:36px;border-radius:10px;object-fit:cover;flex:none;background:var(--card2);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--sub)}
+.rep-t{display:flex;flex-direction:column;min-width:0;text-align:left}
+.rep-t b{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rep-t span{font-size:11px;color:var(--sub)}
+/* Semana */
+.sem-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;text-align:center}
+.sem-nav b{font-size:16px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px;text-align:center}
+.stats div{background:var(--card2);border-radius:12px;padding:8px 2px}
+.stats b{display:block;font-size:15px}
+.stats span{display:block;font-size:10.5px;line-height:1.2;color:var(--sub);margin-top:2px}
+.lg-bar{width:10px;height:10px;border-radius:3px;background:var(--kcal)}
+.split{display:flex;gap:2px;height:12px;border-radius:99px;overflow:hidden;margin-top:14px}
+.mic{margin-bottom:10px}
+.mic .lin{display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-bottom:5px}
+.mic small{font-size:10px;color:var(--fraco);text-transform:uppercase;letter-spacing:.05em;margin-left:4px}
+.alerta{color:var(--hid)}
+.dest{margin-left:18px;font-size:14px;display:grid;gap:6px;color:var(--sub)}
+.dest b{color:var(--txt)}
+/* Código de barras */
+.cod-video{position:relative;border-radius:16px;overflow:hidden;background:#000;aspect-ratio:4/3;margin-bottom:10px}
+.cod-video video{width:100%;height:100%;object-fit:cover;display:block}
+.cod-mira{position:absolute;left:12%;right:12%;top:36%;bottom:36%;border:2px solid var(--kcal);border-radius:10px;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
+.prod-topo{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+.prod-topo img{width:64px;height:64px;border-radius:12px;object-fit:contain;background:#fff;flex:none}
+.grelha b{font-size:17px;font-weight:800;color:var(--txt)}
+.porcao small{display:block;font-size:11px;font-weight:600;opacity:.75}
 </style>
 </head>
 <body>
@@ -230,7 +267,6 @@ details summary{cursor:pointer;color:var(--sub);font-size:14px;margin:10px 0 8px
   <div class="acoes">
     <button class="ic" id="diaAnt" aria-label="Dia anterior">&#8249;</button>
     <button class="ic" id="diaSeg" aria-label="Dia seguinte">&#8250;</button>
-    <button class="ic" data-ir="vDef" aria-label="Definições"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
   </div>
 </header>
 
@@ -250,8 +286,10 @@ details summary{cursor:pointer;color:var(--sub);font-size:14px;margin:10px 0 8px
   <div class="chips">
     <button class="chip" id="cGal">Galeria</button>
     <button class="chip" id="cDesc">Descrever</button>
-    <button class="chip" id="cColar">Colar do ChatGPT</button>
+    <button class="chip" id="cCod">Código de barras</button>
+    <button class="chip" id="cColar">ChatGPT</button>
   </div>
+  <div class="repetir" id="repetir" hidden><h3 class="ct">Repetir com um toque</h3><div class="rep-lista" id="repetirLista"></div></div>
   <section class="card agua">
     <div class="copo"><i id="aguaNivel"></i></div>
     <div class="txt"><div class="sub">Água</div><b class="num" id="aguaTxt">0 ml</b><div class="sub num" id="aguaMeta"></div></div>
@@ -265,8 +303,13 @@ details summary{cursor:pointer;color:var(--sub);font-size:14px;margin:10px 0 8px
 </main>
 
 <main class="wrap" id="vPeso" hidden>
-  <div class="cab"><h1 class="tit">Peso</h1><button class="ic" data-ir="vDef" aria-label="Definições"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button></div>
+  <div class="cab"><h1 class="tit">Peso</h1></div>
   <div id="pesoConteudo"></div>
+</main>
+
+<main class="wrap" id="vSemana" hidden>
+  <div class="cab"><h1 class="tit">Semana</h1></div>
+  <div id="semanaConteudo"></div>
 </main>
 
 <main class="wrap" id="vDef" hidden>
@@ -345,8 +388,10 @@ details summary{cursor:pointer;color:var(--sub);font-size:14px;margin:10px 0 8px
 
 <nav class="barra">
   <button class="tab ativo" data-v="vHoje"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8" opacity=".4"/><path d="M12 4a8 8 0 0 1 8 8"/></svg>Hoje</button>
+  <button class="tab" data-v="vSemana"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20v-7M10 20V6M15 20v-9M20 20V9"/></svg>Semana</button>
   <button class="foto" id="btnFoto" aria-label="Fotografar refeição"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
   <button class="tab" data-v="vPeso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 10.5a3.5 3.5 0 0 1 7 0"/><path d="M12 10.5l1.6-1.8"/></svg>Peso</button>
+  <button class="tab" data-v="vDef"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Definições</button>
 </nav>
 
 <div id="veu"></div>
@@ -356,6 +401,17 @@ details summary{cursor:pointer;color:var(--sub);font-size:14px;margin:10px 0 8px
   <h4 id="txtTitulo"></h4>
   <textarea id="txtIn"></textarea>
   <div class="linha-bts"><button class="bt" id="txtColar">Colar</button><button class="bt pri" id="txtOk">Estimar</button></div>
+</section>
+<section class="sheet" id="shCod" aria-label="Código de barras">
+  <div class="pega"></div>
+  <div id="codScan">
+    <h4>Código de barras</h4>
+    <div class="cod-video" id="codVideoBox" hidden><video id="codVideo" playsinline muted></video><i class="cod-mira"></i></div>
+    <p class="sub" id="codMsg"></p>
+    <div class="chave"><input id="codIn" inputmode="numeric" autocomplete="off" placeholder="Ou escreve o número"><button class="bt pri" id="codProcurar">Procurar</button></div>
+    <div class="linha-bts"><button class="bt" id="codCamera">Ler com a câmara</button><button class="bt" id="codRotulo">Fotografar o rótulo</button></div>
+  </div>
+  <div id="codProduto" hidden></div>
 </section>
 <section class="sheet" id="shPeso" aria-label="Registar peso">
   <div class="pega"></div>
@@ -578,12 +634,13 @@ async function guardarNova(est, extra){
 function depoisDeGuardar(e){
   mostrarVista('vHoje');
   render();
+  atualizarFrequentes();
   if (cfg.mostrar) abrirDetalhe(e);
   else toast(`Guardado: ${e.prato} · ${Math.round(e.base.kcal)} kcal`, {txt: 'Ver', fn: () => abrirDetalhe(e)});
 }
 function semChave(){ toast('Falta a chave do Gemini.', {txt: 'Configurar', fn: () => mostrarVista('vDef')}); }
 
-async function processarFoto(file){
+async function processarFoto(file, nota){
   if (!file) return;
   if (!cfg.chave){ semChave(); return; }
   carregar(true, 'A analisar o prato…');
@@ -591,7 +648,7 @@ async function processarFoto(file){
     const img = await lerImagem(file);
     const imagem = redimensionar(img, 1024, 0.8);
     const thumb = miniatura(img, 160);
-    const est = await perguntarGemini({imagem});
+    const est = await perguntarGemini({imagem, nota});
     const e = await guardarNova(est, {thumb, fonte: 'foto'});
     memoria = {id: e.id, imagem};
     depoisDeGuardar(e);
@@ -696,6 +753,7 @@ function desenharDetalhe(){
     <div class="porcao">${[0.5, 1, 1.5, 2].map(f => `<button data-f="${f}" class="${f === e.fator ? 'sel' : ''}">${fLbl(f)}×</button>`).join('')}</div>
     <div class="grelha num">${[['kcal', 'kcal'], ['prot', 'Proteína g'], ['hid', 'Hidratos g'], ['gord', 'Gordura g']].map(([c, n]) => `<label>${n}<input type="number" inputmode="numeric" data-c="${c}" value="${v(c)}"></label>`).join('')}</div>
     <div class="extra num"><div><b>${v('fibra')} g</b>fibra</div><div><b>${v('acucar')} g</b>açúcar</div><div><b>${v('sat')} g</b>saturada</div><div><b>${v('sodio')} mg</b>sódio</div></div>
+    ${e.micros && (e.micros.potassio || e.micros.calcio || e.micros.ferro || e.micros.vitc) ? `<div class="extra num">${[['potassio', 'potássio'], ['calcio', 'cálcio'], ['ferro', 'ferro'], ['vitc', 'vitamina C']].map(([c, n]) => `<div><b>${fmtMic((e.micros[c] || 0) * e.fator)} mg</b>${n}</div>`).join('')}</div>` : ''}
     ${e.itens && e.itens.length ? `<div class="itens">${e.itens.map(i => `<div><span>${esc(i.nome)}</span><span class="num">${Math.round(i.g * e.fator)} g · ${Math.round(i.kcal * e.fator)} kcal</span></div>`).join('')}</div>` : ''}
     <p class="obs">Confiança da estimativa: ${e.confianca === 'alta' ? 'alta' : e.confianca === 'baixa' ? 'baixa' : 'média'}${e.obs ? ' · ' + esc(e.obs) : ''}</p>
     ${podeRefazer ? `<div class="chave"><input id="dNota" placeholder="Corrigir: ex. tinha muito azeite"><button class="bt" id="dRefazer">Refazer</button></div>` : ''}
@@ -745,7 +803,7 @@ async function refazer(){
 
 /* ---------- Folhas, avisos, vistas ---------- */
 function abrirSheet(sel){ $('#toast').classList.remove('vis'); $('#veu').classList.add('vis'); $(sel).classList.add('vis'); }
-function fecharSheets(){ $('#veu').classList.remove('vis'); document.querySelectorAll('.sheet').forEach(s => s.classList.remove('vis')); atual = null; }
+function fecharSheets(){ pararScanner(); $('#veu').classList.remove('vis'); document.querySelectorAll('.sheet').forEach(s => s.classList.remove('vis')); atual = null; }
 $('#veu').onclick = fecharSheets;
 
 let tTimer;
@@ -760,7 +818,8 @@ function toast(msg, acao){
 function carregar(on, txt){ $('#carregar').hidden = !on; if (txt) $('#carregarTxt').textContent = txt; }
 
 function mostrarVista(v){
-  ['vHoje', 'vPeso', 'vDef'].forEach(id => { $('#' + id).hidden = id !== v; });
+  ['vHoje', 'vSemana', 'vPeso', 'vDef'].forEach(id => { $('#' + id).hidden = id !== v; });
+  if (v === 'vSemana') renderSemana();
   $('#topo').hidden = v !== 'vHoje';
   document.querySelectorAll('nav .tab').forEach(b => b.classList.toggle('ativo', b.dataset.v === v));
   if (v === 'vDef') preencherDef();
@@ -793,12 +852,13 @@ $('#txtOk').onclick = async () => {
 };
 
 /* ---------- Ligações dos botões ---------- */
-$('#btnFoto').onclick = () => $('#inCam').click();
-$('#cGal').onclick = () => $('#inGal').click();
+$('#btnFoto').onclick = () => { notaFoto = ''; $('#inCam').click(); };
+$('#cGal').onclick = () => { notaFoto = ''; $('#inGal').click(); };
+$('#cCod').onclick = () => abrirCodigo();
 $('#cDesc').onclick = () => abrirTexto('desc');
 $('#cColar').onclick = () => abrirTexto('colar');
-['#inCam', '#inGal'].forEach(id => $(id).onchange = ev => { const f = ev.target.files[0]; ev.target.value = ''; processarFoto(f); });
-$('#atalhoBt').onclick = () => { $('#atalho').hidden = true; $('#inCam').click(); };
+['#inCam', '#inGal'].forEach(id => $(id).onchange = ev => { const f = ev.target.files[0], n = notaFoto; ev.target.value = ''; notaFoto = ''; processarFoto(f, n); });
+$('#atalhoBt').onclick = () => { $('#atalho').hidden = true; notaFoto = ''; $('#inCam').click(); };
 $('#atalhoFechar').onclick = () => { $('#atalho').hidden = true; };
 
 function somarAgua(ml){
@@ -813,9 +873,10 @@ $('#a500').onclick = () => somarAgua(500);
 $('#diaAnt').onclick = () => { dia.setDate(dia.getDate() - 1); render(); agendarSync(800); };
 $('#diaSeg').onclick = () => { if (chaveData(dia) < chaveData(new Date())){ dia.setDate(dia.getDate() + 1); render(); agendarSync(800); } };
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState !== 'visible') return;
+  if (document.visibilityState !== 'visible'){ pararScanner(); return; }
   if (seguirHoje){ dia = new Date(); dia.setHours(12, 0, 0, 0); render(); }
   sincronizar();
+  atualizarFrequentes();
 });
 
 /* ---------- Definições ---------- */
@@ -1300,6 +1361,273 @@ async function sincPesos(){
   throw new Error('Conflito ao sincronizar as pesagens. Tenta outra vez.');
 }
 
+/* ---------- Repetir com um toque ---------- */
+// Lista feita a partir do histórico (60 dias): conta quantas vezes comeste cada prato
+// e dá prioridade aos que costumas comer a esta hora do dia.
+let frequentes = [], veioRemoto = false;
+async function atualizarFrequentes(){
+  let l = [];
+  try { l = await DB.desde(numDia(diaNum(chaveData(new Date())) - 60)); } catch(e){}
+  const slot = refPorHora(new Date().getHours()), grupos = new Map(), agora = Date.now();
+  for (const e of l){
+    if (!e.base || !e.prato) continue;
+    const k = e.prato.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+    const g = grupos.get(k) || {n: 0, slot: 0, ult: null};
+    g.n++;
+    if (refPorHora(new Date(e.ts).getHours()) === slot) g.slot++;
+    if (!g.ult || e.ts > g.ult.ts) g.ult = e;
+    grupos.set(k, g);
+  }
+  frequentes = [...grupos.values()]
+    .map(g => ({e: g.ult, pts: g.n + g.slot * 2 + Math.max(0, 7 - (agora - g.ult.ts) / 864e5) * 0.3}))
+    .sort((a, b) => b.pts - a.pts).slice(0, 8).map(x => x.e);
+  renderFrequentes();
+}
+function renderFrequentes(){
+  $('#repetir').hidden = !frequentes.length;
+  $('#repetirLista').innerHTML = frequentes.map((e, i) => `<button class="rep" data-i="${i}">${e.thumb ? `<img src="${e.thumb}" alt="">` : `<span class="sem">${esc(e.prato.charAt(0).toUpperCase())}</span>`}<span class="rep-t"><b>${esc(e.prato)}</b><span class="num">${fmtInt(e.base.kcal * (e.fator || 1))} kcal</span></span></button>`).join('');
+}
+async function apagarRefeicao(e){
+  apagados[e.id] = {data: e.data, ts: Date.now()}; LS.set('apagados', apagados);
+  await DB.del(e.id); marcarSujo(e.data);
+}
+$('#repetirLista').addEventListener('click', async ev => {
+  const b = ev.target.closest('.rep'), o = b && frequentes[+b.dataset.i];
+  if (!o) return;
+  const copia = JSON.parse(JSON.stringify({prato: o.prato, itens: o.itens || [], base: o.base, micros: o.micros || {}, confianca: o.confianca || 'media', obs: o.obs || '', fator: o.fator || 1, thumb: o.thumb || ''}));
+  if (o.descricao) copia.descricao = o.descricao;
+  const e = await guardarNova(copia, {fonte: 'repetido'});
+  render(); atualizarFrequentes();
+  toast(`Registado: ${e.prato} · ${fmtInt(e.base.kcal * e.fator)} kcal`, {txt: 'Desfazer', fn: async () => { await apagarRefeicao(e); render(); atualizarFrequentes(); }});
+});
+
+/* ---------- Semana ---------- */
+let semanaOff = 0;
+const SEM_CURTA = ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom'];
+const fmtMic = v => v < 10 ? fmt1(v) : fmtInt(v);
+function inicioSemana(off){ const h = diaNum(chaveData(new Date())); return h - (new Date(h * 864e5).getUTCDay() + 6) % 7 + off * 7; }
+function somarDias(lista, ini){
+  const dias = [];
+  for (let i = 0; i < 7; i++) dias.push({t: ini + i, k: numDia(ini + i), n: 0, kcal: 0, prot: 0, hid: 0, gord: 0, fibra: 0, acucar: 0, sat: 0, sodio: 0, potassio: 0, calcio: 0, ferro: 0, vitc: 0});
+  const por = Object.fromEntries(dias.map(d => [d.k, d]));
+  for (const e of lista){
+    const d = por[e.data];
+    if (!d) continue;
+    const f = e.fator || 1, b = e.base || {}, mi = e.micros || {};
+    d.n++;
+    for (const c of ['kcal', 'prot', 'hid', 'gord', 'fibra', 'acucar', 'sat', 'sodio']) d[c] += (b[c] || 0) * f;
+    for (const c of ['potassio', 'calcio', 'ferro', 'vitc']) d[c] += (mi[c] || 0) * f;
+  }
+  return dias;
+}
+// Médias só com dias completos (1000 kcal ou mais), para um dia meio registado não baixar a média.
+const diasBase = dias => { const c = dias.filter(d => d.kcal >= 1000); return c.length ? c : dias.filter(d => d.n); };
+function barrasSemana(dias, meta, hojeN){
+  const W = 340, H = 170, L = 6, R = 6, T = 18, B = 34;
+  const max = Math.max(meta * 1.15, ...dias.map(d => d.kcal));
+  const cw = (W - L - R) / 7, bw = Math.min(28, cw * 0.55), base = H - B;
+  const Y = v => Math.round((T + (1 - v / max) * (base - T)) * 10) / 10;
+  let g = `<line x1="${L}" x2="${W - R}" y1="${base}" y2="${base}" stroke="var(--linha)"/><line x1="${L}" x2="${W - R}" y1="${Y(meta)}" y2="${Y(meta)}" stroke="var(--txt)" stroke-opacity=".5" stroke-dasharray="4 4"/>`;
+  dias.forEach((d, i) => {
+    const cx = Math.round((L + cw * i + cw / 2) * 10) / 10, x = cx - bw / 2, hoje = d.t === hojeN;
+    if (d.n){
+      const y = Y(d.kcal), h = base - y;
+      g += `<g opacity="${hoje ? .55 : 1}"><rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="4" fill="var(--kcal)"/>${h > 4 ? `<rect x="${x}" y="${base - 4}" width="${bw}" height="4" fill="var(--kcal)"/>` : ''}</g><text x="${cx}" y="${y - 5}" text-anchor="middle" class="tx-forte">${fmtInt(d.kcal)}</text>`;
+    } else if (d.t <= hojeN) g += `<text x="${cx}" y="${base - 6}" text-anchor="middle">—</text>`;
+    g += `<text x="${cx}" y="${base + 14}" text-anchor="middle"${hoje ? ' class="tx-forte"' : ''}>${hoje ? 'hoje' : SEM_CURTA[i]}</text><text x="${cx}" y="${base + 27}" text-anchor="middle">${new Date(d.t * 864e5).getUTCDate()}</text>`;
+    if (d.t <= hojeN) g += `<rect x="${L + cw * i}" y="0" width="${cw}" height="${H}" fill="transparent" data-k="${d.k}" style="cursor:pointer"/>`;
+  });
+  return `<svg class="graf" viewBox="0 0 ${W} ${H}" role="img" aria-label="Calorias por dia da semana face à meta">${g}</svg>`;
+}
+async function renderSemana(){
+  const ini = inicioSemana(semanaOff), fim = ini + 6, hojeN = diaNum(chaveData(new Date())), m = metas(), C = $('#semanaConteudo');
+  let lista = [];
+  try { lista = (await DB.desde(numDia(ini - 7))).filter(e => e.data <= numDia(fim)); } catch(e){}
+  const dias = somarDias(lista, ini), base = diasBase(dias), ant = diasBase(somarDias(lista, ini - 7));
+  const nome = semanaOff === 0 ? 'Esta semana' : semanaOff === -1 ? 'Semana passada' : `Há ${-semanaOff} semanas`;
+  let h = `<div class="sem-nav"><button class="ic" data-s="-1" aria-label="Semana anterior">&#8249;</button><div><b>${curta(ini)} – ${curta(fim)}</b><div class="sub">${nome}</div></div><button class="ic" data-s="1" aria-label="Semana seguinte"${semanaOff >= 0 ? ' disabled' : ''}>&#8250;</button></div>`;
+  if (!base.length){ C.innerHTML = h + '<div class="vazio">Sem refeições registadas nesta semana.</div>'; return; }
+  const avg = c => media(base, c), kcal = avg('kcal'), comN = dias.filter(d => d.n);
+  const prev = ant.length ? media(ant, 'kcal') : null;
+  const naMeta = comN.filter(d => Math.abs(d.kcal - m.kcal) <= m.kcal * 0.1).length;
+  const protOk = comN.filter(d => d.prot >= m.prot * 0.9).length;
+  const aguas = dias.filter(d => d.t <= hojeN && agua[d.k] > 0).map(d => agua[d.k]);
+  const an = analisarPeso();
+  const tAt = t => { if (!an) return null; const a = an.ps.filter(p => p.t <= t); return a.length && t - a[a.length - 1].t <= 7 ? a[a.length - 1].tr : null; };
+  const w1 = tAt(Math.min(fim, hojeN)), w0 = tAt(ini - 1);
+  h += `<section class="card"><div class="sub">Média diária</div><div class="hp-num num">${fmtInt(kcal)}<span>kcal</span></div>
+    <div class="sub">meta ${fmtInt(m.kcal)}${prev != null ? ` · ${sinal(kcal - prev, 0)} kcal do que na semana anterior` : ''}</div>
+    <div class="stats num"><div><b>${comN.length}/7</b><span>dias com registos</span></div><div><b>${naMeta}</b><span>dias na meta (±10%)</span></div><div><b>${aguas.length ? fmt1(media(aguas) / 1000) + ' L' : '—'}</b><span>água por dia</span></div><div><b>${w1 != null && w0 != null ? sinal(w1 - w0) + ' kg' : '—'}</b><span>peso real</span></div></div>
+    ${base.length < comN.length ? `<p class="nota">Médias calculadas com os ${base.length} dias completos (1000 kcal ou mais registadas).</p>` : ''}</section>`;
+  h += `<section class="card"><h3 class="ct">Calorias por dia</h3>${barrasSemana(dias, m.kcal, hojeN)}<div class="leg"><span><i class="lg-bar"></i>calorias</span><span><i class="lg-mt"></i>meta ${fmtInt(m.kcal)} kcal</span><span>toca num dia para o abrir</span></div></section>`;
+  const mb = (n, v, meta, cor) => `<div class="barra-m"><div class="lin"><b>${n}</b><span class="num">${fmtInt(v)} / ${meta} g</span></div><div class="trilho"><i style="width:${Math.min(100, v / meta * 100)}%;background:${cor}"></i></div></div>`;
+  const pk = avg('prot') * 4, hk = avg('hid') * 4, gk = avg('gord') * 9, tot = pk + hk + gk || 1;
+  h += `<section class="card"><h3 class="ct">Macronutrientes · média diária</h3>${mb('Proteína', avg('prot'), m.prot, 'var(--prot)')}${mb('Hidratos', avg('hid'), m.hid, 'var(--hid)')}${mb('Gordura', avg('gord'), m.gord, 'var(--gord)')}
+    <div class="split">${[[pk, 'var(--prot)'], [hk, 'var(--hid)'], [gk, 'var(--gord)']].map(([v, c]) => `<i style="flex:${v || 0.001};background:${c}"></i>`).join('')}</div>
+    <div class="leg">${[['Proteína', pk, 'var(--prot)'], ['Hidratos', hk, 'var(--hid)'], ['Gordura', gk, 'var(--gord)']].map(([n, v, c]) => `<span><i class="lg-bar" style="background:${c}"></i>${n} ${Math.round(v / tot * 100)}% das calorias</span>`).join('')}</div>
+    <p class="vg-txt">Meta de proteína atingida em <b>${protOk} de ${comN.length}</b> ${comN.length === 1 ? 'dia' : 'dias'}.</p></section>`;
+  const REFS = [['fibra', 'Fibra', 'g', 25, 0], ['potassio', 'Potássio', 'mg', 2000, 0], ['calcio', 'Cálcio', 'mg', 800, 0], ['ferro', 'Ferro', 'mg', 14, 0], ['vitc', 'Vitamina C', 'mg', 80, 0], ['sodio', 'Sódio', 'mg', 2000, 1], ['acucar', 'Açúcar', 'g', m.kcal * 0.1 / 4, 1], ['sat', 'Gordura saturada', 'g', m.kcal * 0.1 / 9, 1]];
+  h += `<section class="card"><h3 class="ct">Micronutrientes · média diária</h3>${REFS.map(([c, n, u, ref, lim]) => {
+      const v = avg(c), r = v / ref, acima = lim && r > 1;
+      return `<div class="mic"><div class="lin"><span>${n}${lim ? '<small>limite</small>' : ''}</span><span class="num${acima ? ' alerta' : ''}">${fmtMic(v)} / ${fmtMic(ref)} ${u}${acima ? ' · acima' : ''}</span></div><div class="trilho"><i style="width:${Math.min(r, 1) * 100}%;background:${acima ? 'var(--hid)' : lim ? 'var(--sub)' : 'var(--kcal)'}"></i></div></div>`;
+    }).join('')}<p class="nota">Referências para adultos (UE e OMS). Os valores vêm das estimativas por foto e dos rótulos, por isso são indicativos.</p></section>`;
+  const semana = lista.filter(e => e.data >= numDia(ini)), dest = [];
+  const topP = comN.reduce((a, d) => d.prot > a.prot ? d : a, comN[0]);
+  dest.push(`Dia com mais proteína: <b>${SEM_CURTA[topP.t - ini]}</b> (${fmtInt(topP.prot)} g).`);
+  const kc = e => (e.base.kcal || 0) * (e.fator || 1);
+  const big = semana.reduce((a, e) => kc(e) > kc(a) ? e : a, semana[0]);
+  dest.push(`Refeição mais calórica: <b>${esc(big.prato)}</b> (${fmtInt(kc(big))} kcal, ${SEM_CURTA[diaNum(big.data) - ini]}).`);
+  const cont = {};
+  semana.forEach(e => { const k = (e.prato || '').trim(); if (k) cont[k] = (cont[k] || 0) + 1; });
+  const rep = Object.entries(cont).sort((a, b) => b[1] - a[1])[0];
+  if (rep && rep[1] > 1) dest.push(`Prato mais repetido: <b>${esc(rep[0])}</b> (${rep[1]} vezes).`);
+  h += `<section class="card"><h3 class="ct">Destaques</h3><ul class="dest">${dest.map(d => `<li>${d}</li>`).join('')}</ul></section>`;
+  C.innerHTML = h;
+}
+$('#vSemana').addEventListener('click', ev => {
+  const s = ev.target.closest('[data-s]');
+  if (s){ if (!s.disabled){ semanaOff = Math.min(0, semanaOff + +s.dataset.s); renderSemana(); } return; }
+  const k = ev.target.closest('[data-k]');
+  if (k && k.dataset.k <= chaveData(new Date())){ dia = new Date(k.dataset.k + 'T12:00:00'); mostrarVista('vHoje'); render(); }
+});
+
+/* ---------- Código de barras (Open Food Facts) ---------- */
+let scanStream = null, scanTimer = null, prodAtual = null, prodG = 100, notaFoto = '';
+const NOTA_ROTULO = 'Esta fotografia mostra o rótulo ou a tabela nutricional de um produto embalado. Usa os valores impressos para uma porção (a do rótulo ou, se não houver, uma porção típica) e indica a porção usada em "observacao".';
+function abrirCodigo(){
+  $('#codScan').hidden = false; $('#codProduto').hidden = true; $('#codIn').value = '';
+  abrirSheet('#shCod');
+  iniciarCamera();
+}
+async function iniciarCamera(){
+  pararScanner();
+  const msg = $('#codMsg'), box = $('#codVideoBox');
+  if (!('BarcodeDetector' in window) || !navigator.mediaDevices){
+    box.hidden = true; msg.textContent = 'Este dispositivo não lê códigos com a câmara. Escreve o número que está por baixo das barras.'; return;
+  }
+  try {
+    const sup = await BarcodeDetector.getSupportedFormats();
+    const formatos = ['ean_13', 'ean_8', 'upc_a', 'upc_e'].filter(f => sup.includes(f));
+    const det = new BarcodeDetector(formatos.length ? {formats: formatos} : undefined);
+    scanStream = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment'}, audio: false});
+    const v = $('#codVideo'); v.srcObject = scanStream; await v.play();
+    box.hidden = false; msg.textContent = 'Aponta para o código de barras.';
+    const ciclo = async () => {
+      if (!scanStream) return;
+      try {
+        const r = await det.detect(v);
+        if (r.length && r[0].rawValue){ pararScanner(); try { navigator.vibrate && navigator.vibrate(30); } catch(e){} procurarProduto(r[0].rawValue); return; }
+      } catch(e){}
+      scanTimer = setTimeout(ciclo, 250);
+    };
+    ciclo();
+  } catch(e){ pararScanner(); box.hidden = true; msg.textContent = 'Não consegui abrir a câmara. Escreve o número do código.'; }
+}
+function pararScanner(){
+  clearTimeout(scanTimer);
+  if (scanStream){ scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
+}
+function semProduto(code, motivo){
+  $('#codScan').hidden = false; $('#codProduto').hidden = true; $('#codVideoBox').hidden = true;
+  $('#codIn').value = code;
+  $('#codMsg').textContent = motivo + ' Podes fotografar o rótulo e a IA lê os valores.';
+}
+async function procurarProduto(bruto){
+  pararScanner();
+  const code = String(bruto || '').replace(/\D/g, '');
+  if (code.length < 8){ toast('O código tem de ter pelo menos 8 algarismos.'); return; }
+  const cache = LS.get('produtos', {});
+  if (cache[code]){ mostrarProduto(cache[code]); return; }
+  $('#codVideoBox').hidden = true; $('#codMsg').textContent = 'A procurar o produto…';
+  let j;
+  try {
+    const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,product_name_pt,generic_name,brands,product_quantity,serving_quantity,nutriments,image_front_small_url`);
+    j = await r.json();
+  } catch(e){ semProduto(code, 'Sem ligação à internet.'); return; }
+  if (!j || j.status !== 1 || !j.product){ semProduto(code, 'Este produto ainda não está na Open Food Facts.'); return; }
+  const p = j.product, n = p.nutriments || {};
+  const num = k => { const v = parseFloat(n[k]); return isFinite(v) && v >= 0 ? v : 0; };
+  let kcal = num('energy-kcal_100g');
+  if (!kcal && num('energy_100g')) kcal = num('energy_100g') / 4.184;
+  if (!kcal){ semProduto(code, 'O produto existe, mas não tem a tabela nutricional.'); return; }
+  const prod = {
+    code, nome: (p.product_name_pt || p.product_name || p.generic_name || 'Produto').trim(), marca: (p.brands || '').split(',')[0].trim(), img: p.image_front_small_url || '',
+    n100: {kcal, prot: num('proteins_100g'), hid: num('carbohydrates_100g'), gord: num('fat_100g'), fibra: num('fiber_100g'), acucar: num('sugars_100g'), sat: num('saturated-fat_100g'), sodio: num('sodium_100g') * 1000 || num('salt_100g') * 400},
+    micros: {potassio: num('potassium_100g') * 1000, calcio: num('calcium_100g') * 1000, ferro: num('iron_100g') * 1000, vitc: num('vitamin-c_100g') * 1000},
+    porcao: Math.round(parseFloat(p.serving_quantity)) || 0, embalagem: Math.round(parseFloat(p.product_quantity)) || 0
+  };
+  cache[code] = prod;
+  const ks = Object.keys(cache);
+  if (ks.length > 150) delete cache[ks[0]];
+  LS.set('produtos', cache);
+  mostrarProduto(prod);
+}
+function mostrarProduto(p){
+  prodAtual = p;
+  const ops = [];
+  if (p.porcao) ops.push([p.porcao, `Porção<small>${fmtInt(p.porcao)} g</small>`]);
+  ops.push([100, '100 g']);
+  if (p.embalagem && p.embalagem !== p.porcao && p.embalagem !== 100) ops.push([p.embalagem, `Embalagem<small>${fmtInt(p.embalagem)} g</small>`]);
+  prodG = ops[0][0];
+  $('#codScan').hidden = true;
+  const C = $('#codProduto');
+  C.hidden = false;
+  C.innerHTML = `<div class="prod-topo">${p.img ? `<img src="${esc(p.img)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}<div><b>${esc(p.nome)}</b><div class="sub">${esc(p.marca)}</div></div></div>
+    <div class="porcao" id="prodOps">${ops.map(([g, n]) => `<button data-g="${g}">${n}</button>`).join('')}</div>
+    <div class="campo"><label for="prodG">Quantidade (g ou ml)</label><input id="prodG" type="number" inputmode="decimal" min="1"></div>
+    <div class="grelha num" id="prodVals"></div>
+    <p class="nota">Valores do rótulo, da Open Food Facts (base de dados aberta e colaborativa).</p>
+    <div class="linha-bts"><button class="bt" data-c="outro">Ler outro</button><button class="bt pri" data-c="registar">Registar</button></div>`;
+  atualizarProduto();
+}
+function valoresProduto(){
+  const f = prodG / 100, base = {}, micros = {};
+  for (const [c, v] of Object.entries(prodAtual.n100)) base[c] = Math.round(v * f * 10) / 10;
+  for (const [c, v] of Object.entries(prodAtual.micros || {})) micros[c] = Math.round(v * f * 10) / 10;
+  return {base, micros};
+}
+function atualizarProduto(doInput){
+  if (!doInput) $('#prodG').value = prodG;
+  document.querySelectorAll('#prodOps button').forEach(b => b.classList.toggle('sel', +b.dataset.g === prodG));
+  const {base} = valoresProduto();
+  $('#prodVals').innerHTML = [['kcal', 'kcal'], ['prot', 'Proteína g'], ['hid', 'Hidratos g'], ['gord', 'Gordura g']].map(([c, n]) => `<label>${n}<b>${fmtInt(base[c])}</b></label>`).join('');
+}
+function thumbDeUrl(url){
+  return new Promise(res => {
+    if (!url) return res('');
+    const i = new Image();
+    i.crossOrigin = 'anonymous';
+    i.onload = () => { try { res(miniatura(i, 160)); } catch(e){ res(''); } };
+    i.onerror = () => res('');
+    i.src = url;
+    setTimeout(() => res(''), 4000);
+  });
+}
+async function registarProduto(){
+  const p = prodAtual, {base, micros} = valoresProduto();
+  const thumb = await thumbDeUrl(p.img);
+  const est = {prato: (p.marca ? `${p.nome} · ${p.marca}` : p.nome).slice(0, 80), itens: [{nome: p.nome.slice(0, 60), g: prodG, kcal: base.kcal}], base, micros, confianca: 'alta', obs: 'Valores do rótulo (Open Food Facts).'};
+  fecharSheets();
+  depoisDeGuardar(await guardarNova(est, {thumb, fonte: 'codigo', codigo: p.code}));
+}
+$('#shCod').addEventListener('click', ev => {
+  const g = ev.target.closest('[data-g]');
+  if (g){ prodG = +g.dataset.g; atualizarProduto(); return; }
+  const c = ev.target.closest('[data-c]');
+  if (!c) return;
+  if (c.dataset.c === 'outro'){ $('#codScan').hidden = false; $('#codProduto').hidden = true; $('#codIn').value = ''; iniciarCamera(); }
+  else if (c.dataset.c === 'registar') registarProduto();
+});
+$('#shCod').addEventListener('input', ev => {
+  if (ev.target.id !== 'prodG') return;
+  const v = parseFloat(ev.target.value);
+  if (v > 0){ prodG = v; atualizarProduto(true); }
+});
+$('#codProcurar').onclick = () => procurarProduto($('#codIn').value);
+$('#codIn').addEventListener('keydown', ev => { if (ev.key === 'Enter') procurarProduto($('#codIn').value); });
+$('#codCamera').onclick = () => iniciarCamera();
+$('#codRotulo').onclick = () => { fecharSheets(); notaFoto = NOTA_ROTULO; $('#inCam').click(); };
+
 /* ---------- Sincronização entre dispositivos (repositório privado no GitHub) ---------- */
 // Cada dia é um ficheiro dias/AAAA-MM/AAAA-MM-DD.json; o perfil fica em perfil.json.
 // Os dados vivem no dispositivo (funciona offline) e são fundidos com o repositório:
@@ -1383,7 +1711,7 @@ async function fundirDia(rem){
   const locais = new Map((await DB.doDia(k)).map(e => [e.id, e]));
   for (const e of rem.refeicoes || []){
     const l = locais.get(e.id);
-    if (!l || (e.atualizado || 0) > (l.atualizado || 0)) await DB.put(e);
+    if (!l || (e.atualizado || 0) > (l.atualizado || 0)){ await DB.put(e); veioRemoto = true; }
   }
   for (const e of await DB.doDia(k)){
     const a = apagados[e.id];
@@ -1445,6 +1773,8 @@ async function sincronizar(){
   finally {
     guardarSync(); aSinc = false; estadoSync(); render();
     if (!$('#vPeso').hidden) renderPeso();
+    if (!$('#vSemana').hidden) renderSemana();
+    if (veioRemoto){ veioRemoto = false; atualizarFrequentes(); }
     if (outraVez){ outraVez = false; agendarSync(500); }
   }
 }
@@ -1508,6 +1838,7 @@ $('#gDesligar').onclick = () => {
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   estadoSync();
+  atualizarFrequentes();
   sincronizar();
   setInterval(() => { if (document.visibilityState === 'visible') sincronizar(); }, 120000);
   window.addEventListener('online', () => sincronizar());
