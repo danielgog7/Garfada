@@ -401,16 +401,54 @@ body.com-capa nav.barra{display:none}
 .passos{margin:10px 0 6px 20px;display:grid;gap:8px;font-size:14px;color:var(--sub)}
 .passos b{color:var(--txt)}
 @media (prefers-reduced-motion: reduce){.moeda{transition:opacity .3s ease,transform .55s cubic-bezier(.34,1.56,.64,1)!important}}
+/* Pergunta rápida */
+.badge-q{color:#E9D29C;font-weight:600}
+.perg-topo{display:flex;gap:12px;align-items:center;margin:6px 0 4px}
+.perg-topo img,.perg-topo .sem{width:56px;height:56px;border-radius:12px;object-fit:cover;flex:none;background:var(--card2);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--sub)}
+.perg-topo b{display:block;font-size:16px;margin:1px 0}
+.perg-topo .sub{font-size:12.5px}
+.perg-q{font-family:"Fraunces",Georgia,serif;font-size:21px;line-height:1.3;margin:14px 0 12px}
+.perg-op{display:flex;flex-direction:column;gap:8px}
+.perg-op button{display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:left;background:var(--card2);border:1px solid var(--linha);border-radius:12px;padding:13px 14px;font-weight:600;font-size:15px;color:var(--txt)}
+.perg-op button:active{border-color:rgba(201,168,106,.6)}
+.perg-op button small{color:var(--sub);font-weight:500;font-size:12.5px;white-space:nowrap}
+.perg-op button.outra{background:transparent;border-style:dashed;color:#E9D29C}
+#pEsc{margin-top:8px}
+#pSaltar{margin-top:14px}
+.perg-det{background:rgba(201,168,106,.06);border:1px solid rgba(201,168,106,.28);border-radius:12px;padding:11px 12px;margin:12px 0 4px}
+.perg-det b{display:block;font-weight:600;margin-bottom:9px}
+.perg-det .chips{display:flex;flex-wrap:wrap;gap:6px}
+.perg-det .chips button{background:var(--card2);border:1px solid var(--linha);border-radius:99px;padding:7px 12px;font-size:13px;font-weight:600;color:var(--txt)}
+.perg-det .nota{margin:9px 0 0}
+/* Capa: dia ou semana */
+.capa-modo{display:inline-flex;margin-top:10px;padding:3px;border-radius:99px;border:1px solid rgba(201,168,106,.3);background:rgba(201,168,106,.05)}
+.capa-modo button{padding:6px 16px;border-radius:99px;font-size:12.5px;font-weight:600;color:var(--sub);background:none;border:0}
+.capa-modo button.sel{background:rgba(201,168,106,.2);color:#E9D29C}
+/* Diário fotográfico */
+.ct-lin{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.ct-lin .ct{margin:0}
+.seg-mini{display:inline-flex;padding:2px;border-radius:99px;border:1px solid var(--linha)}
+.seg-mini button{padding:4px 12px;border-radius:99px;font-size:12px;font-weight:600;color:var(--sub);background:none;border:0}
+.seg-mini button.sel{background:rgba(201,168,106,.18);color:#E9D29C}
+.fd-dia{margin-bottom:14px}
+.fd-tit{display:flex;justify-content:space-between;font-size:14px;font-weight:600;margin-bottom:7px}
+.fd-tit .num{color:var(--sub);font-weight:500}
+.fd-grelha{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.fd-f{position:relative;aspect-ratio:1;border-radius:11px;overflow:hidden;background:var(--card2);border:1px solid var(--linha);padding:0}
+.fd-f img{width:100%;height:100%;object-fit:cover;display:block}
+.fd-f .sem{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:6px 6px 18px;font-size:11px;line-height:1.25;color:var(--sub);text-align:center;overflow:hidden}
+.fd-f .fd-k{position:absolute;left:0;right:0;bottom:0;padding:12px 6px 4px;font-size:11px;font-weight:700;color:#fff;text-align:left;background:linear-gradient(transparent,rgba(0,0,0,.75))}
 </style>
 </head>
 <body class="com-capa">
 
 <section id="capa" aria-label="Balança do dia">
-  <div class="capa-topo"><div class="capa-marca">Garfada</div><div class="capa-data" id="capaData"></div></div>
+  <div class="capa-topo"><div class="capa-marca">Garfada</div><div class="capa-data" id="capaData"></div>
+    <div class="capa-modo" id="capaModo" role="group" aria-label="Período da balança"><button data-modo="dia">Dia</button><button data-modo="semana">Semana</button></div></div>
   <svg id="balanca" viewBox="0 0 360 330" role="img" aria-label="Balança do dia"></svg>
   <div class="capa-pratos">
-    <div><span>Comeste</span><b class="num" id="capaComi">0</b><small>kcal</small></div>
-    <div><span>Podes comer hoje</span><b class="num" id="capaMeta">0</b><small>kcal</small></div>
+    <div><span id="capaComiLbl">Comeste</span><b class="num" id="capaComi">0</b><small>kcal</small></div>
+    <div><span id="capaMetaLbl">Podes comer hoje</span><b class="num" id="capaMeta">0</b><small>kcal</small></div>
   </div>
   <p class="capa-estado" id="capaEstado"></p>
   <p class="capa-toque">Toca para entrar</p>
@@ -564,6 +602,7 @@ body.com-capa nav.barra{display:none}
 
 <div id="veu"></div>
 <section class="sheet" id="shDet" aria-label="Detalhe da refeição"></section>
+<section class="sheet" id="shPerg" aria-label="Pergunta rápida da IA"></section>
 <section class="sheet" id="shTxt">
   <div class="pega"></div>
   <h4 id="txtTitulo"></h4>
@@ -643,8 +682,9 @@ Regras:
 - Se houver uma nota do utilizador, dá-lhe prioridade sobre o que vês.
 - Nomes em português de Portugal.
 - Se a imagem não mostrar comida nem bebida, responde {"erro": "motivo curto"}.
+- Se a confiança não for alta e um único detalhe mudar o total em 80 kcal ou mais (ex.: frito ou grelhado, com ou sem molho, tamanho da dose, bebida com ou sem açúcar), acrescenta "pergunta" com 2 ou 3 opções curtas. A primeira opção é a que assumiste (diferenças 0); nas outras põe a diferença face à tua estimativa (pode ser negativa). Se não houver uma dúvida assim, não incluas "pergunta".
 Responde APENAS com JSON válido, sem texto antes ou depois, neste formato (números sem unidades):
-{"prato":"nome curto do prato","itens":[{"nome":"...","gramas":0,"kcal":0,"proteina":0,"hidratos":0,"gordura":0}],"total":{"kcal":0,"proteina":0,"hidratos":0,"gordura":0,"fibra":0,"acucar":0,"gordura_saturada":0,"sodio_mg":0},"micros":{"potassio_mg":0,"calcio_mg":0,"ferro_mg":0,"vitamina_c_mg":0},"confianca":"alta|media|baixa","observacao":"uma frase curta, opcional"}`;
+{"prato":"nome curto do prato","itens":[{"nome":"...","gramas":0,"kcal":0,"proteina":0,"hidratos":0,"gordura":0}],"total":{"kcal":0,"proteina":0,"hidratos":0,"gordura":0,"fibra":0,"acucar":0,"gordura_saturada":0,"sodio_mg":0},"micros":{"potassio_mg":0,"calcio_mg":0,"ferro_mg":0,"vitamina_c_mg":0},"confianca":"alta|media|baixa","observacao":"uma frase curta, opcional","pergunta":{"texto":"pergunta curta, opcional","opcoes":[{"texto":"...","kcal":0,"proteina":0,"hidratos":0,"gordura":0}]}}`;
 
 const REF = [['peq','Pequeno-almoço'],['alm','Almoço'],['lan','Lanche'],['jan','Jantar'],['out','Outro']];
 const refPorHora = h => (h >= 5 && h < 11) ? 'peq' : (h >= 11 && h < 15) ? 'alm' : (h >= 15 && h < 19) ? 'lan' : (h >= 19 && h < 23) ? 'jan' : 'out';
@@ -753,12 +793,20 @@ function interpretar(txt){
   if (!base.kcal && itens.length) base.kcal = itens.reduce((x, i) => x + i.kcal, 0);
   if (!base.kcal) throw new Error('A estimativa veio sem calorias.');
   const cf = String(o.confianca || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  return {
+  // Pergunta rápida: as diferenças podem ser negativas, por isso não passam pelo n().
+  const dl = v => { const x = parseFloat(v); return isFinite(x) ? Math.round(x) : 0; };
+  let pergunta = null;
+  const pq = o.pergunta;
+  if (pq && typeof pq === 'object' && pq.texto && Array.isArray(pq.opcoes)){
+    const ops = pq.opcoes.filter(x => x && x.texto).slice(0, 4).map(x => ({t: String(x.texto).slice(0, 60), kcal: dl(x.kcal), prot: dl(x.proteina), hid: dl(x.hidratos), gord: dl(x.gordura)}));
+    if (ops.length >= 2 && ops.some(x => x.kcal)) pergunta = {texto: String(pq.texto).slice(0, 140), opcoes: ops};
+  }
+  return Object.assign({
     prato: String(o.prato || 'Refeição').slice(0, 80), itens, base,
     micros: {potassio:n(mi.potassio_mg), calcio:n(mi.calcio_mg), ferro:n(mi.ferro_mg), vitc:n(mi.vitamina_c_mg)},
     confianca: ['alta', 'media', 'baixa'].includes(cf) ? cf : 'media',
     obs: String(o.observacao || '').slice(0, 200)
-  };
+  }, pergunta ? {pergunta} : {});
 }
 async function perguntarGemini({imagem, texto, nota}){
   if (!cfg.chave) throw new Error('Falta a chave do Gemini em Definições.');
@@ -767,7 +815,7 @@ async function perguntarGemini({imagem, texto, nota}){
   let pedido = PROMPT;
   if ((cfg.notasIA || []).length) pedido += '\n\nHábitos do utilizador (tem-nos em conta quando se aplicarem):\n- ' + cfg.notasIA.join('\n- ');
   if (texto) pedido += '\n\nDescrição da refeição: ' + texto;
-  if (nota) pedido += '\n\nNota do utilizador (prioritária): ' + nota;
+  if (nota) pedido += '\n\nNota do utilizador (prioritária): ' + nota + '\nNão incluas "pergunta".';
   parts.push({text: pedido});
   return interpretar(await geminiTexto(parts));
 }
@@ -837,6 +885,7 @@ function depoisDeGuardar(e){
   render();
   atualizarFrequentes();
   if (cfg.mostrar) abrirDetalhe(e);
+  else if (e.pergunta) abrirPergunta(e);
   else toast(`Guardado: ${e.prato} · ${Math.round(e.base.kcal)} kcal`, {txt: 'Ver', fn: () => abrirDetalhe(e)});
 }
 function semChave(){ toast('Falta a chave do Gemini.', {txt: 'Configurar', fn: () => mostrarVista('vDef')}); }
@@ -936,7 +985,7 @@ async function render(){
     html += `<div class="grupo"><h3><span>${nome}</span><span class="num">${Math.round(sk)} kcal</span></h3>`;
     for (const e of g){
       const v = c => Math.round((e.base[c] || 0) * e.fator);
-      html += `<button class="ref" data-id="${esc(e.id)}">${e.thumb ? `<img src="${e.thumb}" alt="">` : `<div class="sem">${esc((e.prato || '?').charAt(0).toUpperCase())}</div>`}<div class="info"><div class="nome">${esc(e.prato)}</div><div class="mac num">P ${v('prot')} · H ${v('hid')} · G ${v('gord')}${e.confianca === 'baixa' ? ' · <span class="incerta">incerta</span>' : ''}</div>${temItens(e) ? `<div class="itens-l">${textoItens(e)}</div>` : ''}</div><div class="kc num">${v('kcal')}<span>kcal</span></div></button>`;
+      html += `<button class="ref" data-id="${esc(e.id)}">${e.thumb ? `<img src="${e.thumb}" alt="">` : `<div class="sem">${esc((e.prato || '?').charAt(0).toUpperCase())}</div>`}<div class="info"><div class="nome">${esc(e.prato)}</div><div class="mac num">P ${v('prot')} · H ${v('hid')} · G ${v('gord')}${perguntaAberta(e) && !e.pergunta.saltada ? ' · <span class="badge-q">1 pergunta</span>' : e.confianca === 'baixa' ? ' · <span class="incerta">incerta</span>' : ''}</div>${temItens(e) ? `<div class="itens-l">${textoItens(e)}</div>` : ''}</div><div class="kc num">${v('kcal')}<span>kcal</span></div></button>`;
     }
     html += '</div>';
   }
@@ -955,11 +1004,12 @@ $('#lista').addEventListener('click', ev => {
 function abrirDetalhe(e){ atual = e; desenharDetalhe(); abrirSheet('#shDet'); }
 function desenharDetalhe(){
   const e = atual, v = c => Math.round((e.base[c] || 0) * e.fator);
-  const podeRefazer = (memoria && memoria.id === e.id) || e.descricao;
+  const podeRefazer = !!cfg.chave;
   const fLbl = f => f === 0.5 ? '½' : f === 1.5 ? '1½' : String(f);
   $('#shDet').innerHTML = `
     <div class="pega"></div>
     <div class="det-topo">${e.thumb ? `<img src="${e.thumb}" alt="">` : ''}<input id="dPrato" value="${esc(e.prato)}" aria-label="Nome do prato"></div>
+    ${perguntaAberta(e) ? `<div class="perg-det"><b>${esc(e.pergunta.texto)}</b><div class="chips">${e.pergunta.opcoes.map((o, i) => `<button data-op="${i}">${esc(o.t)}</button>`).join('')}</div>${podeRefazer ? '<p class="nota">Nenhuma serve? Escreve a correção em baixo e toca em Refazer.</p>' : ''}</div>` : ''}
     <div class="campo"><label for="dRef">Refeição</label><select id="dRef">${REF.map(([id, n]) => `<option value="${id}"${id === e.refeicao ? ' selected' : ''}>${n}</option>`).join('')}</select></div>
     <div class="porcao">${[0.5, 1, 1.5, 2].map(f => `<button data-f="${f}" class="${f === e.fator ? 'sel' : ''}">${fLbl(f)}×</button>`).join('')}</div>
     <div class="grelha num">${[['kcal', 'kcal'], ['prot', 'Proteína g'], ['hid', 'Hidratos g'], ['gord', 'Gordura g']].map(([c, n]) => `<label>${n}<input type="number" inputmode="numeric" data-c="${c}" value="${v(c)}"></label>`).join('')}</div>
@@ -974,17 +1024,19 @@ function desenharDetalhe(){
 async function salvarAtual(){
   atual.atualizado = Date.now();
   try { await DB.put(atual); marcarSujo(atual.data); } catch(e){ toast('Não consegui guardar.'); }
-  render();
+  render(); semanaSeVisivel();
 }
+const semanaSeVisivel = () => { if (!$('#vSemana').hidden) renderSemana(); };
 $('#shDet').addEventListener('click', async ev => {
   const t = ev.target;
   if (!atual) return;
-  if (t.dataset.f){ atual.fator = parseFloat(t.dataset.f); await salvarAtual(); desenharDetalhe(); }
+  if (t.dataset.op != null){ await responderPergunta(atual, +t.dataset.op); desenharDetalhe(); }
+  else if (t.dataset.f){ atual.fator = parseFloat(t.dataset.f); await salvarAtual(); desenharDetalhe(); }
   else if (t.id === 'dFechar') fecharSheets();
   else if (t.id === 'dApagar'){
     if (confirm('Apagar esta refeição?')){
       apagados[atual.id] = {data: atual.data, ts: Date.now()}; LS.set('apagados', apagados);
-      await DB.del(atual.id); marcarSujo(atual.data); fecharSheets(); render();
+      await DB.del(atual.id); marcarSujo(atual.data); fecharSheets(); render(); semanaSeVisivel();
     }
   }
   else if (t.id === 'dRefazer') refazer();
@@ -1004,18 +1056,82 @@ $('#shDet').addEventListener('change', async ev => {
 async function refazer(){
   const nota = ($('#dNota').value || '').trim();
   if (!nota){ $('#dNota').focus(); return; }
+  const e = atual;
+  if (await refazerCom(e, nota) && atual === e) desenharDetalhe();
+}
+// Refaz a estimativa com uma correção escrita. Sem a foto em memória (outra sessão, fila, código de barras),
+// envia a lista de alimentos já estimada como descrição.
+async function refazerCom(e, nota){
   carregar(true, 'A refazer a estimativa…');
   try {
-    const imagem = (memoria && memoria.id === atual.id) ? memoria.imagem : null;
-    const est = await perguntarGemini({imagem, texto: atual.descricao, nota});
-    Object.assign(atual, est, {fator: 1, atualizado: Date.now()});
-    await DB.put(atual);
-    marcarSujo(atual.data);
-    desenharDetalhe(); render();
+    const imagem = (memoria && memoria.id === e.id) ? memoria.imagem : null;
+    let texto = e.descricao;
+    if (!imagem && !texto){
+      const f = e.fator || 1;
+      texto = e.prato + ((e.itens || []).length ? ': ' + e.itens.map(i => `${i.nome} ${Math.round(i.g * f)} g`).join(', ') : '') + ` (estimativa anterior: ${Math.round(e.base.kcal * f)} kcal)`;
+    }
+    const est = await perguntarGemini({imagem, texto, nota});
+    delete est.pergunta; delete e.pergunta;
+    Object.assign(e, est, {fator: 1, atualizado: Date.now()});
+    await DB.put(e);
+    marcarSujo(e.data);
+    render(); semanaSeVisivel();
     toast('Estimativa refeita.', {txt: 'Lembrar sempre', fn: () => lembrarNota(nota)});
-  } catch(err){ toast(err.message || 'Algo correu mal.'); }
+    return true;
+  } catch(err){ toast(err.message || 'Algo correu mal.'); return false; }
   finally { carregar(false); }
 }
+
+/* ---------- Pergunta rápida ---------- */
+const perguntaAberta = e => !!(e && e.pergunta && !e.pergunta.resp);
+function abrirPergunta(e){ atual = e; desenharPergunta(); abrirSheet('#shPerg'); }
+function desenharPergunta(){
+  const e = atual, q = e.pergunta, f = e.fator || 1;
+  const dif = (o, i) => !o.kcal ? (i === 0 ? 'como estimei' : 'igual') : `${o.kcal > 0 ? '+' : '−'}${fmtInt(Math.abs(o.kcal * f))} kcal`;
+  $('#shPerg').innerHTML = `<div class="pega"></div>
+    <div class="perg-topo">${e.thumb ? `<img src="${e.thumb}" alt="">` : `<span class="sem">${esc((e.prato || '?').charAt(0).toUpperCase())}</span>`}<div><div class="sub">Pergunta rápida</div><b>${esc(e.prato)}</b><div class="sub num">${fmtInt(e.base.kcal * f)} kcal estimadas</div></div></div>
+    <p class="perg-q">${esc(q.texto)}</p>
+    <div class="perg-op">${q.opcoes.map((o, i) => `<button data-op="${i}"><span>${esc(o.t)}</span><small class="num">${dif(o, i)}</small></button>`).join('')}
+      <button data-op="esc" class="outra"><span>Outra coisa: escrever</span><small>›</small></button></div>
+    <div class="chave" id="pEsc" hidden><input id="pNota" placeholder="Ex.: era meia dose, com pouco azeite" enterkeyhint="send"><button class="bt pri" id="pEnviar">Enviar</button></div>
+    <button class="bt larg" id="pSaltar">Saltar e manter a estimativa</button>`;
+}
+async function responderPergunta(e, i){
+  const o = e.pergunta && e.pergunta.opcoes[i];
+  if (!o) return;
+  const b = e.base, k0 = b.kcal || 1;
+  if (o.kcal || o.prot || o.hid || o.gord){
+    b.kcal = Math.max(5, k0 + o.kcal);
+    for (const c of ['prot', 'hid', 'gord']) b[c] = Math.max(0, (b[c] || 0) + (o[c] || 0));
+    const r = b.kcal / k0;  // os alimentos acompanham a mudança, para o detalhe continuar a bater certo
+    (e.itens || []).forEach(it => { for (const c of ['kcal', 'prot', 'hid', 'gord']) if (it[c]) it[c] *= r; });
+  }
+  e.pergunta.resp = o.t;
+  e.confianca = e.confianca === 'baixa' ? 'media' : 'alta';
+  e.obs = o.t + (e.obs ? ' · ' + e.obs : '');
+  e.atualizado = Date.now();
+  try { await DB.put(e); marcarSujo(e.data); } catch(err){ toast('Não consegui guardar.'); return; }
+  render(); semanaSeVisivel();
+  toast(`${o.kcal ? 'Ajustado' : 'Confirmado'}: ${e.prato} · ${fmtInt(b.kcal * (e.fator || 1))} kcal`, {txt: 'Ver', fn: () => abrirDetalhe(e)});
+}
+async function enviarNotaPergunta(){
+  const nota = ($('#pNota').value || '').trim();
+  if (!nota){ $('#pNota').focus(); return; }
+  const e = atual;
+  fecharSheets();
+  await refazerCom(e, nota);
+}
+$('#shPerg').addEventListener('click', async ev => {
+  if (!atual) return;
+  const b = ev.target.closest('[data-op]');
+  if (b){
+    if (b.dataset.op === 'esc'){ $('#pEsc').hidden = false; b.hidden = true; $('#pNota').focus(); return; }
+    const e = atual; fecharSheets(); await responderPergunta(e, +b.dataset.op); return;
+  }
+  if (ev.target.id === 'pEnviar') enviarNotaPergunta();
+  else if (ev.target.id === 'pSaltar'){ atual.pergunta.saltada = true; await salvarAtual(); fecharSheets(); }
+});
+$('#shPerg').addEventListener('keydown', ev => { if (ev.key === 'Enter' && ev.target.id === 'pNota'){ ev.preventDefault(); enviarNotaPergunta(); } });
 
 /* ---------- Folhas, avisos, vistas ---------- */
 function abrirSheet(sel){ $('#toast').classList.remove('vis'); $('#veu').classList.add('vis'); $(sel).classList.add('vis'); }
@@ -1647,7 +1763,7 @@ function esconderFrequente(o){
 $('#mostrarOcultos').onclick = () => { cfg.ocultos = []; guardarPerfil(); atualizarFrequentes(); preencherDef(); toast('Todos os pratos voltaram a "Repetir".'); };
 
 /* ---------- Semana ---------- */
-let semanaOff = 0;
+let semanaOff = 0, semanaRefs = [], diarioModo = LS.get('diarioModo', 'lista') === 'fotos' ? 'fotos' : 'lista';
 const SEM_CURTA = ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom'];
 const fmtMic = v => v < 10 ? fmt1(v) : fmtInt(v);
 function inicioSemana(off){ const h = diaNum(chaveData(new Date())); return h - (new Date(h * 864e5).getUTCDay() + 6) % 7 + off * 7; }
@@ -1708,12 +1824,15 @@ async function renderSemana(){
   // Diário: o que comeste em cada dia, do mais recente para o mais antigo.
   const daSemana = lista.filter(e => e.data >= numDia(ini)), kcalDe = e => (e.base.kcal || 0) * (e.fator || 1);
   const nomeRef = id => (REF.find(r => r[0] === id) || [0, ''])[1];
-  h += `<section class="card"><h3 class="ct">O que comeste</h3>${comN.slice().reverse().map((d, i) => {
+  semanaRefs = daSemana;
+  const fotos = diarioModo === 'fotos', nomeDia = d => comDia(d.t).replace(/^./, c => c.toUpperCase());
+  h += `<section class="card"><div class="ct-lin"><h3 class="ct">O que comeste</h3><div class="seg-mini" role="group" aria-label="Vista do diário">${[['lista', 'Lista'], ['fotos', 'Fotos']].map(([v, n]) => `<button data-dm="${v}" class="${diarioModo === v ? 'sel' : ''}" aria-pressed="${diarioModo === v}">${n}</button>`).join('')}</div></div>${comN.slice().reverse().map((d, i) => {
     const ms = daSemana.filter(e => e.data === d.k).sort((a, b) => a.ts - b.ts);
-    return `<details class="diario"${i === 0 ? ' open' : ''}><summary><span>${comDia(d.t).replace(/^./, c => c.toUpperCase())}</span><span class="num">${fmtInt(d.kcal)} kcal</span></summary>
+    if (fotos) return `<div class="fd-dia"><div class="fd-tit"><span>${nomeDia(d)}</span><span class="num">${fmtInt(d.kcal)} kcal</span></div><div class="fd-grelha">${ms.map(e => `<button class="fd-f" data-id="${esc(e.id)}" aria-label="${esc(e.prato)}, ${fmtInt(kcalDe(e))} kcal">${e.thumb ? `<img src="${e.thumb}" alt="" loading="lazy">` : `<span class="sem">${esc(e.prato)}</span>`}<span class="fd-k num">${fmtInt(kcalDe(e))}</span></button>`).join('')}</div></div>`;
+    return `<details class="diario"${i === 0 ? ' open' : ''}><summary><span>${nomeDia(d)}</span><span class="num">${fmtInt(d.kcal)} kcal</span></summary>
       ${ms.map(e => `<div class="dia-ref"><div class="lin"><b>${esc(e.prato)}</b><span class="num">${fmtInt(kcalDe(e))} kcal</span></div><div class="sub">${nomeRef(e.refeicao)} · ${new Date(e.ts).toLocaleTimeString('pt-PT', {hour: '2-digit', minute: '2-digit'})}</div>${temItens(e) ? `<div class="itens-l">${textoItens(e)}</div>` : ''}</div>`).join('')}
       <button class="bt mini" data-k="${d.k}">Abrir este dia</button></details>`;
-  }).join('')}</section>`;
+  }).join('')}${fotos ? '<p class="nota">Toca numa foto para ver ou corrigir a refeição.</p>' : ''}</section>`;
   const mb = (n, v, meta, cor) => `<div class="barra-m"><div class="lin"><b>${n}</b><span class="num">${fmtInt(v)} / ${meta} g</span></div><div class="trilho"><i style="width:${Math.min(100, v / meta * 100)}%;background:${cor}"></i></div></div>`;
   const pk = avg('prot') * 4, hk = avg('hid') * 4, gk = avg('gord') * 9, tot = pk + hk + gk || 1;
   h += `<section class="card"><h3 class="ct">Macronutrientes · média diária</h3>${mb('Proteína', avg('prot'), m.prot, 'var(--prot)')}${mb('Hidratos', avg('hid'), m.hid, 'var(--hid)')}${mb('Gordura', avg('gord'), m.gord, 'var(--gord)')}
@@ -1743,6 +1862,10 @@ $('#vSemana').addEventListener('click', ev => {
   if (ev.target.closest('[data-rel]')){ abrirRelatorio(numDia(Math.min(inicioSemana(semanaOff) + 6, diaNum(chaveData(new Date())))).slice(0, 7)); return; }
   const s = ev.target.closest('[data-s]');
   if (s){ if (!s.disabled){ semanaOff = Math.min(0, semanaOff + +s.dataset.s); renderSemana(); } return; }
+  const dm = ev.target.closest('[data-dm]');
+  if (dm){ if (dm.dataset.dm !== diarioModo){ diarioModo = dm.dataset.dm; LS.set('diarioModo', diarioModo); renderSemana(); } return; }
+  const fd = ev.target.closest('.fd-f');
+  if (fd){ const e = semanaRefs.find(x => x.id === fd.dataset.id); if (e) abrirDetalhe(e); return; }
   const k = ev.target.closest('[data-k]');
   if (k && k.dataset.k <= chaveData(new Date())){ dia = new Date(k.dataset.k + 'T12:00:00'); mostrarVista('vHoje'); render(); }
 });
@@ -2496,19 +2619,52 @@ function quadroCapa(t){
   Mov.ax *= 0.85;
   desenharBalanca();
 }
+let capaModo = LS.get('capaModo', 'dia') === 'semana' ? 'semana' : 'dia';
+// Semana (segunda a domingo): os dias sem registos não contam, para um esquecimento não parecer folga.
+// "Hoje podes" reparte com calma o saldo dos dias anteriores pelos dias que faltam, entre 80% e 120% da meta.
+async function balancoSemana(metaDia){
+  const hojeN = diaNum(chaveData(new Date())), ini = inicioSemana(0), idx = hojeN - ini;
+  let lista = [];
+  try { lista = await DB.desde(numDia(ini)); } catch(e){}
+  const dias = somarDias(lista, ini, idx + 1), contam = dias.filter(d => d.n || d.t === hojeN);
+  const comi = Math.round(contam.reduce((s, d) => s + d.kcal, 0)), meta = metaDia * contam.length;
+  const saldoAnt = contam.filter(d => d.t < hojeN).reduce((s, d) => s + metaDia - d.kcal, 0);
+  const restam = 7 - idx;
+  const hojePode = Math.round(clamp(metaDia + saldoAnt / restam, metaDia * 0.8, metaDia * 1.2) / 10) * 10;
+  return {comi, meta, saldoAnt, restam, hojePode, semReg: dias.length - contam.length, ini};
+}
 async function atualizarCapa(entrada){
-  const k = chaveData(new Date()), meta = metas().kcal || 2000;
-  let comi = 0;
-  try { (await DB.doDia(k)).forEach(e => { comi += (e.base.kcal || 0) * (e.fator || 1); }); } catch(e){}
-  comi = Math.round(comi);
+  const k = chaveData(new Date()), metaDia = metas().kcal || 2000, sem = capaModo === 'semana';
+  let comi = 0, meta = metaDia, estado, W;
+  if (sem){
+    W = await balancoSemana(metaDia);
+    comi = W.comi; meta = W.meta;
+  } else {
+    try { (await DB.doDia(k)).forEach(e => { comi += (e.base.kcal || 0) * (e.fator || 1); }); } catch(e){}
+    comi = Math.round(comi);
+  }
   const dif = comi - meta, pct = dif / meta, eq = Math.abs(pct) <= 0.03;
-  const estado = !comi ? 'Ainda não comeste nada hoje. A balança espera pela primeira refeição.'
+  if (!sem) estado = !comi ? 'Ainda não comeste nada hoje. A balança espera pela primeira refeição.'
     : eq ? 'Equilíbrio perfeito. Chegaste à meta de hoje.'
     : dif < 0 ? `Faltam ${fmtInt(-dif)} kcal para equilibrar a balança.`
     : `Passaste ${fmtInt(dif)} kcal. A balança pesa para o teu lado.`;
-  $('#capaData').textContent = new Date().toLocaleDateString('pt-PT', {weekday: 'long', day: 'numeric', month: 'long'}).replace(/^./, x => x.toUpperCase());
+  else {
+    const depois = Math.round(clamp(metaDia - dif / Math.max(1, W.restam - 1), metaDia * 0.8, metaDia * 1.2) / 10) * 10;
+    estado = !comi ? 'Ainda sem registos esta semana.'
+      : eq ? 'Semana equilibrada até agora.'
+      : dif > 0 ? `Passaste ${fmtInt(dif)} kcal esta semana.` + (W.restam > 1 ? ` Para equilibrar com calma: cerca de ${fmtInt(depois)} kcal por dia até domingo.` : ' Amanhã começa uma semana nova.')
+      : W.saldoAnt < -50 ? `Os dias anteriores passaram ${fmtInt(-W.saldoAnt)} kcal da meta. Para equilibrar com calma, hoje fica por ${fmtInt(W.hojePode)} kcal.`
+      : W.saldoAnt > 50 ? `Poupaste ${fmtInt(W.saldoAnt)} kcal nos dias anteriores. Hoje podes ir até ${fmtInt(W.hojePode)} kcal.`
+      : `Faltam ${fmtInt(-dif)} kcal para equilibrar a semana.`;
+  }
+  $('#capaData').textContent = sem
+    ? `Semana ${curta(W.ini)} – ${curta(W.ini + 6)}${W.semReg ? ` · ${W.semReg} ${W.semReg === 1 ? 'dia sem registos não conta' : 'dias sem registos não contam'}` : ''}`
+    : new Date().toLocaleDateString('pt-PT', {weekday: 'long', day: 'numeric', month: 'long'}).replace(/^./, x => x.toUpperCase());
+  $('#capaComiLbl').textContent = sem ? 'Comeste esta semana' : 'Comeste';
+  $('#capaMetaLbl').textContent = sem ? 'Orçamento até hoje' : 'Podes comer hoje';
+  document.querySelectorAll('#capaModo button').forEach(b => { const on = b.dataset.modo === capaModo; b.classList.toggle('sel', on); b.setAttribute('aria-pressed', on); });
   $('#capaEstado').textContent = estado;
-  $('#balanca').setAttribute('aria-label', `Balança do dia: comeste ${comi} kcal, a meta é ${meta} kcal. ${estado}`);
+  $('#balanca').setAttribute('aria-label', `Balança ${sem ? 'da semana' : 'do dia'}: comeste ${comi} kcal, ${sem ? 'o orçamento até hoje' : 'a meta'} é ${meta} kcal. ${estado}`);
   $('#balanca').classList.toggle('equilibrio', eq && comi > 0);
   $('#capa').classList.toggle('passou', !eq && dif > 0);
   const unidade = meta / 12, nL = Math.min(24, Math.round(comi / unidade)), nR = 12;
@@ -2597,6 +2753,13 @@ function fecharCapaJa(){
   document.body.classList.remove('com-capa');
 }
 $('#capa').addEventListener('click', sairCapa);
+$('#capaModo').addEventListener('click', ev => {
+  ev.stopPropagation();  // trocar de período não sai da capa
+  const b = ev.target.closest('[data-modo]');
+  if (!b || b.dataset.modo === capaModo) return;
+  capaModo = b.dataset.modo; LS.set('capaModo', capaModo);
+  atualizarCapa(true);
+});
 // 30 segundos sem mexer na app: volta à balança (exceto a meio de algo: análise, câmara, voz ou relatório).
 ['pointerdown', 'keydown', 'wheel', 'touchstart', 'scroll'].forEach(t => addEventListener(t, () => { ultimoToque = Date.now(); }, {passive: true, capture: true}));
 document.addEventListener('visibilitychange', () => { if (!document.hidden) ultimoToque = Date.now(); });
