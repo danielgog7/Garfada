@@ -578,6 +578,9 @@ body.com-capa nav.barra{display:none}
       <div class="campo"><label for="fMostrar">Mostrar o resultado logo após a foto</label><input id="fMostrar" type="checkbox"></div>
     </div>
 
+    <h2>IA de reserva (Groq)</h2>
+    <div class="card" id="iaGroqCaixa"></div>
+
     <h2>O que a IA sabe sobre ti</h2>
     <div class="card">
       <p class="sub">Hábitos que a IA tem em conta em todas as estimativas, um por linha. Por exemplo: "uso pouco azeite" ou "as minhas doses de arroz são grandes".</p>
@@ -686,6 +689,7 @@ body.com-capa nav.barra{display:none}
 <input type="file" id="inImp" accept="application/json,.json" hidden>
 <input type="file" id="inSobra" accept="image/*" capture="environment" hidden>
 
+<script src="ia-comum.js"></script>
 <script>
 'use strict';
 const $ = s => document.querySelector(s);
@@ -845,41 +849,12 @@ async function perguntarGemini({imagem, texto, nota}){
 // Chamada genérica ao Gemini. Os erros de rede e de limite levam "rede: true" para a refeição ir para a fila.
 async function geminiTexto(parts, json = true){
   if (!cfg.chave) throw new Error('Falta a chave do Gemini em Definições.');
-  const modelo = String(cfg.modelo || 'gemini-flash-latest').replace(/^models\//, '');
-  let r;
-  try {
-    r = await fetch(`${API}models/${encodeURIComponent(modelo)}:generateContent`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json', 'x-goog-api-key': cfg.chave},
-      body: JSON.stringify({contents: [{role: 'user', parts}], generationConfig: json ? {temperature: 0.2, responseMimeType: 'application/json'} : {temperature: 0.5}})
-    });
-  } catch(e){ throw Object.assign(new Error('Sem ligação à internet.'), {rede: true}); }
-  const j = await r.json().catch(() => ({}));
-  if (!r.ok){
-    const msg = (j.error && j.error.message) || '';
-    if (r.status === 429) throw Object.assign(new Error('Limite gratuito do Gemini atingido.'), {rede: true});
-    if (r.status === 401 || r.status === 403 || /api key/i.test(msg)) throw new Error('Chave do Gemini inválida. Verifica em Definições.');
-    if (r.status === 404) throw new Error('Modelo não encontrado. Em Definições, toca em "Testar ligação" e escolhe outro.');
-    if (r.status >= 500) throw Object.assign(new Error('O Gemini está indisponível de momento.'), {rede: true});
-    throw new Error('Erro do Gemini: ' + (msg || r.status));
-  }
-  const txt = ((j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts) || [])
-    .filter(p => !p.thought).map(p => p.text || '').join('');
-  if (!txt) throw new Error('A IA não devolveu resposta. Tenta outra vez.');
-  return txt;
+  // ia-comum.js: troca de modelo quando um esgota, espera nos limites por minuto e Groq de reserva.
+  try { return await IA.pedir({parts, json, chave: cfg.chave, modelo: cfg.modelo, temperatura: json ? .2 : .5}); }
+  catch(e){ if (e instanceof IA.ErroLimite) e.rede = true; throw e; }
 }
 async function listarModelos(){
-  let r;
-  try { r = await fetch(API + 'models?pageSize=1000', {headers: {'x-goog-api-key': cfg.chave}}); }
-  catch(e){ throw new Error('Sem ligação à internet.'); }
-  const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error([400, 401, 403].includes(r.status) ? 'Chave inválida.' : 'Erro: ' + ((j.error && j.error.message) || r.status));
-  const pts = n => (/latest/.test(n) ? 100 : 0) - (/lite/.test(n) ? 10 : 0) - (/preview/.test(n) ? 5 : 0) + (parseFloat((n.match(/\d+(\.\d+)?/) || [])[0]) || 0);
-  const nomes = (j.models || [])
-    .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
-    .map(m => m.name.replace(/^models\//, ''))
-    .filter(n => /flash/i.test(n) && !/(image|tts|audio|live|embed|exp)/i.test(n))
-    .sort((a, b) => pts(b) - pts(a));
+  const nomes = await IA.listarModelos(cfg.chave);
   if (nomes.length && !nomes.includes(cfg.modelo)){ cfg.modelo = nomes[0]; guardarCfg(); }
   preencherModelos(nomes);
   return nomes.length;
@@ -1242,6 +1217,7 @@ function preencherDef(){
   $('#fManual').checked = cfg.manual; $('#metasMan').hidden = !cfg.manual;
   preencherMetasMan(); verMetas();
   $('#fChave').value = cfg.chave; $('#fMostrar').checked = cfg.mostrar;
+  $('#iaGroqCaixa').innerHTML = IA.htmlGroq({div: true, pri: 'bt larg', sub: 'sub'});
   if (!$('#fModelo').options.length) preencherModelos();
   $('#fFundo').checked = cfg.pirilampos !== false;
   const sensorOk = Mov.visto || Mov.visto2;

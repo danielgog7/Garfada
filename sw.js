@@ -1,6 +1,6 @@
 // Garfada — service worker: funciona offline e atualiza sozinho quando há ligação.
-const CACHE = 'garfada-v21';
-const FICHEIROS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './fraunces.woff2'];
+const CACHE = 'garfada-v22';
+const FICHEIROS = ['./', './index.html', './ia-comum.js', './manifest.webmanifest', './icon-192.png', './icon-512.png', './fraunces.woff2'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FICHEIROS)));
