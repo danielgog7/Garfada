@@ -325,6 +325,54 @@ nav.barra .tab.ativo svg{color:var(--ouro)}
 nav.barra .foto{box-shadow:0 0 0 1px rgba(201,168,106,.6),0 0 0 6px var(--bg),0 8px 26px rgba(198,243,107,.2)}
 .sheet{background:var(--card);border-top:1px solid rgba(201,168,106,.28)}
 .pega{background:rgba(201,168,106,.4)}
+/* ---------- Pacote: fila, voz, bebidas, conselho, relatório ---------- */
+.chips{gap:6px}
+.ref.pend{opacity:.78;border-style:dashed}
+.itens.ed > div{align-items:center}
+.it-ctl{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.it-ctl input{width:54px;background:var(--card2);border:1px solid var(--linha);border-radius:8px;padding:4px 6px;text-align:right;color:var(--txt)}
+.it-del{width:26px;height:26px;border-radius:50%;background:var(--card2);color:var(--aviso);font-weight:800;font-size:15px;line-height:1}
+.beb-lista{flex-basis:100%;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:2px -16px 0;padding:0 16px}
+.beb-lista::-webkit-scrollbar{display:none}
+.beb{flex:none;background:var(--card2);border-radius:10px;padding:7px 10px;font-size:12.5px;font-weight:600;display:flex;flex-direction:column;align-items:flex-start;gap:1px;transition:transform .12s ease}
+.beb:active{transform:scale(.97)}
+.beb span{font-size:10.5px;color:var(--sub);font-weight:500}
+.voz-mic{width:84px;height:84px;margin:10px auto 6px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--card2);color:var(--ouro);box-shadow:0 0 0 1px rgba(201,168,106,.3)}
+.voz-mic svg{width:34px;height:34px}
+#shVoz.ouvir .voz-mic{color:var(--kcal);animation:ouvir 1.4s ease-in-out infinite}
+@keyframes ouvir{0%,100%{box-shadow:0 0 0 1px rgba(198,243,107,.45),0 0 0 0 rgba(198,243,107,.28)}60%{box-shadow:0 0 0 1px rgba(198,243,107,.6),0 0 0 16px rgba(198,243,107,0)}}
+.voz-txt{text-align:center;font-size:18px;min-height:52px;margin:8px 4px 4px;font-family:"Fraunces",Georgia,serif}
+.cs-resumo{font-size:16px;margin-bottom:8px;font-family:"Fraunces",Georgia,serif}
+.conselho .dest{color:var(--txt)}
+#relatorio{position:fixed;inset:0;z-index:40;overflow:auto;background:#F7F5EF;color:#1A1A17;padding:16px}
+.rel{max-width:720px;margin:0 auto;font-size:13px;line-height:1.45}
+.rel h1{font-family:"Fraunces",Georgia,serif;font-size:26px;font-weight:600;margin:4px 0 2px}
+.rel h2{font-family:"Fraunces",Georgia,serif;font-size:16px;font-weight:600;margin:20px 0 6px;border-bottom:1px solid #C9A86A;padding-bottom:3px}
+.rel-sub{color:#666}
+.rel-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.rel-kpis div{border:1px solid #DDD5C4;border-radius:10px;padding:8px}
+.rel-kpis b{display:block;font-size:18px;font-family:"Fraunces",Georgia,serif;font-weight:600}
+.rel-kpis span{color:#666;font-size:11px}
+.rel table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.rel th,.rel td{padding:4px 6px;border-bottom:1px solid #E6E0D2;text-align:right}
+.rel th:first-child,.rel td:first-child{text-align:left}
+.rel th{font-weight:600;color:#555}
+.rel td{white-space:nowrap}
+.rel td:first-child{white-space:normal}
+.rel svg{width:100%;height:auto;display:block}
+.rel svg text{font-size:10px;fill:#777}
+.rel-nota{color:#777;font-size:11px;margin-top:16px}
+.rel-barra{position:sticky;top:0;display:flex;justify-content:space-between;gap:8px;max-width:720px;margin:0 auto 10px}
+.rel-barra .bt{color:#1A1A17;background:#fff;border-color:#DDD5C4}
+.rel-barra .bt.pri{background:#C6F36B;border-color:transparent}
+@media print{
+  @page{margin:14mm}
+  body{background:#fff!important;padding:0!important}
+  body > *:not(#relatorio){display:none!important}
+  #relatorio{position:static;overflow:visible;background:#fff;padding:0}
+  .rel-barra{display:none!important}
+  .rel tr,.rel-kpis{break-inside:avoid}
+}
 </style>
 </head>
 <body>
@@ -354,7 +402,8 @@ nav.barra .foto{box-shadow:0 0 0 1px rgba(201,168,106,.6),0 0 0 6px var(--bg),0 
   </section>
   <div class="chips">
     <button class="chip" id="cGal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>Galeria</button>
-    <button class="chip" id="cDesc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Descrever</button>
+    <button class="chip" id="cVoz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Voz</button>
+    <button class="chip" id="cDesc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Escrever</button>
     <button class="chip" id="cCod"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path stroke-width="1.8" d="M4 6v12M8 6v12M15 6v12M20 6v12"/><path stroke-width="1" d="M11 6v12M17.5 6v12"/></svg>Código</button>
     <button class="chip" id="cColar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h14a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H10l-5 4v-4H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>ChatGPT</button>
   </div>
@@ -363,12 +412,14 @@ nav.barra .foto{box-shadow:0 0 0 1px rgba(201,168,106,.6),0 0 0 6px var(--bg),0 
     <div class="copo"><i id="aguaNivel"></i></div>
     <div class="txt"><div class="sub">Água</div><b class="num" id="aguaTxt">0 ml</b><div class="sub num" id="aguaMeta"></div></div>
     <div class="bts"><button id="aMenos" aria-label="Retirar 250 ml">&minus;250</button><button class="mais" id="a250">+250</button><button class="mais" id="a500">+500</button></div>
+    <div class="beb-lista" id="bebidas"></div>
   </section>
   <section class="card pesoMini">
     <button class="pm-info" data-ir="vPeso"><span class="sub">Peso real</span><b class="num" id="pmVal">—</b><span class="sub num" id="pmSub"></span></button>
     <button class="bt" id="pmBt">Pesar</button>
   </section>
   <div id="lista"></div>
+  <div id="conselho"></div>
 </main>
 
 <main class="wrap" id="vPeso" hidden>
@@ -427,6 +478,13 @@ nav.barra .foto{box-shadow:0 0 0 1px rgba(201,168,106,.6),0 0 0 6px var(--bg),0 
       <div class="campo"><label for="fMostrar">Mostrar o resultado logo após a foto</label><input id="fMostrar" type="checkbox"></div>
     </div>
 
+    <h2>O que a IA sabe sobre ti</h2>
+    <div class="card">
+      <p class="sub">Hábitos que a IA tem em conta em todas as estimativas, um por linha. Por exemplo: "uso pouco azeite" ou "as minhas doses de arroz são grandes".</p>
+      <textarea id="fNotas" rows="4" placeholder="Um hábito por linha"></textarea>
+      <p class="nota">Também os podes acrescentar depois de corrigir uma refeição com "Refazer": toca em "Lembrar sempre".</p>
+    </div>
+
     <h2>Sincronização (Android e PC)</h2>
     <div class="card">
       <p class="sub" id="syncTxt"></p>
@@ -478,6 +536,13 @@ nav.barra .foto{box-shadow:0 0 0 1px rgba(201,168,106,.6),0 0 0 6px var(--bg),0 
   <textarea id="txtIn"></textarea>
   <div class="linha-bts"><button class="bt" id="txtColar">Colar</button><button class="bt pri" id="txtOk">Estimar</button></div>
 </section>
+<section class="sheet" id="shVoz" aria-label="Registar por voz">
+  <div class="pega"></div>
+  <h4>Diz o que comeste</h4>
+  <div class="voz-mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></div>
+  <p class="voz-txt" id="vozTxt"></p>
+  <div class="linha-bts"><button class="bt" id="vozEscrever">Escrever</button><button class="bt pri" id="vozDeNovo">Falar outra vez</button></div>
+</section>
 <section class="sheet" id="shCod" aria-label="Código de barras">
   <div class="pega"></div>
   <div id="codScan">
@@ -504,11 +569,13 @@ nav.barra .foto{box-shadow:0 0 0 1px rgba(201,168,106,.6),0 0 0 6px var(--bg),0 
   <div class="sub">Toca para fotografar o prato</div>
   <button class="bt" id="atalhoFechar">Abrir a app</button>
 </div>
+<div id="relatorio" hidden></div>
 <div id="carregar" hidden><div class="roda"></div><div id="carregarTxt">A analisar o prato…</div></div>
 <div id="toast"></div>
 <input type="file" id="inCam" accept="image/*" capture="environment" hidden>
 <input type="file" id="inGal" accept="image/*" hidden>
 <input type="file" id="inImp" accept="application/json,.json" hidden>
+<input type="file" id="inSobra" accept="image/*" capture="environment" hidden>
 
 <script>
 'use strict';
@@ -530,7 +597,7 @@ Regras:
 - Nomes em português de Portugal.
 - Se a imagem não mostrar comida nem bebida, responde {"erro": "motivo curto"}.
 Responde APENAS com JSON válido, sem texto antes ou depois, neste formato (números sem unidades):
-{"prato":"nome curto do prato","itens":[{"nome":"...","gramas":0,"kcal":0}],"total":{"kcal":0,"proteina":0,"hidratos":0,"gordura":0,"fibra":0,"acucar":0,"gordura_saturada":0,"sodio_mg":0},"micros":{"potassio_mg":0,"calcio_mg":0,"ferro_mg":0,"vitamina_c_mg":0},"confianca":"alta|media|baixa","observacao":"uma frase curta, opcional"}`;
+{"prato":"nome curto do prato","itens":[{"nome":"...","gramas":0,"kcal":0,"proteina":0,"hidratos":0,"gordura":0}],"total":{"kcal":0,"proteina":0,"hidratos":0,"gordura":0,"fibra":0,"acucar":0,"gordura_saturada":0,"sodio_mg":0},"micros":{"potassio_mg":0,"calcio_mg":0,"ferro_mg":0,"vitamina_c_mg":0},"confianca":"alta|media|baixa","observacao":"uma frase curta, opcional"}`;
 const PROMPT_GPT = PROMPT + `
 
 Apresenta o JSON dentro de um único bloco de código, para eu o copiar e colar na minha app.`;
@@ -553,16 +620,20 @@ let cacheDia = [];
 const DB = (() => {
   let dbp;
   const abrir = () => dbp || (dbp = new Promise((res, rej) => {
-    const r = indexedDB.open('garfada', 1);
-    r.onupgradeneeded = () => r.result.createObjectStore('refeicoes', {keyPath:'id'}).createIndex('data', 'data');
+    const r = indexedDB.open('garfada', 2);
+    r.onupgradeneeded = () => {
+      const db = r.result;
+      if (!db.objectStoreNames.contains('refeicoes')) db.createObjectStore('refeicoes', {keyPath: 'id'}).createIndex('data', 'data');
+      if (!db.objectStoreNames.contains('fila')) db.createObjectStore('fila', {keyPath: 'id'});
+    };
     r.onsuccess = () => res(r.result);
     r.onerror = () => rej(r.error);
   }));
-  const tx = async (modo, fn) => {
+  const tx = async (modo, fn, loja = 'refeicoes') => {
     const db = await abrir();
     return new Promise((res, rej) => {
-      const t = db.transaction('refeicoes', modo);
-      const pedido = fn(t.objectStore('refeicoes'));
+      const t = db.transaction(loja, modo);
+      const pedido = fn(t.objectStore(loja));
       t.oncomplete = () => res(pedido ? pedido.result : undefined);
       t.onerror = () => rej(t.error);
     });
@@ -573,7 +644,10 @@ const DB = (() => {
     doDia: d => tx('readonly', s => s.index('data').getAll(d)),
     desde: d => tx('readonly', s => s.index('data').getAll(IDBKeyRange.lowerBound(d))),
     todas: () => tx('readonly', s => s.getAll()),
-    limpar: () => tx('readwrite', s => s.clear())
+    limpar: () => tx('readwrite', s => s.clear()),
+    filaPut: o => tx('readwrite', s => s.put(o), 'fila'),
+    filaDel: id => tx('readwrite', s => s.delete(id), 'fila'),
+    filaTodas: () => tx('readonly', s => s.getAll(), 'fila')
   };
 })();
 
@@ -630,7 +704,7 @@ function interpretar(txt){
   if (o.erro) throw new Error('A IA diz: ' + o.erro);
   const n = v => { const x = parseFloat(v); return isFinite(x) && x > 0 ? x : 0; };
   const t = o.total || {}, mi = o.micros || {};
-  const itens = Array.isArray(o.itens) ? o.itens.map(i => ({nome: String(i.nome || '?').slice(0, 60), g: n(i.gramas), kcal: n(i.kcal)})) : [];
+  const itens = Array.isArray(o.itens) ? o.itens.map(i => ({nome: String(i.nome || '?').slice(0, 60), g: n(i.gramas), kcal: n(i.kcal), prot: n(i.proteina), hid: n(i.hidratos), gord: n(i.gordura)})) : [];
   const base = {kcal:n(t.kcal), prot:n(t.proteina), hid:n(t.hidratos), gord:n(t.gordura), fibra:n(t.fibra), acucar:n(t.acucar), sat:n(t.gordura_saturada), sodio:n(t.sodio_mg)};
   if (!base.kcal && itens.length) base.kcal = itens.reduce((x, i) => x + i.kcal, 0);
   if (!base.kcal) throw new Error('A estimativa veio sem calorias.');
@@ -647,30 +721,37 @@ async function perguntarGemini({imagem, texto, nota}){
   const parts = [];
   if (imagem) parts.push({inline_data: {mime_type: 'image/jpeg', data: imagem.split(',')[1]}});
   let pedido = PROMPT;
+  if ((cfg.notasIA || []).length) pedido += '\n\nHábitos do utilizador (tem-nos em conta quando se aplicarem):\n- ' + cfg.notasIA.join('\n- ');
   if (texto) pedido += '\n\nDescrição da refeição: ' + texto;
   if (nota) pedido += '\n\nNota do utilizador (prioritária): ' + nota;
   parts.push({text: pedido});
+  return interpretar(await geminiTexto(parts));
+}
+// Chamada genérica ao Gemini. Os erros de rede e de limite levam "rede: true" para a refeição ir para a fila.
+async function geminiTexto(parts, json = true){
+  if (!cfg.chave) throw new Error('Falta a chave do Gemini em Definições.');
   const modelo = String(cfg.modelo || 'gemini-flash-latest').replace(/^models\//, '');
   let r;
   try {
     r = await fetch(`${API}models/${encodeURIComponent(modelo)}:generateContent`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'x-goog-api-key': cfg.chave},
-      body: JSON.stringify({contents: [{role: 'user', parts}], generationConfig: {temperature: 0.2, responseMimeType: 'application/json'}})
+      body: JSON.stringify({contents: [{role: 'user', parts}], generationConfig: json ? {temperature: 0.2, responseMimeType: 'application/json'} : {temperature: 0.5}})
     });
-  } catch(e){ throw new Error('Sem ligação à internet.'); }
+  } catch(e){ throw Object.assign(new Error('Sem ligação à internet.'), {rede: true}); }
   const j = await r.json().catch(() => ({}));
   if (!r.ok){
     const msg = (j.error && j.error.message) || '';
-    if (r.status === 429) throw new Error('Limite gratuito do Gemini atingido. Tenta daqui a pouco ou usa "Colar do ChatGPT".');
+    if (r.status === 429) throw Object.assign(new Error('Limite gratuito do Gemini atingido.'), {rede: true});
     if (r.status === 401 || r.status === 403 || /api key/i.test(msg)) throw new Error('Chave do Gemini inválida. Verifica em Definições.');
     if (r.status === 404) throw new Error('Modelo não encontrado. Em Definições, toca em "Testar ligação" e escolhe outro.');
+    if (r.status >= 500) throw Object.assign(new Error('O Gemini está indisponível de momento.'), {rede: true});
     throw new Error('Erro do Gemini: ' + (msg || r.status));
   }
   const txt = ((j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts) || [])
     .filter(p => !p.thought).map(p => p.text || '').join('');
-  if (!txt) throw new Error('A IA não devolveu resposta. Tenta outra foto.');
-  return interpretar(txt);
+  if (!txt) throw new Error('A IA não devolveu resposta. Tenta outra vez.');
+  return txt;
 }
 async function listarModelos(){
   let r;
@@ -720,24 +801,33 @@ async function processarFoto(file, nota){
   if (!file) return;
   if (!cfg.chave){ semChave(); return; }
   carregar(true, 'A analisar o prato…');
+  let imagem, thumb;
   try {
     const img = await lerImagem(file);
-    const imagem = redimensionar(img, 1024, 0.8);
-    const thumb = miniatura(img, 160);
+    imagem = redimensionar(img, 1024, 0.8);
+    thumb = miniatura(img, 160);
+    if (!navigator.onLine) throw Object.assign(new Error('Sem ligação à internet.'), {rede: true});
     const est = await perguntarGemini({imagem, nota});
     const e = await guardarNova(est, {thumb, fonte: 'foto'});
     memoria = {id: e.id, imagem};
     depoisDeGuardar(e);
-  } catch(err){ toast(err.message || 'Algo correu mal.'); }
+  } catch(err){
+    if (err.rede && imagem) await porNaFila({tipo: 'foto', imagem, thumb, nota}, err);
+    else toast(err.message || 'Algo correu mal.');
+  }
   finally { carregar(false); }
 }
 async function registarTexto(txt){
   if (!cfg.chave){ semChave(); return; }
   carregar(true, 'A estimar…');
   try {
+    if (!navigator.onLine) throw Object.assign(new Error('Sem ligação à internet.'), {rede: true});
     const est = await perguntarGemini({texto: txt});
     depoisDeGuardar(await guardarNova(est, {fonte: 'texto', descricao: txt}));
-  } catch(err){ toast(err.message || 'Algo correu mal.'); }
+  } catch(err){
+    if (err.rede) await porNaFila({tipo: 'texto', texto: txt}, err);
+    else toast(err.message || 'Algo correu mal.');
+  }
   finally { carregar(false); }
 }
 async function importarColado(txt){
@@ -769,6 +859,8 @@ async function render(){
   try { lista = await DB.doDia(k); } catch(e){ toast('Não consegui ler os dados guardados.'); }
   lista.sort((a, b) => a.ts - b.ts);
   cacheDia = lista;
+  let pend = [];
+  try { pend = (await DB.filaTodas()).filter(x => x.data === k); } catch(e){}
   const m = metas();
   const t = {kcal: 0, prot: 0, hid: 0, gord: 0};
   lista.forEach(e => { for (const c in t) t[c] += (e.base[c] || 0) * e.fator; });
@@ -789,13 +881,14 @@ async function render(){
   $('#aguaNivel').style.height = Math.min(100, m.agua ? ml / m.agua * 100 : 0) + '%';
   aviso();
   renderPesoMini(k);
+  renderConselho(k, lista.length);
 
   const L = $('#lista');
-  if (!lista.length){
+  if (!lista.length && !pend.length){
     L.innerHTML = `<div class="vazio">Nada registado${k === hoje ? ' hoje' : ' neste dia'}.<br>Toca na câmara para fotografar o prato.</div>`;
     return;
   }
-  let html = '';
+  let html = pend.length ? `<div class="grupo"><h3><span>Por analisar</span><span class="num">${pend.length}</span></h3>${pend.map(q => `<button class="ref pend" data-fila="${esc(q.id)}">${q.thumb ? `<img src="${q.thumb}" alt="">` : '<div class="sem">…</div>'}<div class="info"><div class="nome">${q.erro ? 'Não foi possível analisar' : q.tipo === 'foto' ? 'Foto à espera de ligação' : esc(q.texto)}</div><div class="mac">${q.erro ? esc(q.erro) + ' · toca para apagar' : 'É analisada sozinha quando houver internet'}</div></div><div class="kc num">—</div></button>`).join('')}</div>` : '';
   for (const [id, nome] of REF){
     const g = lista.filter(e => e.refeicao === id);
     if (!g.length) continue;
@@ -810,6 +903,8 @@ async function render(){
   L.innerHTML = html;
 }
 $('#lista').addEventListener('click', ev => {
+  const pf = ev.target.closest('[data-fila]');
+  if (pf){ if (confirm('Apagar esta refeição por analisar?')) DB.filaDel(pf.dataset.fila).then(render); return; }
   const b = ev.target.closest('.ref');
   if (!b) return;
   const e = cacheDia.find(x => x.id === b.dataset.id);
@@ -829,10 +924,11 @@ function desenharDetalhe(){
     <div class="porcao">${[0.5, 1, 1.5, 2].map(f => `<button data-f="${f}" class="${f === e.fator ? 'sel' : ''}">${fLbl(f)}×</button>`).join('')}</div>
     <div class="grelha num">${[['kcal', 'kcal'], ['prot', 'Proteína g'], ['hid', 'Hidratos g'], ['gord', 'Gordura g']].map(([c, n]) => `<label>${n}<input type="number" inputmode="numeric" data-c="${c}" value="${v(c)}"></label>`).join('')}</div>
     <div class="extra num"><div><b>${v('fibra')} g</b>fibra</div><div><b>${v('acucar')} g</b>açúcar</div><div><b>${v('sat')} g</b>saturada</div><div><b>${v('sodio')} mg</b>sódio</div></div>
-    ${e.micros && (e.micros.potassio || e.micros.calcio || e.micros.ferro || e.micros.vitc) ? `<div class="extra num">${[['potassio', 'potássio'], ['calcio', 'cálcio'], ['ferro', 'ferro'], ['vitc', 'vitamina C']].map(([c, n]) => `<div><b>${fmtMic((e.micros[c] || 0) * e.fator)} mg</b>${n}</div>`).join('')}</div>` : ''}
-    ${e.itens && e.itens.length ? `<div class="itens">${e.itens.map(i => `<div><span>${esc(i.nome)}</span><span class="num">${Math.round(i.g * e.fator)} g · ${Math.round(i.kcal * e.fator)} kcal</span></div>`).join('')}</div>` : ''}
+    ${e.micros && (e.micros.potassio || e.micros.calcio || e.micros.ferro || e.micros.vitc) ? `<div class="extra num">${[['potassio', 'potássio'], ['calcio', 'cálcio'], ['ferro', 'ferro'], ['vitc', 'vitamina C']].map(([c, n]) => `<div><b>${e.micros[c] ? fmtMic(e.micros[c] * e.fator) + ' mg' : '—'}</b>${n}</div>`).join('')}</div>` : ''}
+    ${e.itens && e.itens.length ? `<div class="itens ed">${e.itens.map((i, ix) => `<div><span>${esc(i.nome)}</span><span class="it-ctl num"><input type="number" inputmode="numeric" min="0" data-it="${ix}" value="${Math.round(i.g * e.fator)}" aria-label="Gramas de ${esc(i.nome)}">g · ${Math.round(i.kcal * e.fator)} kcal<button class="it-del" data-del="${ix}" aria-label="Retirar ${esc(i.nome)}">×</button></span></div>`).join('')}<p class="nota">Muda as gramas ou retira um alimento; os totais ajustam-se sozinhos.</p></div>` : ''}
     <p class="obs">Confiança da estimativa: ${e.confianca === 'alta' ? 'alta' : e.confianca === 'baixa' ? 'baixa' : 'média'}${e.obs ? ' · ' + esc(e.obs) : ''}</p>
     ${podeRefazer ? `<div class="chave"><input id="dNota" placeholder="Corrigir: ex. tinha muito azeite"><button class="bt" id="dRefazer">Refazer</button></div>` : ''}
+    ${cfg.chave ? '<button class="bt larg" id="dSobra">Sobrou comida? Fotografar o prato</button>' : ''}
     <div class="linha-bts"><button class="bt mau" id="dApagar">Apagar</button><button class="bt pri" id="dFechar">Feito</button></div>`;
 }
 async function salvarAtual(){
@@ -852,6 +948,8 @@ $('#shDet').addEventListener('click', async ev => {
     }
   }
   else if (t.id === 'dRefazer') refazer();
+  else if (t.dataset.del != null){ const ix = +t.dataset.del; ajustarItem(atual, ix, 0); atual.itens.splice(ix, 1); await salvarAtual(); desenharDetalhe(); }
+  else if (t.id === 'dSobra'){ sobraAlvo = atual; fecharSheets(); $('#inSobra').click(); }
 });
 $('#shDet').addEventListener('change', async ev => {
   const t = ev.target;
@@ -859,6 +957,7 @@ $('#shDet').addEventListener('change', async ev => {
   if (t.id === 'dPrato') atual.prato = t.value.trim() || 'Refeição';
   else if (t.id === 'dRef') atual.refeicao = t.value;
   else if (t.dataset.c){ const x = parseFloat(t.value); if (isFinite(x) && x >= 0) atual.base[t.dataset.c] = x / atual.fator; }
+  else if (t.dataset.it != null){ const g = parseFloat(t.value); if (isFinite(g) && g >= 0) ajustarItem(atual, +t.dataset.it, g / atual.fator); await salvarAtual(); desenharDetalhe(); return; }
   else return;
   await salvarAtual();
 });
@@ -873,13 +972,14 @@ async function refazer(){
     await DB.put(atual);
     marcarSujo(atual.data);
     desenharDetalhe(); render();
+    toast('Estimativa refeita.', {txt: 'Lembrar sempre', fn: () => lembrarNota(nota)});
   } catch(err){ toast(err.message || 'Algo correu mal.'); }
   finally { carregar(false); }
 }
 
 /* ---------- Folhas, avisos, vistas ---------- */
 function abrirSheet(sel){ $('#toast').classList.remove('vis'); $('#veu').classList.add('vis'); $(sel).classList.add('vis'); }
-function fecharSheets(){ pararScanner(); $('#veu').classList.remove('vis'); document.querySelectorAll('.sheet').forEach(s => s.classList.remove('vis')); atual = null; }
+function fecharSheets(){ pararScanner(); pararVoz(); $('#veu').classList.remove('vis'); document.querySelectorAll('.sheet').forEach(s => s.classList.remove('vis')); atual = null; }
 $('#veu').onclick = fecharSheets;
 
 let tTimer;
@@ -953,6 +1053,7 @@ document.addEventListener('visibilitychange', () => {
   if (seguirHoje){ dia = new Date(); dia.setHours(12, 0, 0, 0); render(); }
   sincronizar();
   atualizarFrequentes();
+  processarFila();
 });
 
 /* ---------- Definições ---------- */
@@ -975,6 +1076,7 @@ function preencherDef(){
   if (!$('#fModelo').options.length) preencherModelos();
   $('#instrTxt').value = PROMPT_GPT;
   $('#fFundo').checked = cfg.pirilampos !== false;
+  $('#fNotas').value = (cfg.notasIA || []).join('\n');
   $('#nOcultos').textContent = (cfg.ocultos || []).length;
   $('#mostrarOcultos').disabled = !(cfg.ocultos || []).length;
   preencherSync();
@@ -1521,9 +1623,9 @@ let semanaOff = 0;
 const SEM_CURTA = ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom'];
 const fmtMic = v => v < 10 ? fmt1(v) : fmtInt(v);
 function inicioSemana(off){ const h = diaNum(chaveData(new Date())); return h - (new Date(h * 864e5).getUTCDay() + 6) % 7 + off * 7; }
-function somarDias(lista, ini){
+function somarDias(lista, ini, n = 7){
   const dias = [];
-  for (let i = 0; i < 7; i++) dias.push({t: ini + i, k: numDia(ini + i), n: 0, kcal: 0, prot: 0, hid: 0, gord: 0, fibra: 0, acucar: 0, sat: 0, sodio: 0, potassio: 0, calcio: 0, ferro: 0, vitc: 0});
+  for (let i = 0; i < n; i++) dias.push({t: ini + i, k: numDia(ini + i), n: 0, kcal: 0, prot: 0, hid: 0, gord: 0, fibra: 0, acucar: 0, sat: 0, sodio: 0, potassio: 0, calcio: 0, ferro: 0, vitc: 0});
   const por = Object.fromEntries(dias.map(d => [d.k, d]));
   for (const e of lista){
     const d = por[e.data];
@@ -1606,9 +1708,11 @@ async function renderSemana(){
   const rep = Object.entries(cont).sort((a, b) => b[1] - a[1])[0];
   if (rep && rep[1] > 1) dest.push(`Prato mais repetido: <b>${esc(rep[0])}</b> (${rep[1]} vezes).`);
   h += `<section class="card"><h3 class="ct">Destaques</h3><ul class="dest">${dest.map(d => `<li>${d}</li>`).join('')}</ul></section>`;
+  h += '<button class="bt larg" data-rel="1" style="margin-top:12px">Relatório do mês (PDF)</button>';
   C.innerHTML = h;
 }
 $('#vSemana').addEventListener('click', ev => {
+  if (ev.target.closest('[data-rel]')){ abrirRelatorio(numDia(Math.min(inicioSemana(semanaOff) + 6, diaNum(chaveData(new Date())))).slice(0, 7)); return; }
   const s = ev.target.closest('[data-s]');
   if (s){ if (!s.disabled){ semanaOff = Math.min(0, semanaOff + +s.dataset.s); renderSemana(); } return; }
   const k = ev.target.closest('[data-k]');
@@ -1756,7 +1860,7 @@ $('#codRotulo').onclick = () => { fecharSheets(); notaFoto = NOTA_ROTULO; $('#in
 // Cada dia é um ficheiro dias/AAAA-MM/AAAA-MM-DD.json; o perfil fica em perfil.json.
 // Os dados vivem no dispositivo (funciona offline) e são fundidos com o repositório:
 // cada refeição tem "atualizado" (ganha a versão mais recente) e as apagadas deixam marca em "apagados".
-const PARTILHADO = ['sexo', 'idade', 'altura', 'peso', 'atividade', 'objetivo', 'perfilOk', 'manual', 'metas', 'pesoMeta', 'pesoInicio', 'metaDesde', 'usarTdee', 'tdeeReal', 'ocultos'];
+const PARTILHADO = ['sexo', 'idade', 'altura', 'peso', 'atividade', 'objetivo', 'perfilOk', 'manual', 'metas', 'pesoMeta', 'pesoInicio', 'metaDesde', 'usarTdee', 'tdeeReal', 'ocultos', 'notasIA'];
 let gh = Object.assign({dono: 'danielgog7', repo: 'garfada-dados', token: ''}, LS.get('gh', {}));
 let sync = Object.assign({shas: {}, sujos: {}, ultimo: 0, erro: ''}, LS.get('sync', {}));
 let apagados = LS.get('apagados', {});
@@ -2008,6 +2112,238 @@ function contar(el, v){  // o número do anel conta até ao novo valor
   requestAnimationFrame(passo);
 }
 
+/* ---------- Fila: refeições que esperam por internet (ou pelo limite do Gemini) ---------- */
+async function porNaFila(item, err){
+  const agora = new Date(), d = new Date(dia);
+  d.setHours(agora.getHours(), agora.getMinutes(), 0, 0);
+  Object.assign(item, {id: 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), ts: d.getTime(), data: chaveData(dia), refeicao: refPorHora(agora.getHours())});
+  try { await DB.filaPut(item); } catch(e){ toast('Não consegui guardar a refeição para mais tarde.'); return; }
+  mostrarVista('vHoje');
+  render();
+  toast(/Limite/.test(err.message) ? 'Limite do Gemini atingido. A refeição fica guardada e é analisada mais tarde.' : 'Sem internet. A refeição fica guardada e é analisada quando houver ligação.');
+}
+let aProcessarFila = false;
+async function processarFila(){
+  if (aProcessarFila || !navigator.onLine || !cfg.chave) return;
+  aProcessarFila = true;
+  let feitos = 0;
+  try {
+    const fila = (await DB.filaTodas()).filter(q => !q.erro).sort((a, b) => a.ts - b.ts);
+    for (const q of fila){
+      try {
+        const est = await perguntarGemini(q.tipo === 'foto' ? {imagem: q.imagem, nota: q.nota} : {texto: q.texto});
+        await guardarNova(est, Object.assign({ts: q.ts, data: q.data, refeicao: q.refeicao, fonte: q.tipo}, q.tipo === 'foto' ? {thumb: q.thumb} : {descricao: q.texto}));
+        await DB.filaDel(q.id);
+        feitos++;
+      } catch(e){
+        if (e.rede) break;  // continua sem ligação ou no limite: tenta mais tarde
+        q.erro = e.message; await DB.filaPut(q);
+      }
+    }
+  } catch(e){}
+  aProcessarFila = false;
+  if (feitos){ render(); atualizarFrequentes(); toast(feitos === 1 ? 'Uma refeição que estava à espera já foi analisada.' : `${feitos} refeições que estavam à espera já foram analisadas.`); }
+}
+
+/* ---------- Corrigir alimentos um a um ---------- */
+// Muda as gramas de um alimento (0 = retirar) e acerta os totais da refeição.
+function ajustarItem(e, ix, novoG){
+  const it = e.itens && e.itens[ix];
+  if (!it || !it.g) return;
+  const r = novoG / it.g, k0 = e.base.kcal || 0;
+  const temMacros = (it.prot || it.hid || it.gord) || (it.kcal || 0) < 20;
+  const parte = c => c === 'kcal' ? (it.kcal || 0) : temMacros ? (it[c] || 0) : (e.base[c] || 0) * ((it.kcal || 0) / (k0 || 1));
+  const delta = {};
+  for (const c of ['kcal', 'prot', 'hid', 'gord']) delta[c] = parte(c) * (r - 1);
+  for (const c in delta) e.base[c] = Math.max(0, (e.base[c] || 0) + delta[c]);
+  const f = k0 ? e.base.kcal / k0 : 1;
+  for (const c of ['fibra', 'acucar', 'sat', 'sodio']) e.base[c] = (e.base[c] || 0) * f;
+  for (const c in (e.micros || {})) e.micros[c] = (e.micros[c] || 0) * f;
+  it.g = novoG; it.kcal = (it.kcal || 0) * r;
+  for (const c of ['prot', 'hid', 'gord']) if (it[c]) it[c] *= r;
+}
+
+/* ---------- Sobrou? ---------- */
+let sobraAlvo = null;
+$('#inSobra').onchange = async ev => {
+  const f = ev.target.files[0], e = sobraAlvo;
+  ev.target.value = ''; sobraAlvo = null;
+  if (!f || !e) return;
+  carregar(true, 'A ver o que sobrou…');
+  try {
+    const img = await lerImagem(f), imagem = redimensionar(img, 1024, 0.8);
+    const desc = e.prato + (temItens(e) ? ' (' + e.itens.map(i => `${i.nome} ${Math.round(i.g * e.fator)} g`).join(', ') + ')' : '');
+    const txt = await geminiTexto([{inline_data: {mime_type: 'image/jpeg', data: imagem.split(',')[1]}}, {text: `Esta fotografia mostra o que sobrou no prato depois de uma refeição. A refeição servida foi: ${desc}, com cerca de ${Math.round(e.base.kcal * e.fator)} kcal. Estima a fração da refeição servida que ficou por comer, entre 0 e 1. Responde só com JSON: {"sobra":0.25,"observacao":"frase curta em português de Portugal"}`}]);
+    const o = JSON.parse(txt.slice(txt.indexOf('{'), txt.lastIndexOf('}') + 1));
+    const s = clamp(parseFloat(o.sobra) || 0, 0, 0.95), antes = e.base.kcal * e.fator;
+    e.fator = Math.round(e.fator * (1 - s) * 100) / 100; e.atualizado = Date.now();
+    await DB.put(e); marcarSujo(e.data); render();
+    toast(s < 0.03 ? 'Não sobrou praticamente nada. A refeição ficou como estava.' : `Sobrou cerca de ${Math.round(s * 100)}%: menos ${fmtInt(antes - e.base.kcal * e.fator)} kcal.`);
+  } catch(err){ toast(err.rede ? 'Sem ligação. Tenta outra vez quando houver internet.' : (err.message || 'Não consegui analisar as sobras.')); }
+  finally { carregar(false); }
+};
+
+/* ---------- Registar por voz ---------- */
+const Reconhecer = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null;
+function pararVoz(){
+  if (rec){ const r = rec; rec = null; r.onend = null; try { r.abort(); } catch(e){} }
+  $('#shVoz').classList.remove('ouvir');
+}
+function abrirVoz(){
+  if (!Reconhecer){ toast('Este browser não reconhece voz. Escreve a refeição.'); abrirTexto('desc'); return; }
+  if (!cfg.chave){ semChave(); return; }
+  abrirSheet('#shVoz');
+  iniciarVoz();
+}
+function iniciarVoz(){
+  pararVoz();
+  const r = new Reconhecer();
+  rec = r;
+  r.lang = 'pt-PT'; r.interimResults = true; r.continuous = false; r.maxAlternatives = 1;
+  let texto = '';
+  $('#vozTxt').textContent = 'A ouvir…';
+  $('#shVoz').classList.add('ouvir');
+  r.onresult = ev => { texto = [...ev.results].map(x => x[0].transcript).join(' ').trim(); $('#vozTxt').textContent = texto || 'A ouvir…'; };
+  r.onerror = ev => {
+    texto = '';
+    $('#vozTxt').textContent = /not-allowed/.test(ev.error) ? 'Sem acesso ao microfone. Autoriza o microfone para este site nas definições do Chrome.'
+      : ev.error === 'no-speech' ? 'Não ouvi nada. Toca em "Falar outra vez".' : 'Não consegui ouvir. Toca em "Falar outra vez".';
+  };
+  r.onend = () => {
+    if (rec !== r) return;
+    rec = null; $('#shVoz').classList.remove('ouvir');
+    if (texto){ fecharSheets(); registarTexto(texto); }
+  };
+  try { r.start(); } catch(e){ $('#vozTxt').textContent = 'Não consegui ligar o microfone.'; }
+}
+$('#cVoz').onclick = abrirVoz;
+$('#vozDeNovo').onclick = iniciarVoz;
+$('#vozEscrever').onclick = () => { fecharSheets(); abrirTexto('desc'); };
+
+/* ---------- Bebidas rápidas (valores típicos por dose) ---------- */
+const BEBIDAS = [
+  ['Café', 30, {kcal: 2, prot: .1, hid: 0, gord: 0}],
+  ['Café com açúcar', 35, {kcal: 26, prot: .1, hid: 6, gord: 0, acucar: 6}],
+  ['Galão', 250, {kcal: 115, prot: 7, hid: 11, gord: 4.5, acucar: 11, sat: 2.8, sodio: 110}],
+  ['Cerveja 33 cl', 330, {kcal: 140, prot: 1.5, hid: 11, gord: 0, sodio: 15}],
+  ['Copo de vinho', 150, {kcal: 125, prot: .1, hid: 4, gord: 0, acucar: 1}],
+  ['Sumo de laranja', 250, {kcal: 110, prot: 1.7, hid: 26, gord: .5, acucar: 21}],
+  ['Refrigerante 33 cl', 330, {kcal: 140, prot: 0, hid: 35, gord: 0, acucar: 35, sodio: 30}]
+];
+$('#bebidas').innerHTML = BEBIDAS.map(([n, ml, v], i) => `<button class="beb" data-b="${i}">${n}<span>${v.kcal} kcal</span></button>`).join('');
+$('#bebidas').addEventListener('click', async ev => {
+  const b = ev.target.closest('[data-b]');
+  if (!b) return;
+  const [nome, ml, v] = BEBIDAS[+b.dataset.b];
+  const base = Object.assign({kcal: 0, prot: 0, hid: 0, gord: 0, fibra: 0, acucar: 0, sat: 0, sodio: 0}, v);
+  const e = await guardarNova({prato: nome, itens: [{nome, g: ml, kcal: v.kcal, prot: v.prot, hid: v.hid, gord: v.gord}], base, micros: {}, confianca: 'media', obs: 'Valores típicos para uma dose desta bebida.'}, {fonte: 'bebida'});
+  render(); atualizarFrequentes();
+  toast(`Registado: ${nome} · ${v.kcal} kcal`, {txt: 'Desfazer', fn: async () => { await apagarRefeicao(e); render(); atualizarFrequentes(); }});
+});
+
+/* ---------- IA que aprende contigo ---------- */
+function lembrarNota(nota){
+  const n = String(nota || '').trim();
+  if (!n) return;
+  cfg.notasIA = [...new Set([...(cfg.notasIA || []), n])].slice(-20);
+  guardarPerfil();
+  toast('A IA vai ter isto em conta nas próximas estimativas.');
+}
+$('#fNotas').addEventListener('change', ev => {
+  cfg.notasIA = ev.target.value.split('\n').map(s => s.trim()).filter(Boolean).slice(0, 20);
+  guardarPerfil();
+});
+
+/* ---------- Conselho do dia ---------- */
+let conselhos = LS.get('conselhos', {});
+function renderConselho(k, n){
+  const C = $('#conselho');
+  if (!n || !cfg.chave){ C.innerHTML = ''; return; }
+  const c = conselhos[k];
+  C.innerHTML = `<section class="card conselho"><div class="cab-card"><h3 class="ct">Conselho do dia</h3>${c ? '<button class="bt mini" data-acao="conselho">Atualizar</button>' : ''}</div>
+    ${c ? `<p class="cs-resumo">${esc(c.resumo)}</p><ul class="dest">${c.sugestoes.map(s => `<li>${esc(s)}</li>`).join('')}</ul>`
+        : '<p class="sub">Um resumo do teu dia e três sugestões práticas para o que falta, com base no que registaste.</p><button class="bt larg" data-acao="conselho">Pedir conselho</button>'}</section>`;
+}
+$('#conselho').addEventListener('click', ev => { if (ev.target.closest('[data-acao="conselho"]')) pedirConselho(); });
+async function pedirConselho(){
+  const k = chaveData(dia), m = metas(), hora = new Date().getHours(), ehHoje = k === chaveData(new Date());
+  let lista = [];
+  try { lista = (await DB.doDia(k)).sort((a, b) => a.ts - b.ts); } catch(e){}
+  const t = {kcal: 0, prot: 0, hid: 0, gord: 0, fibra: 0, sodio: 0};
+  lista.forEach(e => { for (const c in t) t[c] += (e.base[c] || 0) * e.fator; });
+  const refs = lista.map(e => `- ${new Date(e.ts).toLocaleTimeString('pt-PT', {hour: '2-digit', minute: '2-digit'})} ${e.prato} (${Math.round(e.base.kcal * e.fator)} kcal, ${Math.round((e.base.prot || 0) * e.fator)} g proteína)`).join('\n');
+  const pedido = `És um nutricionista português, prático e simpático. Analisa o dia alimentar e dá conselhos curtos e concretos, com comida portuguesa comum. Não faças diagnósticos médicos.
+Metas diárias: ${m.kcal} kcal, ${m.prot} g proteína, ${m.hid} g hidratos, ${m.gord} g gordura, ${m.agua} ml de água. Objetivo: ${{perder: 'perder peso', ganhar: 'ganhar massa', manter: 'manter o peso'}[cfg.objetivo] || 'manter o peso'}.
+Totais ${ehHoje ? `até agora (são ${hora}h)` : 'do dia'}: ${Math.round(t.kcal)} kcal, ${Math.round(t.prot)} g proteína, ${Math.round(t.hid)} g hidratos, ${Math.round(t.gord)} g gordura, ${Math.round(t.fibra)} g fibra, ${Math.round(t.sodio)} mg sódio, ${agua[k] || 0} ml de água.
+Refeições:
+${refs}
+${ehHoje && hora < 21 ? 'Sugere o que comer e beber no resto do dia para fechar bem as metas.' : 'Faz o balanço do dia e sugere o que ajustar amanhã.'}
+Responde só com JSON: {"resumo":"uma ou duas frases","sugestoes":["...","...","..."]}, em português de Portugal, cada sugestão com no máximo 25 palavras.`;
+  carregar(true, 'A pensar no teu dia…');
+  try {
+    const txt = await geminiTexto([{text: pedido}]);
+    const o = JSON.parse(txt.slice(txt.indexOf('{'), txt.lastIndexOf('}') + 1));
+    conselhos[k] = {resumo: String(o.resumo || '').slice(0, 300), sugestoes: (Array.isArray(o.sugestoes) ? o.sugestoes : []).slice(0, 4).map(s => String(s).slice(0, 220)), ts: Date.now()};
+    const ks = Object.keys(conselhos).sort();
+    while (ks.length > 30) delete conselhos[ks.shift()];
+    LS.set('conselhos', conselhos);
+    render();
+  } catch(err){ toast(err.rede ? 'Sem ligação. Pede o conselho quando houver internet.' : (err.message || 'Não consegui pedir o conselho.')); }
+  finally { carregar(false); }
+}
+
+/* ---------- Relatório do mês (para guardar em PDF) ---------- */
+async function abrirRelatorio(mes){
+  const [a, mm] = mes.split('-').map(Number), ini = diaNum(mes + '-01'), fim = Math.round(Date.UTC(a, mm, 0) / 864e5);
+  const hojeN = diaNum(chaveData(new Date())), m = metas();
+  let lista = [];
+  try { lista = (await DB.desde(numDia(ini))).filter(e => e.data <= numDia(fim)); } catch(e){}
+  const dias = somarDias(lista, ini, fim - ini + 1), comN = dias.filter(d => d.n), base = diasBase(dias);
+  const avg = c => base.length ? media(base, c) : 0;
+  const nomeMes = new Date(Date.UTC(a, mm - 1, 15)).toLocaleDateString('pt-PT', {month: 'long', year: 'numeric', timeZone: 'UTC'});
+  const an = analisarPeso();
+  const tAt = t => { if (!an) return null; const l = an.ps.filter(p => p.t <= t); return l.length ? l[l.length - 1].tr : null; };
+  const w1 = tAt(Math.min(fim, hojeN)), primeiro = an && an.ps.find(p => p.t >= ini), w0 = tAt(ini - 1) ?? (primeiro ? primeiro.tr : null);
+  const aguas = dias.filter(d => agua[d.k] > 0).map(d => agua[d.k]);
+  const kpis = [[`${comN.length}/${dias.length}`, 'dias com registos'], [base.length ? fmtInt(avg('kcal')) : '—', `kcal por dia (meta ${fmtInt(m.kcal)})`],
+    [String(comN.filter(d => Math.abs(d.kcal - m.kcal) <= m.kcal * 0.1).length), 'dias na meta (±10%)'], [w0 != null && w1 != null ? sinal(w1 - w0) + ' kg' : '—', 'variação do peso real']];
+  const W = 680, H = 170, L = 6, R = 6, T = 14, B = 22, n = dias.length, max = Math.max(m.kcal * 1.15, ...dias.map(d => d.kcal)), cw = (W - L - R) / n, bw = cw * 0.62;
+  const Y = v => (T + (1 - v / max) * (H - T - B)).toFixed(1);
+  let g = `<line x1="${L}" x2="${W - R}" y1="${H - B}" y2="${H - B}" stroke="#BBB"/><line x1="${L}" x2="${W - R}" y1="${Y(m.kcal)}" y2="${Y(m.kcal)}" stroke="#999" stroke-dasharray="4 4"/>`;
+  dias.forEach((d, i) => {
+    const x = (L + cw * i + (cw - bw) / 2).toFixed(1);
+    if (d.n) g += `<rect x="${x}" y="${Y(d.kcal)}" width="${bw.toFixed(1)}" height="${(H - B - Y(d.kcal)).toFixed(1)}" rx="2" fill="#7E9F3C"/>`;
+    if (i % 5 === 0 || i === n - 1) g += `<text x="${(L + cw * i + cw / 2).toFixed(1)}" y="${H - 6}" text-anchor="middle">${i + 1}</text>`;
+  });
+  const pk = avg('prot') * 4, hk = avg('hid') * 4, gk = avg('gord') * 9, tot = pk + hk + gk || 1;
+  const mac = [['Proteína', avg('prot'), m.prot, pk], ['Hidratos', avg('hid'), m.hid, hk], ['Gordura', avg('gord'), m.gord, gk]]
+    .map(([nm, v, meta, kc]) => `<tr><td>${nm}</td><td>${fmtInt(v)} g</td><td>${meta} g</td><td>${Math.round(v / meta * 100)}%</td><td>${Math.round(kc / tot * 100)}%</td></tr>`).join('');
+  const REFS = [['fibra', 'Fibra', 'g', 25], ['potassio', 'Potássio', 'mg', 2000], ['calcio', 'Cálcio', 'mg', 800], ['ferro', 'Ferro', 'mg', 14], ['vitc', 'Vitamina C', 'mg', 80], ['sodio', 'Sódio (limite)', 'mg', 2000], ['acucar', 'Açúcar (limite)', 'g', m.kcal * 0.1 / 4], ['sat', 'Gordura saturada (limite)', 'g', m.kcal * 0.1 / 9]];
+  const mic = REFS.map(([c, nm, u, ref]) => `<tr><td>${nm}</td><td>${fmtMic(avg(c))} ${u}</td><td>${fmtMic(ref)} ${u}</td><td>${Math.round(avg(c) / ref * 100)}%</td></tr>`).join('');
+  const diario = comN.map(d => `<tr><td>${comDia(d.t)}</td><td>${fmtInt(d.kcal)}</td><td>${fmtInt(d.prot)}</td><td>${fmtInt(d.hid)}</td><td>${fmtInt(d.gord)}</td><td>${agua[d.k] ? fmt1(agua[d.k] / 1000) + ' L' : '—'}</td></tr>`).join('');
+  $('#relatorio').innerHTML = `<div class="rel-barra"><button class="bt" id="relFechar">Fechar</button><button class="bt pri" id="relPdf">Guardar PDF</button></div>
+  <article class="rel">
+    <div class="rel-sub">Garfada · relatório mensal</div>
+    <h1>${nomeMes.replace(/^./, c => c.toUpperCase())}</h1>
+    <div class="rel-sub">Gerado a ${new Date().toLocaleDateString('pt-PT', {day: 'numeric', month: 'long', year: 'numeric'})}${base.length < comN.length ? ` · médias com os ${base.length} dias completos (1000 kcal ou mais)` : ''}</div>
+    <div class="rel-kpis">${kpis.map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join('')}</div>
+    ${comN.length ? `<h2>Calorias por dia</h2><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Calorias por dia do mês face à meta">${g}</svg><div class="rel-sub">Barras: calorias registadas. Tracejado: meta de ${fmtInt(m.kcal)} kcal.</div>
+    <h2>Macronutrientes (média diária)</h2><table><tr><th>Nutriente</th><th>Média</th><th>Meta</th><th>Da meta</th><th>Das calorias</th></tr>${mac}</table>
+    <h2>Micronutrientes (média diária)</h2><table><tr><th>Nutriente</th><th>Média</th><th>Referência</th><th>Da referência</th></tr>${mic}</table>
+    <h2>Peso e água</h2><table><tr><td>Peso real</td><td>${w0 != null && w1 != null ? `${fmt1(w0)} → ${fmt1(w1)} kg (${sinal(w1 - w0)} kg)` : 'sem pesagens suficientes'}</td></tr><tr><td>Água por dia</td><td>${aguas.length ? fmt1(media(aguas) / 1000) + ' L (meta ' + fmt1(m.agua / 1000) + ' L)' : 'sem registos'}</td></tr></table>
+    <h2>Dia a dia</h2><table><tr><th>Dia</th><th>kcal</th><th>Proteína g</th><th>Hidratos g</th><th>Gordura g</th><th>Água</th></tr>${diario}</table>`
+    : '<p style="margin-top:16px">Sem refeições registadas neste mês.</p>'}
+    <p class="rel-nota">Valores estimados a partir de fotografias, descrições e rótulos. Referências para adultos (UE e OMS). Não substitui aconselhamento de um profissional de saúde.</p>
+  </article>`;
+  $('#relatorio').hidden = false;
+  $('#relatorio').scrollTop = 0;
+}
+$('#relatorio').addEventListener('click', ev => {
+  if (ev.target.id === 'relFechar') $('#relatorio').hidden = true;
+  else if (ev.target.id === 'relPdf') window.print();
+});
+
 /* ---------- Arranque ---------- */
 (async function iniciar(){
   const p = new URLSearchParams(location.search);
@@ -2025,8 +2361,9 @@ function contar(el, v){  // o número do anel conta até ao novo valor
   estadoSync();
   atualizarFrequentes();
   sincronizar();
-  setInterval(() => { if (document.visibilityState === 'visible') sincronizar(); }, 120000);
-  window.addEventListener('online', () => sincronizar());
+  processarFila();
+  setInterval(() => { if (document.visibilityState === 'visible'){ sincronizar(); processarFila(); } }, 120000);
+  window.addEventListener('online', () => { sincronizar(); processarFila(); });
 })();
 </script>
 </body>
