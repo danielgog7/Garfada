@@ -303,6 +303,25 @@ nav.barra .foto{margin-top:-30px;box-shadow:0 8px 26px rgba(198,243,107,.28),0 0
 .onda.o2{height:11px;fill:rgba(79,195,247,.06);animation-duration:19s;animation-direction:reverse}
 @keyframes mar{to{transform:translateX(-50%)}}
 :focus-visible{outline:2px solid var(--kcal);outline-offset:2px}
+.itens-l{font-size:12px;color:var(--fraco);margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal}
+.dica{font-size:11.5px}
+.rep{position:relative;overflow:hidden;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.rep img{pointer-events:none}
+.rep::after{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(255,93,93,.3);pointer-events:none}
+.rep.apertar::after{width:100%;transition:width 3s linear}
+.diario{border-top:1px solid rgba(120,150,220,.12)}
+.diario:first-of-type{border-top:0}
+.diario summary{display:flex;align-items:center;gap:10px;padding:11px 0;cursor:pointer;font-weight:600;list-style:none}
+.diario summary::-webkit-details-marker{display:none}
+.diario summary span:first-child{flex:1}
+.diario summary .num{color:var(--sub);font-weight:500;font-size:14px}
+.diario summary::after{content:'›';color:var(--sub);font-size:18px;transform:rotate(90deg);transition:transform .2s}
+.diario[open] summary::after{transform:rotate(-90deg)}
+.dia-ref{padding:2px 0 2px 12px;border-left:2px solid var(--linha);margin:0 0 12px 2px}
+.dia-ref .lin{display:flex;justify-content:space-between;gap:10px;font-size:14px}
+.dia-ref .sub{font-size:12px;margin-top:2px}
+.dia-ref .itens-l{-webkit-line-clamp:4}
+.diario .bt.mini{margin:0 0 12px}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -343,7 +362,7 @@ nav.barra .foto{margin-top:-30px;box-shadow:0 8px 26px rgba(198,243,107,.28),0 0
     <button class="chip" id="cCod"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path stroke-width="1.8" d="M4 6v12M8 6v12M15 6v12M20 6v12"/><path stroke-width="1" d="M11 6v12M17.5 6v12"/></svg>Código</button>
     <button class="chip" id="cColar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h14a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H10l-5 4v-4H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>ChatGPT</button>
   </div>
-  <div class="repetir" id="repetir" hidden><h3 class="ct">Repetir com um toque</h3><div class="rep-lista" id="repetirLista"></div></div>
+  <div class="repetir" id="repetir" hidden><div class="cab-card"><h3 class="ct">Repetir com um toque</h3><span class="sub dica">mantém premido para remover</span></div><div class="rep-lista" id="repetirLista"></div></div>
   <section class="card agua">
     <div class="copo"><i id="aguaNivel"></i></div>
     <div class="txt"><div class="sub">Água</div><b class="num" id="aguaTxt">0 ml</b><div class="sub num" id="aguaMeta"></div></div>
@@ -434,6 +453,7 @@ nav.barra .foto{margin-top:-30px;box-shadow:0 8px 26px rgba(198,243,107,.28),0 0
     <div class="card">
       <div class="campo"><label for="fFundo">Fundo vivo</label><input id="fFundo" type="checkbox"></div>
       <p class="nota">Um painel de azulejos vai-se pintando à medida que comes até à meta do dia, e a água no fundo do ecrã sobe com o que bebes. Desliga para poupar bateria.</p>
+      <div class="campo"><label for="mostrarOcultos">Pratos removidos de "Repetir": <span id="nOcultos">0</span></label><button class="bt mini" id="mostrarOcultos">Repor todos</button></div>
     </div>
 
     <h2>Dados</h2>
@@ -788,7 +808,7 @@ async function render(){
     html += `<div class="grupo"><h3><span>${nome}</span><span class="num">${Math.round(sk)} kcal</span></h3>`;
     for (const e of g){
       const v = c => Math.round((e.base[c] || 0) * e.fator);
-      html += `<button class="ref" data-id="${esc(e.id)}">${e.thumb ? `<img src="${e.thumb}" alt="">` : `<div class="sem">${esc((e.prato || '?').charAt(0).toUpperCase())}</div>`}<div class="info"><div class="nome">${esc(e.prato)}</div><div class="mac num">P ${v('prot')} · H ${v('hid')} · G ${v('gord')}${e.confianca === 'baixa' ? ' · <span class="incerta">incerta</span>' : ''}</div></div><div class="kc num">${v('kcal')}<span>kcal</span></div></button>`;
+      html += `<button class="ref" data-id="${esc(e.id)}">${e.thumb ? `<img src="${e.thumb}" alt="">` : `<div class="sem">${esc((e.prato || '?').charAt(0).toUpperCase())}</div>`}<div class="info"><div class="nome">${esc(e.prato)}</div><div class="mac num">P ${v('prot')} · H ${v('hid')} · G ${v('gord')}${e.confianca === 'baixa' ? ' · <span class="incerta">incerta</span>' : ''}</div>${temItens(e) ? `<div class="itens-l">${textoItens(e)}</div>` : ''}</div><div class="kc num">${v('kcal')}<span>kcal</span></div></button>`;
     }
     html += '</div>';
   }
@@ -960,6 +980,8 @@ function preencherDef(){
   if (!$('#fModelo').options.length) preencherModelos();
   $('#instrTxt').value = PROMPT_GPT;
   $('#fFundo').checked = cfg.fundo !== false;
+  $('#nOcultos').textContent = (cfg.ocultos || []).length;
+  $('#mostrarOcultos').disabled = !(cfg.ocultos || []).length;
   preencherSync();
 }
 const CAMPOS_PERFIL = {fSexo: 'sexo', fIdade: 'idade', fAltura: 'altura', fPeso: 'peso', fAtiv: 'atividade', fObj: 'objetivo'};
@@ -1430,10 +1452,11 @@ let frequentes = [], veioRemoto = false;
 async function atualizarFrequentes(){
   let l = [];
   try { l = await DB.desde(numDia(diaNum(chaveData(new Date())) - 60)); } catch(e){}
-  const slot = refPorHora(new Date().getHours()), grupos = new Map(), agora = Date.now();
+  const slot = refPorHora(new Date().getHours()), grupos = new Map(), agora = Date.now(), ocultos = new Set(cfg.ocultos || []);
   for (const e of l){
     if (!e.base || !e.prato) continue;
-    const k = e.prato.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+    const k = chavePrato(e.prato);
+    if (ocultos.has(k)) continue;
     const g = grupos.get(k) || {n: 0, slot: 0, ult: null};
     g.n++;
     if (refPorHora(new Date(e.ts).getHours()) === slot) g.slot++;
@@ -1454,6 +1477,7 @@ async function apagarRefeicao(e){
   await DB.del(e.id); marcarSujo(e.data);
 }
 $('#repetirLista').addEventListener('click', async ev => {
+  if (ignorarClique){ ignorarClique = false; return; }
   const b = ev.target.closest('.rep'), o = b && frequentes[+b.dataset.i];
   if (!o) return;
   const copia = JSON.parse(JSON.stringify({prato: o.prato, itens: o.itens || [], base: o.base, micros: o.micros || {}, confianca: o.confianca || 'media', obs: o.obs || '', fator: o.fator || 1, thumb: o.thumb || ''}));
@@ -1462,6 +1486,40 @@ $('#repetirLista').addEventListener('click', async ev => {
   render(); atualizarFrequentes();
   toast(`Registado: ${e.prato} · ${fmtInt(e.base.kcal * e.fator)} kcal`, {txt: 'Desfazer', fn: async () => { await apagarRefeicao(e); render(); atualizarFrequentes(); }});
 });
+
+// Manter premido 3 s num prato tira-o de "Repetir" (as refeições registadas ficam no histórico).
+const chavePrato = p => String(p || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+const temItens = e => { const it = (e.itens || []).filter(i => i.nome); return it.length > 1 || (it.length === 1 && chavePrato(it[0].nome) !== chavePrato(e.prato)); };
+const textoItens = e => (e.itens || []).filter(i => i.nome).map(i => esc(i.nome) + (i.g ? ' ' + fmtInt(i.g * (e.fator || 1)) + ' g' : '')).join(', ');
+let tPremir = null, ignorarClique = false, premirX = 0, premirY = 0;
+const repLista = $('#repetirLista');
+const cancelarPremir = () => { clearTimeout(tPremir); tPremir = null; repLista.querySelectorAll('.rep.apertar').forEach(x => x.classList.remove('apertar')); };
+repLista.addEventListener('contextmenu', ev => { if (ev.target.closest('.rep')) ev.preventDefault(); });
+repLista.addEventListener('pointerdown', ev => {
+  const b = ev.target.closest('.rep');
+  if (!b) return;
+  cancelarPremir();
+  premirX = ev.clientX; premirY = ev.clientY;
+  b.classList.add('apertar');
+  tPremir = setTimeout(() => {
+    tPremir = null; b.classList.remove('apertar');
+    const o = frequentes[+b.dataset.i];
+    if (!o) return;
+    ignorarClique = true; setTimeout(() => { ignorarClique = false; }, 800);
+    try { navigator.vibrate && navigator.vibrate(40); } catch(e){}
+    esconderFrequente(o);
+  }, 3000);
+});
+repLista.addEventListener('pointermove', ev => { if (tPremir && Math.hypot(ev.clientX - premirX, ev.clientY - premirY) > 10) cancelarPremir(); });
+['pointerup', 'pointerleave', 'pointercancel'].forEach(t => repLista.addEventListener(t, cancelarPremir));
+repLista.addEventListener('scroll', cancelarPremir, {passive: true});
+function esconderFrequente(o){
+  const k = chavePrato(o.prato);
+  cfg.ocultos = [...new Set([...(cfg.ocultos || []), k])];
+  guardarPerfil(); atualizarFrequentes();
+  toast(`"${o.prato}" saiu de Repetir. As refeições registadas mantêm-se.`, {txt: 'Desfazer', fn: () => { cfg.ocultos = (cfg.ocultos || []).filter(x => x !== k); guardarPerfil(); atualizarFrequentes(); }});
+}
+$('#mostrarOcultos').onclick = () => { cfg.ocultos = []; guardarPerfil(); atualizarFrequentes(); preencherDef(); toast('Todos os pratos voltaram a "Repetir".'); };
 
 /* ---------- Semana ---------- */
 let semanaOff = 0;
@@ -1522,6 +1580,15 @@ async function renderSemana(){
     <div class="stats num"><div><b>${comN.length}/7</b><span>dias com registos</span></div><div><b>${naMeta}</b><span>dias na meta (±10%)</span></div><div><b>${aguas.length ? fmt1(media(aguas) / 1000) + ' L' : '—'}</b><span>água por dia</span></div><div><b>${w1 != null && w0 != null ? sinal(w1 - w0) + ' kg' : '—'}</b><span>peso real</span></div></div>
     ${base.length < comN.length ? `<p class="nota">Médias calculadas com os ${base.length} dias completos (1000 kcal ou mais registadas).</p>` : ''}</section>`;
   h += `<section class="card"><h3 class="ct">Calorias por dia</h3>${barrasSemana(dias, m.kcal, hojeN)}<div class="leg"><span><i class="lg-bar"></i>calorias</span><span><i class="lg-mt"></i>meta ${fmtInt(m.kcal)} kcal</span><span>toca num dia para o abrir</span></div></section>`;
+  // Diário: o que comeste em cada dia, do mais recente para o mais antigo.
+  const daSemana = lista.filter(e => e.data >= numDia(ini)), kcalDe = e => (e.base.kcal || 0) * (e.fator || 1);
+  const nomeRef = id => (REF.find(r => r[0] === id) || [0, ''])[1];
+  h += `<section class="card"><h3 class="ct">O que comeste</h3>${comN.slice().reverse().map((d, i) => {
+    const ms = daSemana.filter(e => e.data === d.k).sort((a, b) => a.ts - b.ts);
+    return `<details class="diario"${i === 0 ? ' open' : ''}><summary><span>${comDia(d.t).replace(/^./, c => c.toUpperCase())}</span><span class="num">${fmtInt(d.kcal)} kcal</span></summary>
+      ${ms.map(e => `<div class="dia-ref"><div class="lin"><b>${esc(e.prato)}</b><span class="num">${fmtInt(kcalDe(e))} kcal</span></div><div class="sub">${nomeRef(e.refeicao)} · ${new Date(e.ts).toLocaleTimeString('pt-PT', {hour: '2-digit', minute: '2-digit'})}</div>${temItens(e) ? `<div class="itens-l">${textoItens(e)}</div>` : ''}</div>`).join('')}
+      <button class="bt mini" data-k="${d.k}">Abrir este dia</button></details>`;
+  }).join('')}</section>`;
   const mb = (n, v, meta, cor) => `<div class="barra-m"><div class="lin"><b>${n}</b><span class="num">${fmtInt(v)} / ${meta} g</span></div><div class="trilho"><i style="width:${Math.min(100, v / meta * 100)}%;background:${cor}"></i></div></div>`;
   const pk = avg('prot') * 4, hk = avg('hid') * 4, gk = avg('gord') * 9, tot = pk + hk + gk || 1;
   h += `<section class="card"><h3 class="ct">Macronutrientes · média diária</h3>${mb('Proteína', avg('prot'), m.prot, 'var(--prot)')}${mb('Hidratos', avg('hid'), m.hid, 'var(--hid)')}${mb('Gordura', avg('gord'), m.gord, 'var(--gord)')}
@@ -1694,7 +1761,7 @@ $('#codRotulo').onclick = () => { fecharSheets(); notaFoto = NOTA_ROTULO; $('#in
 // Cada dia é um ficheiro dias/AAAA-MM/AAAA-MM-DD.json; o perfil fica em perfil.json.
 // Os dados vivem no dispositivo (funciona offline) e são fundidos com o repositório:
 // cada refeição tem "atualizado" (ganha a versão mais recente) e as apagadas deixam marca em "apagados".
-const PARTILHADO = ['sexo', 'idade', 'altura', 'peso', 'atividade', 'objetivo', 'perfilOk', 'manual', 'metas', 'pesoMeta', 'pesoInicio', 'metaDesde', 'usarTdee', 'tdeeReal'];
+const PARTILHADO = ['sexo', 'idade', 'altura', 'peso', 'atividade', 'objetivo', 'perfilOk', 'manual', 'metas', 'pesoMeta', 'pesoInicio', 'metaDesde', 'usarTdee', 'tdeeReal', 'ocultos'];
 let gh = Object.assign({dono: 'danielgog7', repo: 'garfada-dados', token: ''}, LS.get('gh', {}));
 let sync = Object.assign({shas: {}, sujos: {}, ultimo: 0, erro: ''}, LS.get('sync', {}));
 let apagados = LS.get('apagados', {});
