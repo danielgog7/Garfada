@@ -3,15 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0e0f12">
+<meta name="theme-color" content="#0A1222">
 <title>Garfada</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preload" href="bricolage.woff2" as="font" type="font/woff2" crossorigin>
 <style>
 :root{
-  --bg:#0e0f12;--card:#17191e;--card2:#1f2229;--linha:#2a2e37;
-  --txt:#eceef2;--sub:#9aa1ad;--fraco:#6b7280;
+  --bg:#0A1222;--card:#131C31;--card2:#1B2640;--linha:#26344F;--vidro:rgba(19,28,49,.92);
+  --txt:#EEF2FA;--sub:#9AA8C3;--fraco:#7381A6;
   --kcal:#c6f36b;--prot:#ff8a65;--hid:#ffd166;--gord:#c792ea;--agua:#4fc3f7;--aviso:#ff5d5d;
   --r:18px;
 }
@@ -258,9 +259,62 @@ nav.barra .foto{flex:none;margin-left:4px;margin-right:4px}
 .prod-topo img{width:64px;height:64px;border-radius:12px;object-fit:contain;background:#fff;flex:none}
 .grelha b{font-size:17px;font-weight:800;color:var(--txt)}
 .porcao small{display:block;font-size:11px;font-weight:600;opacity:.75}
+/* ---------- Visual: azul-noite, azulejos e água ---------- */
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:200 800;font-display:swap;src:url(bricolage.woff2) format("woff2-variations"),url(bricolage.woff2) format("woff2")}
+.tit,#diaTitulo,.hp-num,.anel .grande,.vg-falta,.mt-num,.rv b,.dc-tit,.agua .txt b,.sheet h4{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-optical-sizing:auto}
+.tit,#diaTitulo{font-size:30px;letter-spacing:-.6px;font-weight:800}
+body{padding-bottom:calc(116px + env(safe-area-inset-bottom))}
+.card{background:var(--vidro);border-color:rgba(120,150,220,.13);border-radius:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.resumo{background:radial-gradient(120% 140% at 0% 50%,rgba(198,243,107,.09),transparent 55%),var(--vidro)}
+.anel svg{filter:drop-shadow(0 0 7px rgba(198,243,107,.3))}
+.anel .peq{text-transform:none;letter-spacing:0;font-size:12px}
+.anel .grande{font-size:30px}
+.ct,.grupo h3,.sec h2{text-transform:none;letter-spacing:0}
+.ct{font-size:15px;font-weight:650;color:var(--txt)}
+.grupo h3{font-size:14px;font-weight:650}
+.sec h2{font-size:14px;font-weight:650;margin-top:26px}
+.chip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:var(--vidro);border-color:rgba(120,150,220,.13);border-radius:16px;padding:12px 4px 10px;color:var(--txt);font-size:12.5px;line-height:1.2}
+.chip svg{width:22px;height:22px;color:var(--kcal)}
+.ref,.rep,.vazio{background:var(--vidro);border-color:rgba(120,150,220,.11)}
+.vazio{border-style:dashed}
+.hist{border-bottom-color:rgba(120,150,220,.12)}
+nav.barra{left:12px;right:12px;max-width:520px;margin:0 auto;bottom:calc(10px + env(safe-area-inset-bottom));padding:6px;border:1px solid rgba(120,150,220,.16);border-radius:26px;background:rgba(14,22,40,.84);box-shadow:0 12px 32px rgba(0,0,0,.45)}
+nav.barra .tab.ativo svg{color:var(--kcal)}
+nav.barra .foto{margin-top:-30px;box-shadow:0 8px 26px rgba(198,243,107,.28),0 0 0 6px var(--bg)}
+.sheet{border-top-color:rgba(120,150,220,.18);box-shadow:0 -20px 50px rgba(0,0,0,.45)}
+#veu{backdrop-filter:blur(2px)}
+#toast,.graf-tip{background:#1D2944;border-color:rgba(120,150,220,.22)}
+#carregar{background:rgba(10,18,34,.86)}
+.bt,.chip,.ref,.rep,.ic,.tab,.agua .bts button{transition:transform .12s ease,background-color .15s ease}
+.bt:active,.chip:active,.ref:active,.rep:active,.ic:active,.agua .bts button:active{transform:scale(.97)}
+.copo{border-radius:0 0 12px 12px}
+.copo i::before{content:'';position:absolute;left:0;right:0;top:-5px;height:6px;background:radial-gradient(circle at 50% 0,transparent 5px,var(--agua) 5.5px) 0 0/12px 6px repeat-x;animation:copo 2.4s linear infinite}
+.copo i[style*="height: 0%"]::before{display:none}
+@keyframes copo{to{background-position-x:12px}}
+#fundo{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+#fundoTiles{position:absolute;left:0;top:0;display:grid}
+#fundoTiles i{background-image:var(--azulejo);background-size:100% 100%;opacity:.035;transition:opacity .9s ease,background-color .9s ease}
+#fundoTiles i.on{opacity:.2;background-color:rgba(61,107,224,.26)}
+#fundoTiles i.novo{animation:azulejo 1s cubic-bezier(.2,.8,.2,1)}
+@keyframes azulejo{from{opacity:0;transform:scale(.86) rotate(-4deg)}to{opacity:.2;transform:none}}
+#fundo.excesso #fundoTiles i.on{background-color:rgba(255,138,101,.24)}
+.mar{position:absolute;left:0;right:0;bottom:0;height:var(--nivel-agua,3vh);background:linear-gradient(to top,rgba(79,195,247,.22),rgba(79,195,247,.09));transition:height 1.2s cubic-bezier(.3,.7,.2,1)}
+.onda{position:absolute;left:0;bottom:calc(100% - 1px);width:200%;height:16px;fill:rgba(79,195,247,.09);animation:mar 12s linear infinite}
+.onda.o2{height:11px;fill:rgba(79,195,247,.06);animation-duration:19s;animation-direction:reverse}
+@keyframes mar{to{transform:translateX(-50%)}}
+:focus-visible{outline:2px solid var(--kcal);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
+
+<div id="fundo" aria-hidden="true">
+  <div id="fundoTiles"></div>
+  <div class="mar">
+    <svg class="onda o2" viewBox="0 0 1200 40" preserveAspectRatio="none"><path d="M0 20Q75 0 150 20T300 20T450 20T600 20T750 20T900 20T1050 20T1200 20V40H0Z"/></svg>
+    <svg class="onda" viewBox="0 0 1200 40" preserveAspectRatio="none"><path d="M0 20Q75 0 150 20T300 20T450 20T600 20T750 20T900 20T1050 20T1200 20V40H0Z"/></svg>
+  </div>
+</div>
 
 <header class="topo" id="topo">
   <div class="dia"><div><span id="diaTitulo">Hoje</span><span id="syncPonto" class="ponto" hidden></span></div><div class="sub" id="diaSub"></div></div>
@@ -274,7 +328,7 @@ nav.barra .foto{flex:none;margin-left:4px;margin-right:4px}
   <div id="avisoCfg"></div>
   <section class="card resumo">
     <div class="anel">
-      <svg viewBox="0 0 120 120"><circle class="fundo" cx="60" cy="60" r="52" fill="none" stroke-width="10"/><circle class="prog" id="anelProg" cx="60" cy="60" r="52" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73"/></svg>
+      <svg viewBox="0 0 120 120"><defs><linearGradient id="gAnel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E6FF94"/><stop offset="1" stop-color="#7FCF4A"/></linearGradient></defs><circle class="fundo" cx="60" cy="60" r="52" fill="none" stroke-width="10"/><circle class="prog" id="anelProg" cx="60" cy="60" r="52" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73"/></svg>
       <div class="centro"><div class="grande num" id="kRest">0</div><div class="peq" id="kRestLbl">restantes</div><div class="tot num" id="kTot"></div></div>
     </div>
     <div>
@@ -284,10 +338,10 @@ nav.barra .foto{flex:none;margin-left:4px;margin-right:4px}
     </div>
   </section>
   <div class="chips">
-    <button class="chip" id="cGal">Galeria</button>
-    <button class="chip" id="cDesc">Descrever</button>
-    <button class="chip" id="cCod">Código de barras</button>
-    <button class="chip" id="cColar">ChatGPT</button>
+    <button class="chip" id="cGal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>Galeria</button>
+    <button class="chip" id="cDesc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Descrever</button>
+    <button class="chip" id="cCod"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path stroke-width="1.8" d="M4 6v12M8 6v12M15 6v12M20 6v12"/><path stroke-width="1" d="M11 6v12M17.5 6v12"/></svg>Código</button>
+    <button class="chip" id="cColar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h14a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H10l-5 4v-4H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>ChatGPT</button>
   </div>
   <div class="repetir" id="repetir" hidden><h3 class="ct">Repetir com um toque</h3><div class="rep-lista" id="repetirLista"></div></div>
   <section class="card agua">
@@ -374,6 +428,12 @@ nav.barra .foto{flex:none;margin-left:4px;margin-right:4px}
       <p class="sub">Cria um Projeto no ChatGPT, cola estas instruções e depois usa "Colar do ChatGPT" no ecrã Hoje.</p>
       <button class="bt larg" id="copiarInstr">Copiar instruções</button>
       <details><summary>Ver instruções</summary><textarea id="instrTxt" readonly></textarea></details>
+    </div>
+
+    <h2>Aspeto</h2>
+    <div class="card">
+      <div class="campo"><label for="fFundo">Fundo vivo</label><input id="fFundo" type="checkbox"></div>
+      <p class="nota">Um painel de azulejos vai-se pintando à medida que comes até à meta do dia, e a água no fundo do ecrã sobe com o que bebes. Desliga para poupar bateria.</p>
     </div>
 
     <h2>Dados</h2>
@@ -701,8 +761,8 @@ async function render(){
   const prog = $('#anelProg');
   prog.style.strokeDashoffset = C * (1 - pct);
   const resta = Math.round(m.kcal - t.kcal);
-  prog.style.stroke = resta < 0 ? 'var(--aviso)' : 'var(--kcal)';
-  $('#kRest').textContent = Math.abs(resta);
+  prog.style.stroke = resta < 0 ? 'var(--aviso)' : 'url(#gAnel)';
+  contar($('#kRest'), Math.abs(resta));
   $('#kRestLbl').textContent = resta < 0 ? 'acima da meta' : 'restantes';
   $('#kTot').textContent = `${Math.round(t.kcal)} de ${m.kcal}`;
   barra('Prot', t.prot, m.prot); barra('Hid', t.hid, m.hid); barra('Gord', t.gord, m.gord);
@@ -711,6 +771,7 @@ async function render(){
   $('#aguaTxt').textContent = `${ml} ml`;
   $('#aguaMeta').textContent = `de ${m.agua} ml`;
   $('#aguaNivel').style.height = Math.min(100, m.agua ? ml / m.agua * 100 : 0) + '%';
+  atualizarFundo(k, m.kcal ? t.kcal / m.kcal : 0, m.agua ? ml / m.agua : 0);
   aviso();
   renderPesoMini(k);
 
@@ -898,6 +959,7 @@ function preencherDef(){
   $('#fChave').value = cfg.chave; $('#fMostrar').checked = cfg.mostrar;
   if (!$('#fModelo').options.length) preencherModelos();
   $('#instrTxt').value = PROMPT_GPT;
+  $('#fFundo').checked = cfg.fundo !== false;
   preencherSync();
 }
 const CAMPOS_PERFIL = {fSexo: 'sexo', fIdade: 'idade', fAltura: 'altura', fPeso: 'peso', fAtiv: 'atividade', fObj: 'objetivo'};
@@ -1822,6 +1884,67 @@ $('#gDesligar').onclick = () => {
   sync = {shas: {}, sujos: {}, ultimo: 0, erro: ''}; guardarSync();
   preencherSync();
 };
+
+/* ---------- Fundo vivo: painel de azulejos (calorias) e água (hidratação) ---------- */
+const AZULEJO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="#A9C1FF" stroke-width="1.5" stroke-linecap="round">
+<rect x="1" y="1" width="98" height="98" rx="2" stroke-opacity=".45"/>
+<g id="c"><circle cx="0" cy="0" r="22"/><circle cx="0" cy="0" r="13"/><path d="M0 31Q13 13 31 0" stroke-opacity=".7"/></g>
+<use href="#c" transform="rotate(90 50 50)"/><use href="#c" transform="rotate(180 50 50)"/><use href="#c" transform="rotate(270 50 50)"/>
+<g id="p"><path d="M50 50C42 41 42 29 50 18C58 29 58 41 50 50Z"/><path d="M50 50C56 44 63 40 72 38C68 46 60 50 50 50Z" stroke-opacity=".7"/></g>
+<use href="#p" transform="rotate(90 50 50)"/><use href="#p" transform="rotate(180 50 50)"/><use href="#p" transform="rotate(270 50 50)"/>
+<circle cx="50" cy="50" r="5"/></svg>`;
+document.documentElement.style.setProperty('--azulejo', `url("data:image/svg+xml,${encodeURIComponent(AZULEJO_SVG)}")`);
+$('#fundo').hidden = cfg.fundo === false;
+let tiles = [], tilesOrdem = [], fundoSeed = '', fundoAcesos = 0, fundoGen = 0, fundoW = 0, fundoH = 0, tFundo;
+const comMovimento = () => !matchMedia('(prefers-reduced-motion: reduce)').matches;
+function montarFundo(){
+  const F = $('#fundoTiles'), w = innerWidth, cols = w < 640 ? 5 : Math.ceil(w / 120), size = w / cols;
+  const rows = Math.ceil(Math.max(innerHeight, screen.height || 0) / size) + 1;
+  F.style.gridTemplateColumns = `repeat(${cols}, ${size}px)`; F.style.gridAutoRows = size + 'px';
+  F.innerHTML = '<i></i>'.repeat(cols * rows);
+  tiles = [...F.children]; fundoSeed = ''; fundoAcesos = 0; fundoW = w; fundoH = rows * size;
+}
+function baralhar(n, seed){  // ordem diferente (mas fixa) para cada dia
+  let s = 7;
+  for (const c of seed) s = (Math.imul(s, 31) + c.charCodeAt(0)) >>> 0;
+  const a = [...Array(n).keys()];
+  for (let i = n - 1; i > 0; i--){ s = (Math.imul(s, 1103515245) + 12345) >>> 0; const j = s % (i + 1); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function atualizarFundo(k, pKcal, pAgua){
+  if (cfg.fundo === false) return;
+  document.documentElement.style.setProperty('--nivel-agua', (3 + clamp(pAgua, 0, 1) * 27).toFixed(1) + 'vh');
+  $('#fundo').classList.toggle('excesso', pKcal > 1.1);
+  if (!tiles.length) montarFundo();
+  if (fundoSeed !== k){ tilesOrdem = baralhar(tiles.length, k); fundoSeed = k; fundoAcesos = 0; tiles.forEach(t => { t.className = ''; }); }
+  const alvo = Math.round(clamp(pKcal, 0, 1) * tiles.length);
+  if (alvo === fundoAcesos) return;
+  const gen = ++fundoGen, de = Math.min(fundoAcesos, alvo), animar = comMovimento();
+  tilesOrdem.forEach((ix, i) => { if (i < de) tiles[ix].classList.add('on'); else tiles[ix].className = ''; });
+  fundoAcesos = alvo;
+  for (let i = de; i < alvo; i++){
+    const t = tiles[tilesOrdem[i]];
+    if (animar) setTimeout(() => { if (gen === fundoGen) t.className = 'on novo'; }, 80 + (i - de) * 28);
+    else t.className = 'on';
+  }
+}
+addEventListener('resize', () => {
+  clearTimeout(tFundo);
+  tFundo = setTimeout(() => { if (Math.abs(innerWidth - fundoW) > 2 || innerHeight > fundoH){ montarFundo(); render(); } }, 300);
+});
+$('#fFundo').onchange = ev => {
+  cfg.fundo = ev.target.checked; guardarCfg();
+  $('#fundo').hidden = !cfg.fundo;
+  if (cfg.fundo){ fundoSeed = ''; render(); }
+};
+function contar(el, v){  // o número do anel conta até ao novo valor
+  const de = +el.dataset.v || 0;
+  el.dataset.v = v;
+  if (de === v || !comMovimento()){ el.textContent = v; return; }
+  const t0 = performance.now();
+  const passo = t => { const p = Math.min(1, (t - t0) / 600), e = 1 - Math.pow(1 - p, 3); el.textContent = Math.round(de + (v - de) * e); if (p < 1) requestAnimationFrame(passo); };
+  requestAnimationFrame(passo);
+}
 
 /* ---------- Arranque ---------- */
 (async function iniciar(){
