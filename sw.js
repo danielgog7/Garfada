@@ -1,5 +1,5 @@
 // Garfada — service worker: funciona offline e atualiza sozinho quando há ligação.
-const CACHE = 'garfada-v20';
+const CACHE = 'garfada-v21';
 const FICHEIROS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './fraunces.woff2'];
 
 self.addEventListener('install', e => {
@@ -10,7 +10,7 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
-      .then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(ks => Promise.all(ks.filter(k => k.startsWith('garfada-') && k !== CACHE).map(k => caches.delete(k))))  // só as da Garfada: a Forja e o Mirante partilham o mesmo endereço
       .then(() => self.clients.claim())
   );
 });
