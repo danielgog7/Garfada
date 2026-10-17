@@ -424,6 +424,29 @@ body.com-capa nav.barra{display:none}
 .capa-modo{display:inline-flex;margin-top:10px;padding:3px;border-radius:99px;border:1px solid rgba(201,168,106,.3);background:rgba(201,168,106,.05)}
 .capa-modo button{padding:6px 16px;border-radius:99px;font-size:12.5px;font-weight:600;color:var(--sub);background:none;border:0}
 .capa-modo button.sel{background:rgba(201,168,106,.2);color:#E9D29C}
+/* Score, projeção e comentário */
+.sc-topo{display:flex;align-items:center;gap:16px;margin:4px 0 16px}
+.sc-anel{position:relative;width:96px;height:96px;flex:none}
+.sc-anel svg{width:100%;height:100%;transform:rotate(-90deg)}
+.sc-anel circle{fill:none;stroke-width:8}
+.sc-anel .tr{stroke:rgba(201,168,106,.14)}
+.sc-anel .pr{stroke-linecap:round}
+.sc-anel b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:"Fraunces",Georgia,serif;font-size:34px;font-weight:600}
+.sc-faixa{font-family:"Fraunces",Georgia,serif;font-size:23px;font-weight:600;line-height:1.2;margin-bottom:3px}
+.sc-topo .sub{font-size:12.5px;margin-top:2px}
+.pj-tab{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 2px}
+.pj-tab div{background:var(--card2);border:1px solid var(--linha);border-radius:11px;padding:8px 10px;display:flex;flex-direction:column}
+.pj-tab span{font-size:12px;color:var(--sub)}
+.pj-tab b{font-size:17px;font-weight:650;margin:1px 0}
+.pj-tab small{font-size:11.5px;color:var(--fraco)}
+.pj-aviso{border-left:3px solid var(--hid);background:rgba(255,209,102,.07);border-radius:6px;padding:7px 10px;font-size:13.5px;line-height:1.4;margin-top:8px}
+.ia-ver{font-family:"Fraunces",Georgia,serif;font-size:21px;line-height:1.3;margin:2px 0 14px}
+.ia-l{margin-bottom:11px}
+.ia-l b{display:block;font-size:11.5px;color:var(--sub);text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:2px}
+.ia-l p{font-size:14.5px;line-height:1.45}
+.ia-l.acao{border-left:2px solid #C9A86A;padding-left:10px}
+.ia-rod{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px}
+.ia-rod .sub{font-size:12px}
 /* Diário fotográfico */
 .ct-lin{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
 .ct-lin .ct{margin:0}
@@ -1806,8 +1829,8 @@ async function renderSemana(){
   try { lista = (await DB.desde(numDia(ini - 7))).filter(e => e.data <= numDia(fim)); } catch(e){}
   const dias = somarDias(lista, ini), base = diasBase(dias), ant = diasBase(somarDias(lista, ini - 7));
   const nome = semanaOff === 0 ? 'Esta semana' : semanaOff === -1 ? 'Semana passada' : `Há ${-semanaOff} semanas`;
-  let h = `<div class="sem-nav"><button class="ic" data-s="-1" aria-label="Semana anterior">&#8249;</button><div><b>${curta(ini)} – ${curta(fim)}</b><div class="sub">${nome}</div></div><button class="ic" data-s="1" aria-label="Semana seguinte"${semanaOff >= 0 ? ' disabled' : ''}>&#8250;</button></div>`;
-  if (!base.length){ C.innerHTML = h + '<div class="vazio">Sem refeições registadas nesta semana.</div>'; return; }
+  let h = `<div class="sem-nav"><button class="ic" data-s="-1" aria-label="Semana anterior">&#8249;</button><div><b>${curta(ini)} – ${curta(fim)}</b><div class="sub">${nome}</div></div><button class="ic" data-s="1" aria-label="Semana seguinte"${semanaOff >= 0 ? ' disabled' : ''}>&#8250;</button></div><div id="scoreBox"></div>`;
+  if (!base.length){ C.innerHTML = h + '<div class="vazio">Sem refeições registadas nesta semana.</div>'; pintarScore(); return; }
   const avg = c => media(base, c), kcal = avg('kcal'), comN = dias.filter(d => d.n);
   const prev = ant.length ? media(ant, 'kcal') : null;
   const naMeta = comN.filter(d => Math.abs(d.kcal - m.kcal) <= m.kcal * 0.1).length;
@@ -1857,6 +1880,203 @@ async function renderSemana(){
   h += `<section class="card"><h3 class="ct">Destaques</h3><ul class="dest">${dest.map(d => `<li>${d}</li>`).join('')}</ul></section>`;
   h += '<button class="bt larg" data-rel="1" style="margin-top:12px">Relatório do mês (PDF)</button>';
   C.innerHTML = h;
+  pintarScore();
+}
+
+/* ---------- Score da semana / do mês, projeção e comentário da IA ---------- */
+// O score mede o que controlas (comer perto da meta, proteína, registar, qualidade, água); o peso entra só na projeção.
+let scoreModo = LS.get('scoreModo', 'semana') === 'mes' ? 'mes' : 'semana', scoreAtual = null, scoreVez = 0;
+const SC_PESOS = {calorias: 40, proteina: 20, registo: 15, qualidade: 15, agua: 10};
+const SC_NOMES = {calorias: 'Calorias na meta', proteina: 'Proteína', registo: 'Registo completo', qualidade: 'Qualidade', agua: 'Água'};
+const faixaScore = s => s >= 85 ? ['Excelente', 'var(--kcal)'] : s >= 70 ? ['Bom', '#E9D29C'] : s >= 55 ? ['Irregular', 'var(--hid)'] : ['Fora do caminho', 'var(--aviso)'];
+// Hoje só conta depois das 21h ou quando já chegaste a 90% da meta; antes disso está "em curso".
+function calcScore(dias, m, hojeN){
+  const hoje = dias.find(d => d.t === hojeN);
+  const hojeConta = !!(hoje && hoje.n && (new Date().getHours() >= 21 || hoje.kcal >= m.kcal * 0.9));
+  const fechados = dias.filter(d => d.t < hojeN || (d.t === hojeN && hojeConta));
+  const comp = fechados.filter(d => d.kcal >= Math.min(1000, m.kcal * 0.5));
+  const R = {fechados, comp, hojeConta, hoje};
+  if (!comp.length) return Object.assign(R, {vazio: true});
+  const lim = (v, l) => v <= l ? 1 : clamp(2 - v / l, 0, 1);
+  const limA = m.kcal * 0.1 / 4, limS = m.kcal * 0.1 / 9;
+  const comAgua = fechados.some(d => agua[d.k] > 0);
+  const c = {
+    calorias: media(comp.map(d => clamp(1 - (Math.abs(d.kcal - m.kcal) / m.kcal - 0.1) / 0.3, 0, 1))),
+    proteina: media(comp.map(d => clamp((d.prot / m.prot - 0.5) / 0.4, 0, 1))),  // 90% da meta ou mais = 100; metade ou menos = 0
+    registo: comp.length / fechados.length,
+    qualidade: media(comp.map(d => (Math.min(1, d.fibra / 25) + lim(d.acucar, limA) + lim(d.sat, limS) + lim(d.sodio, 2000)) / 4)),
+    agua: comAgua ? media(fechados.map(d => Math.min(1, (agua[d.k] || 0) / m.agua))) : null
+  };
+  let s = 0, w = 0;
+  for (const k in SC_PESOS) if (c[k] != null){ s += SC_PESOS[k] * c[k]; w += SC_PESOS[k]; }
+  return Object.assign(R, {c, score: Math.round(s / w * 100)});
+}
+function periodoScore(hojeN){
+  if (scoreModo === 'semana'){
+    const ini = inicioSemana(semanaOff);
+    return {tipo: 'semana', ini, fim: ini + 6, pIni: ini - 7, pFim: ini - 1, chave: 'S' + numDia(ini),
+      nome: semanaOff === 0 ? 'esta semana' : `a semana de ${curta(ini)}`, ant: 'a semana passada'};
+  }
+  const ref = new Date(Math.min(inicioSemana(semanaOff) + 6, hojeN) * 864e5), y = ref.getUTCFullYear(), mo = ref.getUTCMonth();
+  const ini = Date.UTC(y, mo, 1) / 864e5, fim = Date.UTC(y, mo + 1, 0) / 864e5;
+  const nomeM = new Date(Date.UTC(y, mo, 15)).toLocaleDateString('pt-PT', {month: 'long', timeZone: 'UTC'});
+  return {tipo: 'mes', ini, fim, pIni: Date.UTC(y, mo - 1, 1) / 864e5, pFim: ini - 1, chave: 'M' + numDia(ini).slice(0, 7),
+    nome: fim >= hojeN ? 'este mês' : nomeM, ant: 'o mês anterior'};
+}
+// Modelo dinâmico de Kevin Hall (NIH): cada 24 kcal/dia de diferença dão cerca de 1 kg no fim;
+// cerca de metade chega no primeiro ano e quase tudo em três. Aproxima-se com uma exponencial de 1 ano.
+const TAU_PESO = 365;
+function projetarPeso(W0, ingest, gasto){
+  const inf = (ingest - gasto) / 24, banda = 150 / 24;
+  return {inf, banda, at: (t, d = 0) => W0 + (inf + d) * (1 - Math.exp(-t / TAU_PESO))};
+}
+function grafProjecao(W0, pj, G){
+  const W = 340, H = 150, L = 34, R = 12, T = 12, B = 24, marcos = [[0, 'hoje'], [30, '1 m'], [91, '3 m'], [182, '6 m'], [365, '12 m']];
+  const vals = [W0, pj.at(365, -pj.banda), pj.at(365, pj.banda)];
+  if (G && Math.abs(G - W0) < 20) vals.push(G);
+  const lo = Math.floor(Math.min(...vals) - 0.5), hi = Math.ceil(Math.max(...vals) + 0.5);
+  const X = t => (L + t / 365 * (W - L - R)).toFixed(1), Y = v => (T + (hi - v) / (hi - lo) * (H - T - B)).toFixed(1);
+  const ts = []; for (let t = 0; t <= 365; t += 15) ts.push(t); ts.push(365);
+  const cima = ts.map(t => `${X(t)},${Y(pj.at(t, pj.banda))}`), baixo = ts.slice().reverse().map(t => `${X(t)},${Y(pj.at(t, -pj.banda))}`);
+  let g = `<polygon points="${cima.concat(baixo).join(' ')}" fill="rgba(201,168,106,.16)"/>`;
+  for (const v of [lo, (lo + hi) / 2, hi]) g += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--linha)"/><text x="${L - 6}" y="${(+Y(v) + 3).toFixed(1)}" text-anchor="end">${fmt1(v)}</text>`;
+  if (G && G > lo && G < hi) g += `<line x1="${L}" x2="${W - R}" y1="${Y(G)}" y2="${Y(G)}" stroke="var(--kcal)" stroke-dasharray="4 4" stroke-opacity=".8"/><text x="${W - R}" y="${(+Y(G) - 4).toFixed(1)}" text-anchor="end" class="tx-forte">objetivo</text>`;
+  g += `<polyline points="${ts.map(t => `${X(t)},${Y(pj.at(t))}`).join(' ')}" fill="none" stroke="#E9D29C" stroke-width="2"/>`;
+  for (const [t, n] of marcos) g += `<circle cx="${X(t)}" cy="${Y(pj.at(t))}" r="3" fill="#E9D29C"/><text x="${X(t)}" y="${H - 6}" text-anchor="middle">${n}</text>`;
+  return `<svg class="graf" viewBox="0 0 ${W} ${H}" role="img" aria-label="Projeção do peso para os próximos 12 meses">${g}</svg>`;
+}
+async function pintarScore(){
+  const box = $('#scoreBox');
+  if (!box) return;
+  const vez = ++scoreVez, hojeN = diaNum(chaveData(new Date())), m = metas(), P = periodoScore(hojeN);
+  const ate = Math.min(P.fim, hojeN);
+  let lista = [];
+  try { lista = (await DB.desde(numDia(P.pIni))).filter(e => e.data <= numDia(ate)); } catch(e){}
+  const an = analisarPeso(), resumo = await resumoDias(numDia(hojeN - 28)), met = metabolismo(an, resumo, hojeN);
+  if (vez !== scoreVez || !$('#scoreBox')) return;
+  const R = calcScore(somarDias(lista, P.ini, ate - P.ini + 1), m, hojeN);
+  const Rp = calcScore(somarDias(lista, P.pIni, P.pFim - P.pIni + 1), m, hojeN);
+  const seg = `<div class="seg-mini" role="group" aria-label="Período do score">${[['semana', 'Semana'], ['mes', 'Mês']].map(([v, n]) => `<button data-sm="${v}" class="${scoreModo === v ? 'sel' : ''}" aria-pressed="${scoreModo === v}">${n}</button>`).join('')}</div>`;
+  let h = `<section class="card"><div class="ct-lin"><h3 class="ct">Score ${P.tipo === 'semana' ? 'da semana' : 'do mês'}</h3>${seg}</div>`;
+  const emCurso = R.hoje && R.hoje.n && !R.hojeConta ? 'Hoje está em curso: entra no score às 21h ou quando chegares a 90% da meta.' : '';
+  if (R.vazio){
+    box.innerHTML = h + `<p class="vg-txt">Ainda sem dias completos ${P.tipo === 'semana' ? 'nesta semana' : 'neste mês'}. O score começa quando fechares o primeiro dia.</p>${emCurso ? `<p class="nota">${emCurso}</p>` : ''}</section>`;
+    scoreAtual = null; return;
+  }
+  const [fx, cor] = faixaScore(R.score), C2 = 2 * Math.PI * 42;
+  const delta = Rp.vazio ? `Sem dados para comparar com ${P.ant}.` : `${sinal(R.score - Rp.score, 0) || '='} pontos face ${P.tipo === 'semana' ? 'à semana passada' : 'ao mês anterior'}`;
+  h += `<div class="sc-topo"><div class="sc-anel"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="tr" cx="50" cy="50" r="42"/><circle class="pr" cx="50" cy="50" r="42" stroke="${cor}" stroke-dasharray="${(C2 * R.score / 100).toFixed(1)} ${C2.toFixed(1)}"/></svg><b class="num">${R.score}</b></div>
+    <div><div class="sc-faixa" style="color:${cor}">${fx}</div><div class="sub">${delta}</div><div class="sub">${R.comp.length} de ${R.fechados.length} ${R.fechados.length === 1 ? 'dia conta' : 'dias contam'}</div></div></div>
+    <div class="sc-comp">${Object.keys(SC_PESOS).map(k => R.c[k] == null ? '' : `<div class="barra-m"><div class="lin"><b>${SC_NOMES[k]}</b><span class="num">${Math.round(R.c[k] * 100)}</span></div><div class="trilho"><i style="width:${R.c[k] * 100}%;background:${faixaScore(R.c[k] * 100)[1]}"></i></div></div>`).join('')}</div>
+    ${emCurso ? `<p class="nota">${emCurso}</p>` : ''}${R.c.agua == null ? '<p class="nota">A água não entra porque não há registos de água neste período.</p>' : ''}</section>`;
+  // Projeção: come-se como no período (dias completos) contra o gasto medido ou, sem pesagens suficientes, a fórmula.
+  let base = R.comp, deOnde = P.nome;
+  if (base.length < 4){ base = Object.keys(resumo).sort().filter(k => k < numDia(hojeN)).map(k => resumo[k]).filter(d => d.kcal >= 1000).slice(-14); deOnde = 'nos últimos dias'; }
+  const W0 = an ? an.tr : +cfg.peso || 0, G = cfg.pesoMeta;
+  let pjInfo = null;
+  if (base.length >= 4 && W0){
+    const ingest = media(base.map(d => d.kcal));
+    const gasto = cfg.usarTdee && cfg.tdeeReal ? cfg.tdeeReal : met.pronto ? met.tdee : Math.round(manutencaoFormula(cfg) / 10) * 10;
+    const fonte = (cfg.usarTdee && cfg.tdeeReal) || met.pronto ? 'medido com as tuas pesagens' : 'estimado pela fórmula, fica mais certo com pesagens regulares';
+    const pj = projetarPeso(W0, ingest, gasto), meses = [[30, 'Daqui a 1 mês'], [91, 'Daqui a 3 meses'], [182, 'Daqui a 6 meses'], [365, 'Daqui a 1 ano']];
+    let alvo = '';
+    if (G){
+      const r = pj.inf ? (G - W0) / pj.inf : -1;
+      if (Math.abs(G - W0) < 0.3) alvo = `Estás no teu objetivo de ${fmt1(G)} kg. A este ritmo ${Math.abs(pj.inf) < 1 ? 'manténs-te aí' : `afastas-te ${pj.inf < 0 ? 'para baixo' : 'para cima'}`}.`;
+      else if (r > 0 && r < 0.97){ const t = -TAU_PESO * Math.log(1 - r); alvo = `Chegas aos <b>${fmt1(G)} kg</b> por volta de <b>${new Date(Date.now() + t * 864e5).toLocaleDateString('pt-PT', {month: 'long', year: 'numeric'})}</b>.`; }
+      else if (r <= 0) alvo = `A este ritmo <b>afastas-te</b> do objetivo de ${fmt1(G)} kg.`;
+      else alvo = `A este ritmo <b>não chegas</b> aos ${fmt1(G)} kg: estabilizas perto de ${fmt1(W0 + pj.inf)} kg.`;
+    } else alvo = `A longo prazo estabilizas perto de <b>${fmt1(W0 + pj.inf)} kg</b>.`;
+    const avisos = [], ritmo = pj.inf / TAU_PESO * 7;
+    if (ritmo < -0.01 * W0) avisos.push(`Ritmo inicial de ${sinal(ritmo)} kg por semana, acima de 1% do peso. Perder tão depressa costuma custar músculo.`);
+    if (ingest < 1200) avisos.push('Média abaixo de 1200 kcal por dia: é pouco para manter a energia e os nutrientes.');
+    if (cfg.altura && pj.at(365) / (cfg.altura / 100) ** 2 < 18.5) avisos.push('A projeção leva o peso abaixo do intervalo saudável para a tua altura.');
+    if (pj.inf < -1 && R.c.proteina < 0.5) avisos.push('Proteína baixa enquanto perdes peso: aumenta o risco de perder músculo.');
+    pjInfo = {ingest, gasto, pj, W0, alvo: alvo.replace(/<\/?b>/g, ''), avisos, deOnde, meses: meses.map(([t, n]) => [n, pj.at(t)])};
+    h += `<section class="card"><h3 class="ct">Se continuares assim</h3>
+      <p class="sub">Se comeres como ${deOnde}: <b class="num">${fmtInt(ingest)}</b> kcal por dia, contra um gasto de <b class="num">${fmtInt(gasto)}</b> kcal (${fonte}).</p>
+      ${grafProjecao(W0, pj, G)}
+      <div class="pj-tab num">${meses.map(([t, n]) => `<div><span>${n}</span><b>${fmt1(pj.at(t))} kg</b><small>${fmt1(pj.at(t, -pj.banda))}–${fmt1(pj.at(t, pj.banda))}</small></div>`).join('')}</div>
+      <p class="vg-txt">${alvo}</p>${avisos.map(a => `<p class="pj-aviso">${a}</p>`).join('')}
+      <p class="nota">Modelo dinâmico do NIH (Kevin Hall): o corpo passa a gastar menos à medida que o peso muda, por isso a curva abranda. A faixa mostra um erro de ±150 kcal por dia.</p></section>`;
+  } else h += `<section class="card"><h3 class="ct">Se continuares assim</h3><p class="vg-txt">A projeção precisa de pelo menos 4 dias completos${W0 ? '' : ' e do teu peso (no separador Peso)'}.</p></section>`;
+  h += '<section class="card" id="iaBox"></section>';
+  box.innerHTML = h;
+  // Resumo enviado à IA: só números já calculados, para ela não inventar.
+  const daPer = lista.filter(e => e.data >= numDia(P.ini)), kc = e => (e.base.kcal || 0) * (e.fator || 1);
+  const avgC = c => Math.round(media(R.comp, c));
+  const tAt = t => { if (!an) return null; const a = an.ps.filter(p => p.t <= t); return a.length ? a[a.length - 1].tr : null; };
+  const w1 = tAt(ate), w0 = tAt(P.ini - 1);
+  const aguas = R.fechados.filter(d => agua[d.k] > 0);
+  scoreAtual = {P, R, chave: P.chave, h: `${R.score}|${Math.round(media(R.comp, 'kcal') / 20)}|${R.comp.length}|${R.fechados.length}`, pj: pjInfo, dados: {
+    periodo: `${P.nome} (${curta(P.ini)} a ${curta(ate)})`, score: R.score, faixa: fx, variacao_score: Rp.vazio ? null : R.score - Rp.score,
+    componentes_0a100: Object.fromEntries(Object.keys(SC_PESOS).filter(k => R.c[k] != null).map(k => [SC_NOMES[k], Math.round(R.c[k] * 100)])),
+    dias_completos: R.comp.length, dias_passados: R.fechados.length,
+    kcal_media: avgC('kcal'), meta_kcal: m.kcal, proteina_media_g: avgC('prot'), meta_proteina_g: m.prot,
+    fibra_media_g: avgC('fibra'), acucar_medio_g: avgC('acucar'), limite_acucar_g: Math.round(m.kcal * 0.1 / 4), sodio_medio_mg: avgC('sodio'),
+    agua_media_l: aguas.length ? Math.round(media(aguas.map(d => agua[d.k])) / 100) / 10 : null, meta_agua_l: m.agua / 1000,
+    objetivo: cfg.objetivo, peso_tendencia_kg: an ? Math.round(an.tr * 10) / 10 : null, peso_objetivo_kg: G || null,
+    variacao_peso_no_periodo_kg: w1 != null && w0 != null ? Math.round((w1 - w0) * 10) / 10 : null,
+    projecao: pjInfo ? Object.assign({ingestao_media_kcal: Math.round(pjInfo.ingest), gasto_kcal: pjInfo.gasto, chegada_ao_objetivo: pjInfo.alvo},
+      Object.fromEntries(pjInfo.meses.map(([n, v]) => [n.toLowerCase().replace(/ /g, '_'), Math.round(v * 10) / 10]))) : null,
+    refeicoes_mais_caloricas: daPer.slice().sort((a, b) => kc(b) - kc(a)).slice(0, 3).map(e => `${e.prato} (${Math.round(kc(e))} kcal)`),
+    avisos: pjInfo ? pjInfo.avisos : []
+  }};
+  pintarComentario();
+  gerarComentario(scoreAtual, false);
+}
+let iaEmCurso = '';
+function pintarComentario(estado){
+  const S = scoreAtual, box = $('#iaBox');
+  if (!S || !box) return;
+  const cache = (LS.get('comentarios', {}) || {})[S.chave];
+  const c = cache && cache.c ? cache.c : comentarioLocal(S);
+  const rod = estado === 'carregar' ? 'A IA está a analisar o período…'
+    : cache && cache.c ? `Gerado ${cache.dia === chaveData(new Date()) ? 'hoje' : 'a ' + new Date(cache.em).toLocaleDateString('pt-PT', {day: 'numeric', month: 'short'})} às ${new Date(cache.em).toLocaleTimeString('pt-PT', {hour: '2-digit', minute: '2-digit'})}${cache.h !== S.h ? ' · os dados mudaram desde então' : ''}`
+    : estado === 'erro' ? 'A IA não respondeu agora. Este comentário é automático, sem IA.' : cfg.chave ? 'Comentário automático, sem IA.' : 'Comentário automático. Com a chave do Gemini, a IA escreve-o por ti.';
+  box.innerHTML = `<h3 class="ct">${cache && cache.c ? 'O que a IA diz' : 'Comentário'}</h3><p class="ia-ver">${esc(c.veredito)}</p>
+    ${[['bom', 'Correu bem'], ['mau', 'Puxou para baixo'], ['futuro', 'Se continuares assim'], ['acao', 'Próximo passo']].map(([k, n]) => c[k] ? `<div class="ia-l${k === 'acao' ? ' acao' : ''}"><b>${n}</b><p>${esc(c[k])}</p></div>` : '').join('')}
+    <div class="ia-rod"><span class="sub">${rod}</span>${cfg.chave && estado !== 'carregar' ? `<button class="bt mini" data-ia="1">${cache && cache.c ? 'Atualizar' : 'Pedir à IA'}</button>` : ''}</div>`;
+}
+// Sem IA (sem chave, sem rede ou sem quota): frases montadas a partir dos números.
+function comentarioLocal(S){
+  const {R, pj, P} = S, m = metas(), ks = Object.keys(SC_PESOS).filter(k => R.c[k] != null);
+  const melhor = ks.reduce((a, k) => R.c[k] > R.c[a] ? k : a, ks[0]), pior = ks.reduce((a, k) => R.c[k] < R.c[a] ? k : a, ks[0]);
+  const per = P.tipo === 'semana' ? 'Semana' : 'Mês';
+  const ver = R.score >= 85 ? `${per} excelente. Estás no caminho certo.` : R.score >= 70 ? `${per} boa, com margem para afinar.` : R.score >= 55 ? `${per} irregular: há pontos a corrigir.` : `${per} fora do caminho.`;
+  const ACAO = {calorias: 'Fica a 10% da meta em mais dias: decide a refeição mais pesada com antecedência.', proteina: `Junta uma fonte de proteína a cada refeição para chegares às ${m.prot} g.`,
+    registo: 'Regista todas as refeições, mesmo as pequenas: com dias incompletos o score e a projeção perdem rigor.', qualidade: 'Mais legumes, fruta e cereais integrais; menos açúcar, sal e fritos.', agua: `Bebe mais água: a meta é ${fmt1(m.agua / 1000)} L por dia.`};
+  return {veredito: ver, bom: `${SC_NOMES[melhor]} foi o ponto mais forte (${Math.round(R.c[melhor] * 100)} em 100).`,
+    mau: R.c[pior] < 0.85 ? `${SC_NOMES[pior]} foi o ponto mais fraco (${Math.round(R.c[pior] * 100)} em 100).` : 'Nada a apontar com peso.',
+    futuro: pj ? `${pj.meses[1][0]}: cerca de ${fmt1(pj.meses[1][1])} kg. ${pj.alvo}${pj.avisos.length ? ' ' + pj.avisos[0] : ''}` : '', acao: ACAO[pior]};
+}
+const PROMPT_COMENTARIO = `És um treinador de nutrição exigente mas encorajador. Escreves em português de Portugal para uma pessoa que regista o que come numa app.
+Recebes um resumo já calculado de um período. Usa APENAS estes números; não inventes valores nem faças contas novas.
+Sê honesto: se o período correu mal, diz claramente o que correu mal e o que acontece se continuar assim; se correu bem, reconhece-o sem exagerar. Nunca humilhes nem uses culpa. Não fales de doenças nem dês conselhos médicos.
+Se houver avisos, menciona o mais importante em "futuro" ou "mau".
+Responde APENAS com JSON: {"veredito":"uma frase forte, até 14 palavras","bom":"o que correu bem, até 25 palavras","mau":"o que puxou para baixo, até 25 palavras","futuro":"o que acontece se continuar assim, com os números da projeção, até 35 palavras","acao":"uma ação concreta para o próximo período, até 20 palavras"}`;
+// No máximo um pedido automático por dia e por período; o botão força um novo.
+async function gerarComentario(S, forcar){
+  if (!S || !cfg.chave || iaEmCurso === S.chave) return;
+  const todos = LS.get('comentarios', {}) || {}, cache = todos[S.chave], hoje = chaveData(new Date());
+  if (!forcar && cache && (cache.dia === hoje || cache.h === S.h)) return;
+  if (!forcar && !navigator.onLine) return;
+  iaEmCurso = S.chave;
+  pintarComentario('carregar');
+  let estado = '';
+  try {
+    const txt = await geminiTexto([{text: PROMPT_COMENTARIO + '\n\nResumo: ' + JSON.stringify(S.dados)}]);
+    const s = txt.replace(/```(?:json)?/gi, ''), o = JSON.parse(s.slice(s.indexOf('{'), s.lastIndexOf('}') + 1));
+    const c = {};
+    for (const k of ['veredito', 'bom', 'mau', 'futuro', 'acao']) c[k] = String(o[k] || '').slice(0, 300);
+    if (!c.veredito) throw new Error('vazio');
+    const t = LS.get('comentarios', {}) || {};
+    t[S.chave] = {dia: hoje, em: Date.now(), h: S.h, c};
+    const ks = Object.keys(t).sort((a, b) => t[b].em - t[a].em); ks.slice(30).forEach(k => delete t[k]);  // guarda os 30 mais recentes
+    LS.set('comentarios', t);
+  } catch(e){ estado = 'erro'; if (forcar) toast(e.message && e.message !== 'vazio' && !/JSON/.test(e.message) ? e.message : 'A IA não conseguiu escrever o comentário.'); }
+  finally { iaEmCurso = ''; }
+  if (scoreAtual && scoreAtual.chave === S.chave) pintarComentario(estado);
 }
 $('#vSemana').addEventListener('click', ev => {
   if (ev.target.closest('[data-rel]')){ abrirRelatorio(numDia(Math.min(inicioSemana(semanaOff) + 6, diaNum(chaveData(new Date())))).slice(0, 7)); return; }
@@ -1866,6 +2086,9 @@ $('#vSemana').addEventListener('click', ev => {
   if (dm){ if (dm.dataset.dm !== diarioModo){ diarioModo = dm.dataset.dm; LS.set('diarioModo', diarioModo); renderSemana(); } return; }
   const fd = ev.target.closest('.fd-f');
   if (fd){ const e = semanaRefs.find(x => x.id === fd.dataset.id); if (e) abrirDetalhe(e); return; }
+  const sm = ev.target.closest('[data-sm]');
+  if (sm){ if (sm.dataset.sm !== scoreModo){ scoreModo = sm.dataset.sm; LS.set('scoreModo', scoreModo); pintarScore(); } return; }
+  if (ev.target.closest('[data-ia]')){ if (scoreAtual) gerarComentario(scoreAtual, true); return; }
   const k = ev.target.closest('[data-k]');
   if (k && k.dataset.k <= chaveData(new Date())){ dia = new Date(k.dataset.k + 'T12:00:00'); mostrarVista('vHoje'); render(); }
 });
@@ -2457,7 +2680,10 @@ async function abrirRelatorio(mes){
   const tAt = t => { if (!an) return null; const l = an.ps.filter(p => p.t <= t); return l.length ? l[l.length - 1].tr : null; };
   const w1 = tAt(Math.min(fim, hojeN)), primeiro = an && an.ps.find(p => p.t >= ini), w0 = tAt(ini - 1) ?? (primeiro ? primeiro.tr : null);
   const aguas = dias.filter(d => agua[d.k] > 0).map(d => agua[d.k]);
-  const kpis = [[`${comN.length}/${dias.length}`, 'dias com registos'], [base.length ? fmtInt(avg('kcal')) : '—', `kcal por dia (meta ${fmtInt(m.kcal)})`],
+  const Rm = calcScore(dias.filter(d => d.t <= hojeN), m, hojeN), com = ((LS.get('comentarios', {}) || {})['M' + mes] || {}).c;
+  const blocoScore = Rm.vazio ? '' : `<h2>Score do mês: ${Rm.score} (${faixaScore(Rm.score)[0]})</h2><table>${Object.keys(SC_PESOS).filter(k => Rm.c[k] != null).map(k => `<tr><td>${SC_NOMES[k]}</td><td>${Math.round(Rm.c[k] * 100)} / 100</td></tr>`).join('')}</table>`
+    + (com ? `<h2>Comentário da IA</h2><p><b>${esc(com.veredito)}</b></p>${[['bom', 'Correu bem'], ['mau', 'Puxou para baixo'], ['futuro', 'Se continuares assim'], ['acao', 'Próximo passo']].map(([k, n]) => com[k] ? `<p><b>${n}:</b> ${esc(com[k])}</p>` : '').join('')}` : '');
+  const kpis =[[`${comN.length}/${dias.length}`, 'dias com registos'], [base.length ? fmtInt(avg('kcal')) : '—', `kcal por dia (meta ${fmtInt(m.kcal)})`],
     [String(comN.filter(d => Math.abs(d.kcal - m.kcal) <= m.kcal * 0.1).length), 'dias na meta (±10%)'], [w0 != null && w1 != null ? sinal(w1 - w0) + ' kg' : '—', 'variação do peso real']];
   const W = 680, H = 170, L = 6, R = 6, T = 14, B = 22, n = dias.length, max = Math.max(m.kcal * 1.15, ...dias.map(d => d.kcal)), cw = (W - L - R) / n, bw = cw * 0.62;
   const Y = v => (T + (1 - v / max) * (H - T - B)).toFixed(1);
@@ -2479,6 +2705,7 @@ async function abrirRelatorio(mes){
     <h1>${nomeMes.replace(/^./, c => c.toUpperCase())}</h1>
     <div class="rel-sub">Gerado a ${new Date().toLocaleDateString('pt-PT', {day: 'numeric', month: 'long', year: 'numeric'})}${base.length < comN.length ? ` · médias com os ${base.length} dias completos (1000 kcal ou mais)` : ''}</div>
     <div class="rel-kpis">${kpis.map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join('')}</div>
+    ${blocoScore}
     ${comN.length ? `<h2>Calorias por dia</h2><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Calorias por dia do mês face à meta">${g}</svg><div class="rel-sub">Barras: calorias registadas. Tracejado: meta de ${fmtInt(m.kcal)} kcal.</div>
     <h2>Macronutrientes (média diária)</h2><table><tr><th>Nutriente</th><th>Média</th><th>Meta</th><th>Da meta</th><th>Das calorias</th></tr>${mac}</table>
     <h2>Micronutrientes (média diária)</h2><table><tr><th>Nutriente</th><th>Média</th><th>Referência</th><th>Da referência</th></tr>${mic}</table>
