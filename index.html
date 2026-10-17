@@ -24,10 +24,12 @@ button{cursor:pointer;border:0;background:none}
 .num{font-variant-numeric:tabular-nums}
 .wrap{max-width:520px;margin:0 auto;padding:0 16px}
 .topo{display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 16px 4px;max-width:520px;margin:0 auto}
-.topo .ic{width:40px;height:40px;border-radius:12px;background:var(--card);font-size:22px;line-height:1}
-.topo .ic:disabled{opacity:.25}
-.dia{text-align:center}
-#diaTitulo{font-weight:700;font-size:18px;text-transform:capitalize}
+.ic{width:40px;height:40px;border-radius:12px;background:var(--card);font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center;flex:none}
+.ic:disabled{opacity:.25}
+.ic svg{width:20px;height:20px}
+.dia{text-align:left}
+.acoes{display:flex;gap:6px}
+#diaTitulo{font-weight:800;font-size:22px;text-transform:capitalize}
 .sub{color:var(--sub);font-size:13px}
 .tit{font-size:22px;font-weight:800;padding-top:calc(18px + env(safe-area-inset-top))}
 .card{background:var(--card);border:1px solid var(--linha);border-radius:var(--r);padding:16px;margin-top:12px}
@@ -137,14 +139,99 @@ details summary{cursor:pointer;color:var(--sub);font-size:14px;margin:10px 0 8px
 .ponto.ok{background:var(--kcal)}
 .ponto.pend{background:var(--hid)}
 .ponto.erro{background:var(--aviso)}
+/* Peso */
+.cab{display:flex;align-items:center;justify-content:space-between;padding-top:calc(14px + env(safe-area-inset-top))}
+.cab .tit{padding-top:0}
+.ct{font-size:12px;color:var(--sub);text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:10px}
+.cab-card{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.cab-card .ct{margin:0}
+.bt.mini{padding:5px 10px;font-size:12px;border-radius:9px}
+.pesoMini{display:flex;align-items:center;gap:12px}
+.pm-info{flex:1;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;text-align:left}
+.pm-info b{font-size:18px}
+.hp-topo{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.hp-num{font-size:46px;font-weight:800;letter-spacing:-1.5px;line-height:1.05}
+.hp-num span{font-size:16px;color:var(--sub);font-weight:600;margin-left:4px;letter-spacing:0}
+.pill{font-size:12px;font-weight:700;padding:5px 10px;border-radius:99px;background:var(--card2);color:var(--sub);white-space:nowrap}
+.pill.bom{background:var(--kcal);color:#10140a}
+.pill.mau{background:#2c1818;color:#ff9b9b}
+.fita{position:relative;height:8px;border-radius:99px;margin:18px 0 6px;background:linear-gradient(90deg,transparent,var(--card2) 15%,var(--card2) 85%,transparent)}
+.fita-meio{position:absolute;left:50%;top:-5px;bottom:-5px;width:2px;margin-left:-1px;background:var(--kcal);border-radius:2px}
+.fita-ponto{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;background:var(--txt);border:2px solid var(--card);transform:translate(-50%,-50%)}
+.fita-leg{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--fraco)}
+.fita-leg span:nth-child(2){color:var(--sub);text-align:center}
+.fita-leg b{color:var(--txt)}
+.explica summary{font-size:13px;margin:12px 0 0}
+.explica p{font-size:13px;color:var(--sub);margin-top:6px}
+.lista-intro{margin:10px 0 12px 18px;font-size:14px;display:grid;gap:6px;color:var(--sub)}
+.lista-intro b{color:var(--txt)}
+.decoder{border-color:#4a3f1c}
+.decoder.desce{border-color:#2f4420}
+.dc-tit{font-weight:800;font-size:17px;margin-bottom:6px}
+.decoder ul{margin:8px 0 0 18px;font-size:14px;display:grid;gap:6px}
+.dc-gordura{font-size:13px;color:var(--sub);margin-top:12px;padding-top:10px;border-top:1px solid var(--linha)}
+.dc-real{font-size:14px;margin-top:6px}
+.dc-real b{color:var(--kcal)}
+.seg{display:flex;background:var(--card2);border-radius:10px;padding:2px}
+.seg button{font-size:12px;font-weight:700;padding:5px 8px;border-radius:8px;color:var(--sub)}
+.seg button.sel{background:var(--card);color:var(--txt)}
+.graf-wrap{position:relative}
+.graf{width:100%;height:auto;display:block;touch-action:pan-y}
+.graf text{font-size:10px;fill:var(--fraco);font-family:inherit}
+.graf .tx-forte{fill:var(--sub)}
+.graf .cruz,.graf .cruz-pt{opacity:0;transition:opacity .15s}
+.graf.ativo .cruz,.graf.ativo .cruz-pt{opacity:1}
+.graf-tip{position:absolute;top:-4px;transform:translate(-50%,-100%);background:#262a33;border:1px solid var(--linha);border-radius:10px;padding:6px 10px;font-size:12px;display:flex;flex-direction:column;pointer-events:none;white-space:nowrap;z-index:2}
+.graf-tip span{color:var(--sub)}
+.leg{display:flex;gap:14px;font-size:12px;color:var(--sub);margin-top:8px;flex-wrap:wrap}
+.leg i{display:inline-block;vertical-align:middle;margin-right:6px}
+.lg-pt{width:6px;height:6px;border-radius:50%;background:var(--sub)}
+.lg-ln{width:16px;height:3px;border-radius:2px;background:var(--kcal)}
+.lg-ne{width:16px;height:10px;border-radius:3px;background:rgba(198,243,107,.18)}
+.lg-mt{width:16px;border-top:2px dashed var(--sub)}
+.vg-falta{font-size:24px;font-weight:800;letter-spacing:-.5px}
+.vg-trilho{position:relative;height:10px;border-radius:99px;background:var(--card2);margin:22px 8px 8px}
+.vg-trilho>i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--kcal)}
+.marco{position:absolute;top:50%;width:8px;height:8px;border-radius:50%;background:var(--card);border:2px solid var(--linha);transform:translate(-50%,-50%)}
+.marco.ok{background:#10140a;border-color:#10140a}
+.vg-tu{position:absolute;top:50%;width:20px;height:20px;border-radius:50%;background:var(--txt);border:3px solid var(--card);transform:translate(-50%,-50%);box-shadow:0 0 0 2px var(--kcal)}
+.vg-leg{display:flex;justify-content:space-between;font-size:12px;color:var(--sub)}
+.vg-txt{font-size:14px;margin-top:12px}
+.vg-txt b{color:var(--kcal)}
+.aviso-r{font-size:13px;color:#ffe08a;margin-top:10px}
+.mt-num{font-size:34px;font-weight:800;letter-spacing:-1px}
+.mt-num span{font-size:14px;color:var(--sub);font-weight:600;margin-left:6px;letter-spacing:0}
+.mt-on{font-size:13px;color:var(--kcal);margin-top:10px}
+.desbloq{display:grid;gap:6px;margin-top:12px}
+.desbloq .lin{display:flex;justify-content:space-between;font-size:13px;color:var(--sub);margin-top:4px}
+.desbloq .lin b{color:var(--txt)}
+.hist{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 0;border-bottom:1px solid var(--linha)}
+.hist .hd{flex:1;color:var(--sub);font-size:13px}
+.hist .hk{font-weight:700;width:48px;text-align:right}
+.hist .hv{width:52px;text-align:right;font-size:13px}
+.hist .hv:last-child{color:var(--kcal)}
+.rv{display:flex;align-items:center;justify-content:center;gap:16px;margin:4px 0 6px}
+.rv b{font-size:52px;font-weight:800;letter-spacing:-1.5px;min-width:170px;text-align:center}
+.rv b small{font-size:18px;color:var(--sub);font-weight:600;letter-spacing:0}
+.rv button{width:44px;height:44px;border-radius:50%;background:var(--card2);font-size:24px;font-weight:700;flex:none}
+.regua-wrap{position:relative;margin:0 -16px 6px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent);mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent)}
+.regua{display:flex;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain}
+.regua::-webkit-scrollbar{display:none}
+.regua .esp{flex:0 0 50%}
+.regua-trilho{flex:0 0 auto;position:relative;height:64px;background-image:repeating-linear-gradient(90deg,var(--sub) 0 2px,transparent 2px 80px),repeating-linear-gradient(90deg,var(--fraco) 0 1px,transparent 1px 40px),repeating-linear-gradient(90deg,var(--linha) 0 1px,transparent 1px 8px);background-size:100% 30px,100% 22px,100% 14px;background-position:left bottom;background-repeat:no-repeat}
+.regua-trilho span{position:absolute;top:6px;transform:translateX(-50%);font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums}
+.ponteiro{position:absolute;left:50%;bottom:0;width:3px;height:46px;margin-left:-1px;border-radius:3px;background:var(--kcal);box-shadow:0 0 12px rgba(198,243,107,.55);pointer-events:none}
 </style>
 </head>
 <body>
 
 <header class="topo" id="topo">
-  <button class="ic" id="diaAnt" aria-label="Dia anterior">&#8249;</button>
   <div class="dia"><div><span id="diaTitulo">Hoje</span><span id="syncPonto" class="ponto" hidden></span></div><div class="sub" id="diaSub"></div></div>
-  <button class="ic" id="diaSeg" aria-label="Dia seguinte">&#8250;</button>
+  <div class="acoes">
+    <button class="ic" id="diaAnt" aria-label="Dia anterior">&#8249;</button>
+    <button class="ic" id="diaSeg" aria-label="Dia seguinte">&#8250;</button>
+    <button class="ic" data-ir="vDef" aria-label="Definições"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
+  </div>
 </header>
 
 <main class="wrap" id="vHoje">
@@ -170,7 +257,16 @@ details summary{cursor:pointer;color:var(--sub);font-size:14px;margin:10px 0 8px
     <div class="txt"><div class="sub">Água</div><b class="num" id="aguaTxt">0 ml</b><div class="sub num" id="aguaMeta"></div></div>
     <div class="bts"><button id="aMenos" aria-label="Retirar 250 ml">&minus;250</button><button class="mais" id="a250">+250</button><button class="mais" id="a500">+500</button></div>
   </section>
+  <section class="card pesoMini">
+    <button class="pm-info" data-ir="vPeso"><span class="sub">Peso real</span><b class="num" id="pmVal">—</b><span class="sub num" id="pmSub"></span></button>
+    <button class="bt" id="pmBt">Pesar</button>
+  </section>
   <div id="lista"></div>
+</main>
+
+<main class="wrap" id="vPeso" hidden>
+  <div class="cab"><h1 class="tit">Peso</h1><button class="ic" data-ir="vDef" aria-label="Definições"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button></div>
+  <div id="pesoConteudo"></div>
 </main>
 
 <main class="wrap" id="vDef" hidden>
@@ -207,7 +303,7 @@ details summary{cursor:pointer;color:var(--sub);font-size:14px;margin:10px 0 8px
         <div class="campo"><label for="mGord">Gordura (g)</label><input id="mGord" type="number" inputmode="numeric"></div>
         <div class="campo"><label for="mAgua">Água (ml)</label><input id="mAgua" type="number" inputmode="numeric" step="100"></div>
       </div>
-      <p class="nota">Cálculo pela fórmula Mifflin-St Jeor. São valores de referência, não aconselhamento médico.</p>
+      <p class="nota" id="metasFonte"></p>
     </div>
 
     <h2>Inteligência artificial</h2>
@@ -250,7 +346,7 @@ details summary{cursor:pointer;color:var(--sub);font-size:14px;margin:10px 0 8px
 <nav class="barra">
   <button class="tab ativo" data-v="vHoje"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8" opacity=".4"/><path d="M12 4a8 8 0 0 1 8 8"/></svg>Hoje</button>
   <button class="foto" id="btnFoto" aria-label="Fotografar refeição"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
-  <button class="tab" data-v="vDef"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Definições</button>
+  <button class="tab" data-v="vPeso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 10.5a3.5 3.5 0 0 1 7 0"/><path d="M12 10.5l1.6-1.8"/></svg>Peso</button>
 </nav>
 
 <div id="veu"></div>
@@ -260,6 +356,15 @@ details summary{cursor:pointer;color:var(--sub);font-size:14px;margin:10px 0 8px
   <h4 id="txtTitulo"></h4>
   <textarea id="txtIn"></textarea>
   <div class="linha-bts"><button class="bt" id="txtColar">Colar</button><button class="bt pri" id="txtOk">Estimar</button></div>
+</section>
+<section class="sheet" id="shPeso" aria-label="Registar peso">
+  <div class="pega"></div>
+  <h4>Quanto marca a balança?</h4>
+  <div class="rv"><button id="rMenos" aria-label="Menos 0,1 kg">&minus;</button><b class="num" id="rVal">75,0</b><button id="rMais" aria-label="Mais 0,1 kg">+</button></div>
+  <div class="regua-wrap"><div class="regua" id="regua"><div class="esp"></div><div class="regua-trilho" id="rTrilho"></div><div class="esp"></div></div><div class="ponteiro"></div></div>
+  <div class="campo"><label for="rData">Dia</label><input type="date" id="rData"></div>
+  <p class="nota">Desliza a régua. Para comparar dias, pesa-te de manhã, depois da casa de banho e antes de comer.</p>
+  <div class="linha-bts"><button class="bt mau" id="rApagar">Apagar</button><button class="bt pri" id="rOk">Guardar</button></div>
 </section>
 
 <div id="atalho" hidden>
@@ -334,16 +439,20 @@ const DB = (() => {
     put: o => tx('readwrite', s => s.put(o)),
     del: id => tx('readwrite', s => s.delete(id)),
     doDia: d => tx('readonly', s => s.index('data').getAll(d)),
+    desde: d => tx('readonly', s => s.index('data').getAll(IDBKeyRange.lowerBound(d))),
     todas: () => tx('readonly', s => s.getAll()),
     limpar: () => tx('readwrite', s => s.clear())
   };
 })();
 
 /* ---------- Metas ---------- */
-function calcMetas(p){
+function manutencaoFormula(p){
   const peso = +p.peso || 75, altura = +p.altura || 175, idade = +p.idade || 30;
-  const bmr = 10 * peso + 6.25 * altura - 5 * idade + (p.sexo === 'H' ? 5 : -161);
-  let kcal = bmr * parseFloat(p.atividade || 1.375);
+  return (10 * peso + 6.25 * altura - 5 * idade + (p.sexo === 'H' ? 5 : -161)) * parseFloat(p.atividade || 1.375);
+}
+function calcMetas(p, tdee){
+  const peso = +p.peso || 75;
+  let kcal = tdee || manutencaoFormula(p);
   if (p.objetivo === 'perder') kcal *= 0.85; else if (p.objetivo === 'ganhar') kcal *= 1.10;
   kcal = Math.round(Math.max(kcal, p.sexo === 'H' ? 1500 : 1200) / 10) * 10;
   const prot = Math.round(peso * (p.objetivo === 'manter' ? 1.4 : 1.8));
@@ -352,7 +461,8 @@ function calcMetas(p){
   const aguaMl = Math.round(peso * 35 / 100) * 100;
   return {kcal, prot, hid, gord, agua: aguaMl};
 }
-const metas = () => (cfg.manual && cfg.metas) ? cfg.metas : calcMetas(cfg);
+const metasAuto = () => calcMetas(cfg, cfg.usarTdee && cfg.tdeeReal ? cfg.tdeeReal : null);
+const metas = () => (cfg.manual && cfg.metas) ? cfg.metas : metasAuto();
 
 /* ---------- Imagem ---------- */
 function lerImagem(file){
@@ -545,6 +655,7 @@ async function render(){
   $('#aguaMeta').textContent = `de ${m.agua} ml`;
   $('#aguaNivel').style.height = Math.min(100, m.agua ? ml / m.agua * 100 : 0) + '%';
   aviso();
+  renderPesoMini(k);
 
   const L = $('#lista');
   if (!lista.length){
@@ -649,11 +760,11 @@ function toast(msg, acao){
 function carregar(on, txt){ $('#carregar').hidden = !on; if (txt) $('#carregarTxt').textContent = txt; }
 
 function mostrarVista(v){
-  $('#vHoje').hidden = v !== 'vHoje';
-  $('#vDef').hidden = v !== 'vDef';
+  ['vHoje', 'vPeso', 'vDef'].forEach(id => { $('#' + id).hidden = id !== v; });
   $('#topo').hidden = v !== 'vHoje';
   document.querySelectorAll('nav .tab').forEach(b => b.classList.toggle('ativo', b.dataset.v === v));
   if (v === 'vDef') preencherDef();
+  if (v === 'vPeso') renderPeso();
   window.scrollTo(0, 0);
 }
 document.querySelectorAll('nav .tab').forEach(b => b.onclick = () => mostrarVista(b.dataset.v));
@@ -710,6 +821,9 @@ document.addEventListener('visibilitychange', () => {
 /* ---------- Definições ---------- */
 function verMetas(){
   const m = metas();
+  $('#metasFonte').textContent = (cfg.manual ? 'Metas definidas à mão.'
+    : cfg.usarTdee && cfg.tdeeReal ? `Calorias calculadas a partir do teu metabolismo real (${fmtInt(cfg.tdeeReal)} kcal/dia), medido no separador Peso.`
+    : 'Cálculo pela fórmula Mifflin-St Jeor. O peso atualiza-se sozinho com as pesagens.') + ' São valores de referência, não aconselhamento médico.';
   $('#metasVer').innerHTML = [[m.kcal, 'kcal'], [m.prot + ' g', 'proteína'], [m.hid + ' g', 'hidratos'], [m.gord + ' g', 'gordura'], [(m.agua / 1000).toFixed(1).replace('.', ',') + ' L', 'água']]
     .map(([v, n]) => `<div><b>${v}</b><span>${n}</span></div>`).join('');
 }
@@ -735,7 +849,7 @@ for (const [id, k] of Object.entries(CAMPOS_PERFIL)){
 }
 $('#fManual').onchange = ev => {
   cfg.manual = ev.target.checked;
-  if (cfg.manual) cfg.metas = calcMetas(cfg);
+  if (cfg.manual) cfg.metas = metasAuto();
   guardarPerfil(); $('#metasMan').hidden = !cfg.manual; preencherMetasMan(); verMetas(); render();
 };
 for (const [id, k] of Object.entries(CAMPOS_META)){
@@ -765,7 +879,7 @@ $('#copiarInstr').onclick = async () => {
 };
 $('#exportar').onclick = async () => {
   try {
-    const dados = {app: 'garfada', versao: 1, exportado: new Date().toISOString(), cfg: Object.assign({}, cfg, {chave: ''}), agua, refeicoes: await DB.todas()};
+    const dados = {app: 'garfada', versao: 1, exportado: new Date().toISOString(), cfg: Object.assign({}, cfg, {chave: ''}), agua, pesos, refeicoes: await DB.todas()};
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([JSON.stringify(dados)], {type: 'application/json'}));
     a.download = `garfada-${chaveData(new Date())}.json`;
@@ -783,6 +897,8 @@ $('#inImp').onchange = async ev => {
     const agora = Date.now();
     for (const e of d.refeicoes){ e.atualizado = e.atualizado || agora; await DB.put(e); marcarSujo(e.data); }
     agua = Object.assign({}, agua, d.agua || {}); LS.set('agua', agua);
+    for (const [k, v] of Object.entries(d.pesos || {})) if (v && (!pesos[k] || (pesos[k].ts || 0) < (v.ts || 0))) pesos[k] = v;
+    LS.set('pesos', pesos);
     Object.keys(d.agua || {}).forEach(k => { aguaTs[k] = agora; marcarSujo(k); }); LS.set('aguaTs', aguaTs);
     cfg = Object.assign({}, DEF, d.cfg || {}, {chave: cfg.chave, modelo: cfg.modelo}); guardarPerfil();
     toast(`Importadas ${d.refeicoes.length} refeições.`);
@@ -800,11 +916,395 @@ $('#apagarTudo').onclick = async () => {
   toast('Dados apagados.'); render();
 };
 
+/* ---------- Peso ---------- */
+// Uma pesagem por dia, sincronizada em pesos.json. kg null = apagada (para a remoção chegar aos outros dispositivos).
+let pesos = LS.get('pesos', {});
+let pesoRange = LS.get('pesoRange', 90), pesoTudo = false, editarMeta = false, grafGeo = null;
+const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+const SEMANA = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+const KCAL_KG = 7700;  // energia aproximada de 1 kg de gordura corporal
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const fmt1 = n => (Math.round(n * 10) / 10).toLocaleString('pt-PT', {minimumFractionDigits: 1, maximumFractionDigits: 1});
+const fmtInt = n => Math.round(n).toLocaleString('pt-PT');
+const sinal = (n, c = 1) => { const f = 10 ** c, r = Math.round(n * f) / f; return (r > 0 ? '+' : r < 0 ? '−' : '') + Math.abs(r).toLocaleString('pt-PT', {minimumFractionDigits: c, maximumFractionDigits: c}); };
+const diaNum = k => Math.round(Date.UTC(+k.slice(0, 4), +k.slice(5, 7) - 1, +k.slice(8, 10)) / 864e5);
+const numDia = n => { const d = new Date(n * 864e5), z = v => String(v).padStart(2, '0'); return `${d.getUTCFullYear()}-${z(d.getUTCMonth() + 1)}-${z(d.getUTCDate())}`; };
+const curta = n => { const d = new Date(n * 864e5); return d.getUTCDate() + ' ' + MESES[d.getUTCMonth()]; };
+const comDia = n => SEMANA[new Date(n * 864e5).getUTCDay()] + ', ' + curta(n);
+const media = (l, c) => l.reduce((s, d) => s + (c ? d[c] : d), 0) / l.length;
+function regressao(pts){  // declive em kg por dia
+  const mx = media(pts, 't'), my = media(pts, 'kg');
+  let num = 0, den = 0;
+  pts.forEach(p => { num += (p.t - mx) * (p.kg - my); den += (p.t - mx) ** 2; });
+  return den ? num / den : 0;
+}
+
+// Peso real: média exponencial (10% por dia), que filtra a água, o sal e a digestão.
+function analisarPeso(){
+  const ps = Object.entries(pesos).filter(([, v]) => v && v.kg > 0)
+    .map(([k, v]) => ({k, t: diaNum(k), kg: v.kg})).sort((a, b) => a.t - b.t);
+  if (!ps.length) return null;
+  let tr = ps[0].kg;
+  ps.forEach((p, i) => {
+    if (i){ const a = 1 - Math.pow(0.9, Math.min(p.t - ps[i - 1].t, 30)); tr += a * (p.kg - tr); }
+    p.tr = tr;
+  });
+  const ult = ps[ps.length - 1];
+  const rec = ps.filter(p => p.t > ult.t - 30);
+  const sigma = rec.length >= 3 ? Math.sqrt(media(rec.map(p => (p.kg - p.tr) ** 2))) : 0.5;
+  const jan = ps.filter(p => p.t > ult.t - 21);
+  const ritmo = jan.length >= 4 && jan[jan.length - 1].t - jan[0].t >= 7 ? regressao(jan) : null;
+  return {ps, ult, tr: ult.tr, sigma: clamp(sigma, 0.2, 1.5), ritmo};
+}
+function ritmoInfo(an){
+  if (an.ritmo == null) return {txt: 'ritmo a calcular', cls: ''};
+  const sem = an.ritmo * 7;
+  if (Math.abs(sem) < 0.1) return {txt: 'estável', cls: ''};
+  const bom = cfg.pesoMeta ? Math.sign(cfg.pesoMeta - an.tr) : cfg.objetivo === 'perder' ? -1 : cfg.objetivo === 'ganhar' ? 1 : 0;
+  return {txt: `${sinal(sem)} kg/semana`, cls: !bom ? '' : Math.sign(sem) === bom ? 'bom' : 'mau'};
+}
+async function resumoDias(desde){
+  const r = {};
+  let lista = [];
+  try { lista = await DB.desde(desde); } catch(e){}
+  for (const e of lista){
+    const d = r[e.data] || (r[e.data] = {kcal: 0, hid: 0, sodio: 0, massa: 0, tarde: false});
+    const f = e.fator || 1, b = e.base || {};
+    d.kcal += (b.kcal || 0) * f; d.hid += (b.hid || 0) * f; d.sodio += (b.sodio || 0) * f;
+    d.massa += (e.itens || []).reduce((s, i) => s + (i.g || 0), 0) * f;
+    if (new Date(e.ts).getHours() >= 21) d.tarde = true;
+  }
+  return r;
+}
+// Metabolismo real: calorias registadas contra a variação do peso nos últimos 28 dias.
+// Como usa as estimativas da própria app, absorve um erro sistemático da IA.
+function metabolismo(an, dias, hojeN){
+  const fim = hojeN - 1, ini = fim - 27, reg = [];
+  for (let t = ini; t <= fim; t++){ const d = dias[numDia(t)]; if (d && d.kcal >= 1000) reg.push(d.kcal); }
+  const pts = an ? an.ps.filter(p => p.t >= ini) : [];
+  const span = pts.length > 1 ? pts[pts.length - 1].t - pts[0].t : 0;
+  const r = {diasReg: reg.length, span, nPesos: pts.length, pronto: reg.length >= 10 && pts.length >= 4 && span >= 10};
+  if (!r.pronto) return r;
+  r.media = media(reg); r.slope = regressao(pts);
+  r.tdee = Math.round(clamp(r.media - r.slope * KCAL_KG, 1200, 5000) / 10) * 10;
+  return r;
+}
+
+async function renderPeso(){
+  const hojeN = diaNum(chaveData(new Date())), an = analisarPeso(), C = $('#pesoConteudo');
+  if (!an){ grafGeo = null; C.innerHTML = vazioPesoHTML(); return; }
+  const dias = await resumoDias(numDia(hojeN - 45));
+  const met = metabolismo(an, dias, hojeN);
+  if (met.pronto && cfg.usarTdee && Math.abs((cfg.tdeeReal || 0) - met.tdee) >= 50){ cfg.tdeeReal = met.tdee; guardarPerfil(); render(); }
+  const manut = cfg.usarTdee && cfg.tdeeReal ? cfg.tdeeReal : met.pronto ? met.tdee : manutencaoFormula(cfg);
+  C.innerHTML = heroHTML(an, hojeN) + decoderHTML(an, dias, hojeN, manut) + graficoHTML(an, hojeN) + viagemHTML(an) + metabHTML(met) + historicoHTML(an);
+  ligarGrafico();
+}
+function vazioPesoHTML(){
+  return `<section class="card"><div class="sub">Peso real</div><div class="hp-num num">—</div>
+    <p class="sub" style="margin-top:8px">Pesa-te de manhã, sempre nas mesmas condições. A partir daí a Garfada:</p>
+    <ul class="lista-intro">
+      <li><b>Filtra o ruído</b> da balança e mostra o teu peso real.</li>
+      <li><b>Explica as subidas</b> com o que comeste na véspera: sal, hidratos, volume.</li>
+      <li><b>Mede o teu metabolismo real</b> cruzando o peso com as calorias, e ajusta as metas.</li>
+      <li><b>Prevê o dia</b> em que chegas ao teu objetivo.</li>
+    </ul>
+    <button class="bt pri larg" data-acao="pesar">Registar o primeiro peso</button></section>`;
+}
+function heroHTML(an, hojeN){
+  const u = an.ult, ri = ritmoInfo(an), recente = u.t >= hojeN - 1, ruido = u.kg - u.tr;
+  return `<section class="card">
+    <div class="hp-topo"><div><div class="sub">Peso real</div><div class="hp-num num">${fmt1(an.tr)}<span>kg</span></div></div><span class="pill ${ri.cls}">${ri.txt}</span></div>
+    ${recente ? `<div class="fita"><i class="fita-meio"></i><i class="fita-ponto" style="left:${clamp(50 + ruido * 25, 3, 97)}%"></i></div>
+      <div class="fita-leg num"><span>−2</span><span>Balança ${u.t === hojeN ? 'hoje' : 'ontem'}: <b>${fmt1(u.kg)} kg</b> · ruído ${sinal(ruido)}</span><span>+2</span></div>`
+      : `<p class="sub" style="margin-top:10px">Última pesagem há ${hojeN - u.t} dias (${fmt1(u.kg)} kg).</p>`}
+    <button class="bt pri larg" data-acao="pesar">${u.t === hojeN ? 'Corrigir o peso de hoje' : 'Registar peso'}</button>
+    <details class="explica"><summary>O que é o peso real?</summary><p>A balança oscila 1 a 2 kg de um dia para o outro com água, sal e digestão. O peso real é uma média que filtra esse ruído e só se mexe com mudanças verdadeiras. É por ele que te deves guiar, não pelo número de cada manhã.</p></details>
+  </section>`;
+}
+// "Porque é que a balança mexeu?": compara a véspera com os teus hábitos.
+function decoderHTML(an, dias, hojeN, manut){
+  const ps = an.ps, n = ps.length;
+  if (n < 2) return '';
+  const u = ps[n - 1], p = ps[n - 2];
+  if (u.t < hojeN - 1 || u.t - p.t > 3) return '';
+  const dev = u.kg - p.kg;
+  if (Math.abs(dev) < 0.5) return '';
+  const kOntem = numDia(u.t - 1), o = dias[kOntem], base = [];
+  for (let t = u.t - 15; t < u.t - 1; t++){ const d = dias[numDia(t)]; if (d && d.kcal >= 1000) base.push(d); }
+  const m = base.length >= 3 ? {sodio: media(base, 'sodio'), hid: media(base, 'hid'), massa: media(base, 'massa')} : null;
+  const razoes = [], aguaO = agua[kOntem] || 0;
+  if (o && m){
+    if (dev > 0){
+      if (o.sodio > 2300 && o.sodio > 1.3 * m.sodio) razoes.push(`<b>Sal:</b> ${fmtInt(o.sodio)} mg de sódio, contra ${fmtInt(m.sodio)} mg habituais. O sal faz o corpo reter água.`);
+      if (o.hid > 1.25 * m.hid) razoes.push(`<b>Hidratos:</b> ${fmtInt(o.hid)} g, acima do costume. Cada grama guardado nos músculos leva cerca de 3 g de água.`);
+      if (m.massa > 0 && o.massa > 1.25 * m.massa) razoes.push(`<b>Volume:</b> ${fmt1(o.massa / 1000)} kg de comida. Parte ainda está a ser digerida.`);
+    } else {
+      if (o.sodio < 0.7 * m.sodio) razoes.push('<b>Menos sal</b> do que o costume: o corpo largou água retida.');
+      if (o.hid < 0.7 * m.hid) razoes.push('<b>Poucos hidratos:</b> as reservas de glicogénio libertaram água.');
+      if (m.massa > 0 && o.massa < 0.7 * m.massa) razoes.push('<b>Menos volume</b> de comida do que o costume, logo menos em trânsito.');
+    }
+  }
+  if (o && dev > 0 && o.tarde) razoes.push('<b>Jantar tarde:</b> a digestão ainda não tinha terminado quando te pesaste.');
+  if (dev > 0 && aguaO > 0 && aguaO < 0.6 * metas().agua) razoes.push(`<b>Água:</b> só ${fmtInt(aguaO)} ml registados. Com pouca água o corpo tende a reter.`);
+  const kcalG = Math.abs(dev) * KCAL_KG;
+  const gordura = dev > 0
+    ? (o ? `Para isto ser gordura, terias de ter comido cerca de ${fmtInt(manut + kcalG)} kcal num só dia. Registaste ${fmtInt(o.kcal)}.`
+         : `Para isto ser gordura, precisarias de comer ${fmtInt(kcalG)} kcal acima da manutenção num só dia.`)
+    : `Para isto ser gordura perdida, terias de ter gasto ${fmtInt(kcalG)} kcal a mais do que comeste num só dia.`;
+  const quando = u.t - p.t === 1 ? 'desde ontem' : `desde ${comDia(p.t)}`;
+  return `<section class="card decoder ${dev > 0 ? 'sobe' : 'desce'}">
+    <div class="dc-tit">${dev > 0 ? `A balança subiu ${fmt1(dev)} kg ${quando}. Respira.` : `A balança desceu ${fmt1(-dev)} kg ${quando}. Não festejes já.`}</div>
+    ${razoes.length ? `<p class="sub">O mais provável é ser água. O que o teu registo da véspera mostra:</p><ul>${razoes.map(r => `<li>${r}</li>`).join('')}</ul>`
+      : '<p class="sub">Oscilações destas são normais: a água, o sal e a digestão mudam todos os dias.</p>'}
+    <p class="dc-gordura">${gordura}</p>
+    <p class="dc-real">O teu peso real mexeu só <b>${sinal(u.tr - p.tr, 2)} kg</b>.</p>
+  </section>`;
+}
+function graficoHTML(an, hojeN){
+  const R = pesoRange, ops = [[30, '30 d'], [90, '90 d'], [365, '1 ano'], [0, 'Tudo']];
+  const cab = `<div class="cab-card"><h3 class="ct">Evolução</h3><div class="seg">${ops.map(([v, n]) => `<button data-acao="range" data-r="${v}" class="${v === R ? 'sel' : ''}">${n}</button>`).join('')}</div></div>`;
+  const x0 = Math.min(R ? Math.max(hojeN - R, an.ps[0].t - 1) : an.ps[0].t - 1, hojeN - 7);
+  const pts = an.ps.filter(p => p.t >= x0);
+  grafGeo = null;
+  if (!pts.length) return `<section class="card">${cab}<p class="sub">Sem pesagens neste período.</p></section>`;
+  const u = an.ult, s = an.sigma, meta = cfg.pesoMeta, temProj = an.ritmo != null;
+  const x1 = hojeN + (temProj ? Math.max(5, Math.round((hojeN - x0) * 0.15)) : 1);
+  let fimT = x1, fimV = temProj ? u.tr + an.ritmo * (x1 - u.t) : null, chega = false;
+  if (temProj && meta && (fimV - meta) * (u.tr - meta) < 0){ fimT = u.t + (meta - u.tr) / an.ritmo; fimV = meta; chega = true; }
+  const ys = [];
+  pts.forEach(p => ys.push(p.kg, p.tr + s, p.tr - s));
+  if (temProj) ys.push(fimV);
+  let lo = Math.min(...ys), hi = Math.max(...ys), metaFora = '';
+  if (meta){ if (meta >= lo - 3 && meta <= hi + 3){ lo = Math.min(lo, meta); hi = Math.max(hi, meta); } else metaFora = meta < lo ? 'abaixo' : 'acima'; }
+  if (hi - lo < 2){ const c = (hi + lo) / 2; lo = c - 1; hi = c + 1; }
+  const pad = (hi - lo) * 0.08; lo -= pad; hi += pad;
+  const W = 340, H = 190, L = 32, Rm = 8, T = 16, B = 20;
+  const X = t => Math.round((L + (t - x0) / (x1 - x0) * (W - L - Rm)) * 10) / 10;
+  const Y = v => Math.round((T + (hi - v) / (hi - lo) * (H - T - B)) * 10) / 10;
+  const passo = [0.2, 0.5, 1, 2, 5, 10, 20].find(q => (hi - lo) / q <= 5) || 50;
+  let g = '';
+  for (let i = Math.ceil(lo / passo); i * passo <= hi; i++){
+    const v = i * passo;
+    g += `<line x1="${L}" x2="${W - Rm}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--linha)"/><text x="${L - 6}" y="${Y(v) + 3}" text-anchor="end">${passo < 1 ? fmt1(v) : Math.round(v)}</text>`;
+  }
+  if (temProj) g += `<rect x="${X(hojeN)}" y="${T}" width="${Math.round((X(x1) - X(hojeN)) * 10) / 10}" height="${H - T - B}" fill="var(--card2)" opacity=".6"/><text x="${(X(hojeN) + X(x1)) / 2}" y="${T - 5}" text-anchor="middle">previsão</text>`;
+  if (pts.length > 1) g += `<polygon points="${pts.map(p => X(p.t) + ',' + Y(p.tr + s)).join(' ')} ${pts.slice().reverse().map(p => X(p.t) + ',' + Y(p.tr - s)).join(' ')}" fill="var(--kcal)" opacity=".1"/>`;
+  if (meta && !metaFora) g += `<line x1="${L}" x2="${W - Rm}" y1="${Y(meta)}" y2="${Y(meta)}" stroke="var(--txt)" stroke-opacity=".5" stroke-dasharray="4 4"/><text x="${L + 4}" y="${Y(meta) - 5}" class="tx-forte">meta ${fmt1(meta)}</text>`;
+  if (metaFora) g += `<text x="${L + 4}" y="${metaFora === 'abaixo' ? H - B - 5 : T + 10}" class="tx-forte">meta ${fmt1(meta)} kg ${metaFora === 'abaixo' ? '↓' : '↑'}</text>`;
+  if (temProj) g += `<line x1="${X(u.t)}" y1="${Y(u.tr)}" x2="${X(fimT)}" y2="${Y(fimV)}" stroke="var(--kcal)" stroke-width="2" stroke-dasharray="2 5" stroke-linecap="round"/>${chega ? `<circle cx="${X(fimT)}" cy="${Y(fimV)}" r="4" fill="var(--bg)" stroke="var(--kcal)" stroke-width="2"/>` : ''}`;
+  g += pts.map(p => `<circle cx="${X(p.t)}" cy="${Y(p.kg)}" r="2.3" fill="var(--sub)" opacity=".7"/>`).join('');
+  if (pts.length > 1) g += `<path d="${pts.map((p, i) => (i ? 'L' : 'M') + X(p.t) + ' ' + Y(p.tr)).join('')}" fill="none" stroke="var(--kcal)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  g += `<circle cx="${X(u.t)}" cy="${Y(u.tr)}" r="4.5" fill="var(--kcal)" stroke="var(--card)" stroke-width="2"/>`;
+  g += `<text x="${L}" y="${H - 5}">${curta(x0)}</text><text x="${X(hojeN)}" y="${H - 5}" text-anchor="${temProj ? 'middle' : 'end'}">hoje</text>`;
+  g += `<line class="cruz" x1="0" x2="0" y1="${T}" y2="${H - B}" stroke="var(--sub)"/><circle class="cruz-pt" r="5" fill="var(--txt)" stroke="var(--card)" stroke-width="2"/>`;
+  grafGeo = {W, X, Y, pts};
+  return `<section class="card">${cab}<div class="graf-wrap"><svg id="grafPeso" class="graf" viewBox="0 0 ${W} ${H}" role="img" aria-label="Evolução do peso: pesagens, peso real${meta ? ' e meta' : ''}">${g}</svg><div id="grafTip" class="graf-tip" hidden></div></div>
+    <div class="leg"><span><i class="lg-pt"></i>balança</span><span><i class="lg-ln"></i>peso real</span><span><i class="lg-ne"></i>ruído normal</span>${meta ? '<span><i class="lg-mt"></i>meta</span>' : ''}</div></section>`;
+}
+let tTip;
+function ligarGrafico(){
+  const svg = $('#grafPeso'), geo = grafGeo;
+  if (!svg || !geo) return;
+  const tip = $('#grafTip'), cruz = svg.querySelector('.cruz'), pt = svg.querySelector('.cruz-pt');
+  const esconder = () => { tip.hidden = true; svg.classList.remove('ativo'); };
+  const mover = ev => {
+    clearTimeout(tTip);
+    const r = svg.getBoundingClientRect(), xv = (ev.clientX - r.left) / r.width * geo.W;
+    let m = geo.pts[0];
+    for (const p of geo.pts) if (Math.abs(geo.X(p.t) - xv) < Math.abs(geo.X(m.t) - xv)) m = p;
+    const x = geo.X(m.t);
+    cruz.setAttribute('x1', x); cruz.setAttribute('x2', x); pt.setAttribute('cx', x); pt.setAttribute('cy', geo.Y(m.tr));
+    svg.classList.add('ativo');
+    tip.innerHTML = `<b>${comDia(m.t)}</b><span>Balança ${fmt1(m.kg)} kg</span><span>Peso real ${fmt1(m.tr)} kg</span>`;
+    tip.hidden = false;
+    tip.style.left = clamp(x / geo.W * r.width, 64, r.width - 64) + 'px';
+  };
+  svg.addEventListener('pointermove', mover);
+  svg.addEventListener('pointerdown', mover);
+  svg.addEventListener('pointerleave', ev => { clearTimeout(tTip); tTip = setTimeout(esconder, ev.pointerType === 'mouse' ? 0 : 2500); });
+}
+function viagemHTML(an){
+  if (!cfg.pesoMeta || editarMeta){
+    return `<section class="card"><h3 class="ct">A viagem</h3>
+      <p class="sub">${cfg.pesoMeta ? 'Novo peso-objetivo. A viagem recomeça a partir do peso real de hoje.' : 'Define um peso-objetivo para veres o caminho, os marcos e o dia previsto de chegada.'}</p>
+      <div class="chave"><input id="pMetaIn" type="number" inputmode="decimal" step="0.1" min="30" max="250" placeholder="Peso-objetivo (kg)" value="${cfg.pesoMeta || ''}"><button class="bt pri" data-acao="meta-definir">Guardar</button></div>
+      ${cfg.pesoMeta ? '<div class="linha-bts"><button class="bt" data-acao="meta-cancelar">Cancelar</button><button class="bt mau" data-acao="meta-remover">Remover objetivo</button></div>' : ''}
+    </section>`;
+  }
+  const meta = cfg.pesoMeta, ini = cfg.pesoInicio || an.ps[0].tr, atual = an.tr;
+  const dir = Math.sign(meta - ini) || 1, total = Math.abs(meta - ini);
+  const prog = (atual - ini) * dir;  // kg em direção à meta; negativo = recuo
+  const pct = total ? clamp(prog / total, 0, 1) : 1;
+  const chegou = (meta - atual) * dir <= 0.05, r = an.ritmo;
+  let prev;
+  if (chegou) prev = 'Objetivo atingido. Define um novo, ou muda o objetivo para "Manter" nas Definições.';
+  else if (r == null) prev = 'Para prever o dia de chegada, pesa-te pelo menos 4 vezes ao longo de 7 dias.';
+  else if (Math.sign(r) === dir && Math.abs(r * 7) >= 0.05){
+    const d = new Date(); d.setDate(d.getDate() + Math.round((meta - atual) / r));
+    const op = {day: 'numeric', month: 'long'};
+    if (d.getFullYear() !== new Date().getFullYear()) op.year = 'numeric';
+    prev = `Ao ritmo atual (${sinal(r * 7)} kg/semana), chegas lá por volta de <b>${d.toLocaleDateString('pt-PT', op)}</b>.`;
+  } else prev = 'Ao ritmo atual, a tendência ainda não te está a aproximar do objetivo.';
+  const rapido = r != null && dir < 0 && r * 7 < -0.01 * atual;
+  let equiv = '';
+  if (prog >= 0.25) equiv = `Já ${dir < 0 ? 'perdeste' : 'ganhaste'} ${fmt1(prog)} kg: o equivalente a ${Math.round(prog / 0.25)} pacotes de manteiga de 250 g.`;
+  else if (prog <= -0.25) equiv = `Estás ${fmt1(-prog)} kg mais longe do objetivo do que no início.`;
+  return `<section class="card"><div class="cab-card"><h3 class="ct">A viagem</h3><button class="bt mini" data-acao="meta-alterar">Alterar</button></div>
+    <div class="vg-falta num">${chegou ? 'Chegaste' : `Faltam ${fmt1(Math.abs(meta - atual))} kg`}</div>
+    <div class="vg-trilho"><i style="width:${pct * 100}%"></i>${[25, 50, 75].map(q => `<span class="marco ${pct * 100 >= q ? 'ok' : ''}" style="left:${q}%"></span>`).join('')}<span class="vg-tu" style="left:${pct * 100}%"></span></div>
+    <div class="vg-leg num"><span>início ${fmt1(ini)}</span><span>meta ${fmt1(meta)} kg</span></div>
+    <p class="vg-txt">${prev}</p>
+    ${equiv ? `<p class="sub" style="margin-top:6px">${equiv}</p>` : ''}
+    ${rapido ? '<p class="aviso-r">Estás a descer mais de 1% do peso por semana. É rápido: considera comer um pouco mais para não perderes músculo.</p>' : ''}
+  </section>`;
+}
+function metabHTML(met){
+  if (!met.pronto){
+    const b = (txt, v, max) => `<div class="lin"><span>${txt}</span><b class="num">${Math.min(v, max)}/${max}</b></div><div class="trilho"><i style="width:${Math.min(v / max, 1) * 100}%;background:var(--kcal)"></i></div>`;
+    return `<section class="card"><h3 class="ct">Metabolismo real</h3>
+      <p class="sub">Cruza o que comes com a evolução do peso real para medir quantas calorias gastas de verdade. Como usa as tuas próprias estimativas, corrige sozinho os erros da IA.</p>
+      <div class="desbloq">${b('Dias com refeições registadas', met.diasReg, 10)}${b('Dias cobertos por pesagens', met.span, 10)}${b('Pesagens', met.nPesos, 4)}</div>
+      <p class="nota">Fica disponível ao fim de cerca de duas semanas de registos.</p></section>`;
+  }
+  const form = Math.round(manutencaoFormula(cfg) / 10) * 10, sem = met.slope * 7;
+  return `<section class="card"><h3 class="ct">Metabolismo real</h3>
+    <div class="mt-num num">${fmtInt(met.tdee)}<span>kcal/dia</span></div>
+    <p class="sub">É o que gastas para manter o peso. Nos últimos 28 dias comeste em média ${fmtInt(met.media)} kcal (${met.diasReg} dias registados) e o peso real ${Math.abs(sem) < 0.05 ? 'ficou estável' : `${sem < 0 ? 'desceu' : 'subiu'} ${fmt1(Math.abs(sem))} kg por semana`}. A fórmula estimava ${fmtInt(form)} kcal.</p>
+    ${cfg.usarTdee ? '<p class="mt-on">Metas adaptativas ligadas: as calorias acompanham este valor e atualizam-se sozinhas.</p><button class="bt larg" data-acao="tdee-parar">Voltar à fórmula</button>'
+      : `<button class="bt pri larg" data-acao="tdee-usar" data-v="${met.tdee}">Usar nas minhas metas</button>${cfg.manual ? '<p class="nota">Isto desliga as metas definidas à mão.</p>' : ''}`}
+  </section>`;
+}
+function historicoHTML(an){
+  const l = an.ps.slice().reverse(), n = pesoTudo ? l.length : Math.min(7, l.length);
+  const linhas = l.slice(0, n).map((p, i) => {
+    const a = l[i + 1];
+    return `<button class="hist" data-acao="hist" data-k="${p.k}"><span class="hd">${comDia(p.t)}</span><span class="hk num">${fmt1(p.kg)}</span><span class="hv num sub">${a ? sinal(p.kg - a.kg) : ''}</span><span class="hv num">${fmt1(p.tr)}</span></button>`;
+  }).join('');
+  return `<section class="card"><div class="cab-card"><h3 class="ct">Pesagens</h3><span class="sub" style="font-size:11px">balança · variação · real</span></div>${linhas}
+    ${l.length > 7 ? `<button class="bt larg" data-acao="mais">${pesoTudo ? 'Mostrar menos' : `Mostrar todas (${l.length})`}</button>` : ''}</section>`;
+}
+function renderPesoMini(k){
+  const an = analisarPeso(), reg = pesos[k] && pesos[k].kg, b = $('#pmBt');
+  $('#pmVal').textContent = an ? fmt1(an.tr) + ' kg' : '—';
+  $('#pmSub').textContent = an ? ritmoInfo(an).txt : 'sem pesagens';
+  b.textContent = reg ? `Balança ${fmt1(reg)}` : 'Pesar';
+  b.classList.toggle('pri', !reg);
+}
+
+// Régua deslizante: 8 px por 0,1 kg.
+const RMIN = 30, RMAX = 250, PX = 8;
+let rValor = 75, rData = '', tRegua;
+function montarRegua(){
+  const tr = $('#rTrilho');
+  if (tr.childElementCount) return;
+  let h = '';
+  for (let kg = RMIN; kg <= RMAX; kg++) h += `<span style="left:${(kg - RMIN) * PX * 10 + 1}px">${kg}</span>`;
+  tr.innerHTML = h; tr.style.width = ((RMAX - RMIN) * 10 * PX + 2) + 'px';
+}
+const posRegua = () => { $('#regua').scrollLeft = Math.round((rValor - RMIN) * 10) * PX; };
+const mostrarValor = () => { $('#rVal').innerHTML = fmt1(rValor) + '<small> kg</small>'; };
+$('#regua').addEventListener('scroll', () => {
+  const sc = $('#regua'), v = clamp(Math.round(RMIN * 10 + sc.scrollLeft / PX) / 10, RMIN, RMAX);
+  if (v !== rValor){
+    if (Math.floor(v) !== Math.floor(rValor)) try { navigator.vibrate && navigator.vibrate(5); } catch(e){}
+    rValor = v; mostrarValor();
+  }
+  clearTimeout(tRegua);
+  tRegua = setTimeout(() => sc.scrollTo({left: Math.round((rValor - RMIN) * 10) * PX, behavior: 'smooth'}), 150);
+}, {passive: true});
+$('#regua').addEventListener('wheel', ev => {  // no PC, a roda do rato anda 0,1 kg de cada vez
+  if (Math.abs(ev.deltaY) <= Math.abs(ev.deltaX)) return;
+  ev.preventDefault();
+  rValor = clamp(Math.round(rValor * 10 + (ev.deltaY > 0 ? 1 : -1)) / 10, RMIN, RMAX); mostrarValor(); posRegua();
+}, {passive: false});
+$('#rMenos').onclick = () => { rValor = clamp(Math.round(rValor * 10 - 1) / 10, RMIN, RMAX); mostrarValor(); posRegua(); };
+$('#rMais').onclick = () => { rValor = clamp(Math.round(rValor * 10 + 1) / 10, RMIN, RMAX); mostrarValor(); posRegua(); };
+function abrirPesagem(k){
+  montarRegua();
+  const hoje = chaveData(new Date());
+  rData = k && k <= hoje ? k : hoje;
+  $('#rData').value = rData; $('#rData').max = hoje;
+  const ex = pesos[rData] && pesos[rData].kg, an = analisarPeso();
+  rValor = ex || (an ? an.ult.kg : Math.round((+cfg.peso || 75) * 10) / 10);
+  $('#rApagar').hidden = !ex;
+  mostrarValor(); abrirSheet('#shPeso');
+  requestAnimationFrame(posRegua);
+}
+$('#rData').onchange = ev => {
+  rData = ev.target.value;
+  const ex = pesos[rData] && pesos[rData].kg;
+  if (ex){ rValor = ex; mostrarValor(); posRegua(); }
+  $('#rApagar').hidden = !ex;
+};
+$('#rOk').onclick = () => {
+  if (!rData || rData > chaveData(new Date())){ toast('Escolhe um dia até hoje.'); return; }
+  pesos[rData] = {kg: rValor, ts: Date.now()}; LS.set('pesos', pesos);
+  aposPesagem(`Registado: ${fmt1(rValor)} kg`);
+};
+$('#rApagar').onclick = () => { pesos[rData] = {kg: null, ts: Date.now()}; LS.set('pesos', pesos); aposPesagem('Pesagem apagada'); };
+function aposPesagem(msg){
+  fecharSheets();
+  const an = analisarPeso();
+  // As metas acompanham o peso real (proteína, água e calorias dependem dele).
+  if (an && Math.abs((+cfg.peso || 0) - an.tr) >= 0.1){ cfg.peso = Math.round(an.tr * 10) / 10; guardarPerfil(); }
+  else agendarSync();
+  toast(an ? `${msg} · peso real ${fmt1(an.tr)} kg` : msg);
+  render();
+  if (!$('#vPeso').hidden) renderPeso();
+}
+$('#pmBt').onclick = () => abrirPesagem(chaveData(dia));
+document.addEventListener('click', ev => { const b = ev.target.closest('[data-ir]'); if (b) mostrarVista(b.dataset.ir); });
+$('#vPeso').addEventListener('click', ev => {
+  const b = ev.target.closest('[data-acao]');
+  if (!b) return;
+  const a = b.dataset.acao;
+  if (a === 'pesar') abrirPesagem();
+  else if (a === 'hist') abrirPesagem(b.dataset.k);
+  else if (a === 'range'){ pesoRange = +b.dataset.r; LS.set('pesoRange', pesoRange); renderPeso(); }
+  else if (a === 'mais'){ pesoTudo = !pesoTudo; renderPeso(); }
+  else if (a === 'meta-alterar'){ editarMeta = true; renderPeso(); }
+  else if (a === 'meta-cancelar'){ editarMeta = false; renderPeso(); }
+  else if (a === 'meta-remover'){ cfg.pesoMeta = null; editarMeta = false; guardarPerfil(); renderPeso(); }
+  else if (a === 'meta-definir'){
+    const v = parseFloat(String($('#pMetaIn').value).replace(',', '.'));
+    if (!(v >= 30 && v <= 250)){ toast('Indica um peso entre 30 e 250 kg.'); return; }
+    const an = analisarPeso();
+    cfg.pesoMeta = Math.round(v * 10) / 10;
+    cfg.pesoInicio = Math.round((an ? an.tr : +cfg.peso || 75) * 10) / 10;
+    cfg.metaDesde = chaveData(new Date());
+    const ant = cfg.objetivo;
+    cfg.objetivo = cfg.pesoMeta < cfg.pesoInicio - 0.5 ? 'perder' : cfg.pesoMeta > cfg.pesoInicio + 0.5 ? 'ganhar' : 'manter';
+    editarMeta = false; guardarPerfil(); render(); renderPeso();
+    if (ant !== cfg.objetivo) toast(`Objetivo ajustado para "${{perder: 'Perder peso', ganhar: 'Ganhar massa', manter: 'Manter'}[cfg.objetivo]}". As metas foram atualizadas.`);
+  }
+  else if (a === 'tdee-usar'){
+    cfg.usarTdee = true; cfg.manual = false; cfg.tdeeReal = +b.dataset.v;
+    guardarPerfil(); render(); renderPeso();
+    toast('As calorias passam a seguir o teu metabolismo real.');
+  }
+  else if (a === 'tdee-parar'){ cfg.usarTdee = false; guardarPerfil(); render(); renderPeso(); }
+});
+async function sincPesos(){
+  for (let i = 0; i < 3; i++){
+    const rem = await lerRemoto('pesos.json');
+    const rp = rem ? (rem.dados.pesos || {}) : {};
+    let mudou = false, enviar = false;
+    for (const [k, v] of Object.entries(rp)) if (v && (!pesos[k] || (pesos[k].ts || 0) < (v.ts || 0))){ pesos[k] = v; mudou = true; }
+    for (const [k, v] of Object.entries(pesos)) if (!rp[k] || (rp[k].ts || 0) < (v.ts || 0)) enviar = true;
+    if (mudou) LS.set('pesos', pesos);
+    if (!enviar) return;
+    const r = await escreverRemoto('pesos.json', {pesos}, rem && rem.sha);
+    if (!r.conflito) return;
+  }
+  throw new Error('Conflito ao sincronizar as pesagens. Tenta outra vez.');
+}
+
 /* ---------- Sincronização entre dispositivos (repositório privado no GitHub) ---------- */
 // Cada dia é um ficheiro dias/AAAA-MM/AAAA-MM-DD.json; o perfil fica em perfil.json.
 // Os dados vivem no dispositivo (funciona offline) e são fundidos com o repositório:
 // cada refeição tem "atualizado" (ganha a versão mais recente) e as apagadas deixam marca em "apagados".
-const PARTILHADO = ['sexo', 'idade', 'altura', 'peso', 'atividade', 'objetivo', 'perfilOk', 'manual', 'metas'];
+const PARTILHADO = ['sexo', 'idade', 'altura', 'peso', 'atividade', 'objetivo', 'perfilOk', 'manual', 'metas', 'pesoMeta', 'pesoInicio', 'metaDesde', 'usarTdee', 'tdeeReal'];
 let gh = Object.assign({dono: 'danielgog7', repo: 'garfada-dados', token: ''}, LS.get('gh', {}));
 let sync = Object.assign({shas: {}, sujos: {}, ultimo: 0, erro: ''}, LS.get('sync', {}));
 let apagados = LS.get('apagados', {});
@@ -939,10 +1439,12 @@ async function sincronizar(){
     }
     for (const k of Object.keys(sync.sujos)) await empurrarDia(k);
     await sincPerfil();
+    await sincPesos();
     sync.ultimo = Date.now(); sync.erro = '';
   } catch(e){ sync.erro = e.message || 'Erro ao sincronizar.'; }
   finally {
     guardarSync(); aSinc = false; estadoSync(); render();
+    if (!$('#vPeso').hidden) renderPeso();
     if (outraVez){ outraVez = false; agendarSync(500); }
   }
 }
