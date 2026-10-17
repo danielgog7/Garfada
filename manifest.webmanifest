@@ -1,7 +1,7 @@
 {
-  "name": "Garfada",
-  "short_name": "Garfada",
-  "description": "Calorias e nutrientes a partir de uma foto do prato.",
+  "name": "Fiel",
+  "short_name": "Fiel",
+  "description": "A balança do teu dia: calorias e nutrientes a partir de uma foto do prato.",
   "lang": "pt-PT",
   "start_url": "./",
   "scope": "./",
