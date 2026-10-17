@@ -397,6 +397,7 @@ body.com-capa nav.barra{display:none}
 .capa-estado{font-family:"Fraunces",Georgia,serif;font-size:19px;line-height:1.35;text-align:center;max-width:330px;min-height:52px;margin-top:18px}
 .capa-toque{font-size:12px;color:var(--fraco);margin-top:14px;animation:toque 2.6s ease-in-out infinite}
 @keyframes toque{0%,100%{opacity:.4}50%{opacity:1}}
+@media (prefers-reduced-motion: reduce){.moeda{transition:opacity .3s ease,transform .55s cubic-bezier(.34,1.56,.64,1)!important}}
 </style>
 </head>
 <body class="com-capa">
@@ -2420,7 +2421,7 @@ function desenharBalanca(){
   $('#travessao').setAttribute('transform', `rotate(${(-B.th).toFixed(3)} ${PIV.x} ${PIV.y})`);
   const pts = {L: [PIV.x - BRACO * c, PIV.y + BRACO * s], R: [PIV.x + BRACO * c, PIV.y - BRACO * s]};
   for (const lado of ['L', 'R']){
-    const [x, y] = pts[lado], phi = clamp(B[lado].phi, -9, 9);
+    const [x, y] = pts[lado], phi = clamp(B[lado].phi, -32, 32);
     $('#prato' + lado).setAttribute('transform', `translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${phi.toFixed(2)})`);
     const perto = clamp((y - 66) / 60, 0, 1);  // quanto mais baixo o prato, maior e mais escura a sombra
     const sombra = $('#sombra' + lado);
@@ -2429,19 +2430,35 @@ function desenharBalanca(){
     sombra.setAttribute('opacity', (.45 + perto * .45).toFixed(2));
   }
 }
+// Sensores do telemóvel: inclinar faz os pratos procurarem o "chão verdadeiro"; abanar dá-lhes um empurrão.
+const Mov = {ax: 0, roll: 0, ativo: false, inv: /iPhone|iPad|iPod/.test(navigator.userAgent) ? -1 : 1};
+function aoMover(ev){
+  const g = ev.accelerationIncludingGravity, a = ev.acceleration;
+  if (g && g.x != null && g.y != null && Math.abs(g.x) + Math.abs(g.y) > 3){
+    const roll = clamp(Math.atan2(g.x * Mov.inv, g.y * Mov.inv) * 180 / Math.PI, -35, 35);
+    Mov.roll += (roll - Mov.roll) * 0.12;
+  } else Mov.roll *= 0.95;
+  if (a && a.x != null) Mov.ax = clamp(a.x * Mov.inv, -12, 12);
+}
+function ligarMovimento(on){
+  if (on === Mov.ativo) return;
+  Mov.ativo = on;
+  if (on) addEventListener('devicemotion', aoMover);
+  else { removeEventListener('devicemotion', aoMover); Mov.ax = 0; Mov.roll = 0; }
+}
 function quadroCapa(t){
   B.raf = requestAnimationFrame(quadroCapa);
   const dt = Math.min(0.05, (t - (B.ult || t)) / 1000);
   B.ult = t;
   if (!dt) return;
-  if (!comMovimento()){ B.th = B.alvo; B.v = 0; desenharBalanca(); cancelAnimationFrame(B.raf); return; }
-  const alvo = B.alvo + Math.sin(t / 1700) * 0.25;  // respiração muito leve, para a balança parecer viva
-  const a = -38 * (B.th - alvo) - 3.4 * B.v;          // mola com pouco amortecimento: oscila e assenta
+  const alvo = B.alvo - Mov.roll * 0.3 + Math.sin(t / 1700) * 0.25;  // respiração leve + parte da inclinação
+  const a = -38 * (B.th - alvo) - 3.4 * B.v + Mov.ax * 2;            // mola com pouco amortecimento
   B.v += a * dt; B.th += B.v * dt;
   for (const lado of ['L', 'R']){
-    const p = B[lado], ap = -24 * p.phi - 2.8 * p.v - a * 0.3;  // os pratos baloiçam com atraso
+    const p = B[lado], ap = -24 * (p.phi - Mov.roll * 0.8) - 2.8 * p.v - a * 0.3 + Mov.ax * 9;  // pratos com inércia
     p.v += ap * dt; p.phi += p.v * dt;
   }
+  Mov.ax *= 0.85;
   desenharBalanca();
 }
 async function atualizarCapa(entrada){
@@ -2471,6 +2488,7 @@ async function atualizarCapa(entrada){
   cancelAnimationFrame(B.raf); B.ult = 0;
   desenharBalanca();
   B.raf = requestAnimationFrame(quadroCapa);
+  ligarMovimento(true);
 }
 function mostrarCapa(){
   if (capaAtiva) return;
@@ -2484,6 +2502,7 @@ function mostrarCapa(){
 function sairCapa(){
   if (!capaAtiva) return;
   capaAtiva = false;
+  ligarMovimento(false);
   ultimoToque = Date.now();
   const C = $('#capa');
   C.classList.add('sair');
@@ -2494,6 +2513,7 @@ function sairCapa(){
 }
 function fecharCapaJa(){
   capaAtiva = false;
+  ligarMovimento(false);
   $('#capa').hidden = true;
   document.body.classList.remove('com-capa');
 }
