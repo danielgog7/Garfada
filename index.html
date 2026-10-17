@@ -373,9 +373,44 @@ nav.barra .foto{box-shadow:0 0 0 1px rgba(201,168,106,.6),0 0 0 6px var(--bg),0 
   .rel-barra{display:none!important}
   .rel tr,.rel-kpis{break-inside:avoid}
 }
+/* ---------- Capa: balança ---------- */
+body.com-capa{overflow:hidden}
+body.com-capa nav.barra{display:none}
+#capa{position:fixed;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(18px + env(safe-area-inset-top)) 16px calc(22px + env(safe-area-inset-bottom));background:radial-gradient(120% 70% at 50% 0%,rgba(201,168,106,.10),transparent 60%),radial-gradient(80% 50% at 50% 100%,rgba(150,180,90,.06),transparent 70%),var(--bg);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .5s ease,transform .5s ease}
+#capa.sair{opacity:0;transform:scale(1.04);pointer-events:none}
+.capa-topo{text-align:center}
+.capa-marca{font-family:"Fraunces",Georgia,serif;font-size:24px;font-weight:600;color:var(--ouro);letter-spacing:.3px}
+.capa-data{font-size:13px;color:var(--sub);margin-top:2px}
+#balanca{width:min(94vw,440px);height:auto;margin-top:8px;overflow:visible}
+.moeda{opacity:0;transform:translateY(-34px);transition:opacity .3s ease,transform .55s cubic-bezier(.34,1.56,.64,1)}
+.moeda.on{opacity:1;transform:none}
+#balanca.equilibrio #marcaEq{animation:equilibrio 2.2s ease-in-out infinite}
+@keyframes equilibrio{0%,100%{opacity:1}50%{opacity:.35}}
+.capa-pratos{display:flex;justify-content:space-between;width:min(94vw,440px);margin-top:-10px}
+.capa-pratos div{display:flex;flex-direction:column;align-items:center;width:46%}
+.capa-pratos span{font-size:12.5px;color:var(--sub)}
+.capa-pratos b{font-family:"Fraunces",Georgia,serif;font-size:36px;font-weight:600;line-height:1.1;letter-spacing:-.5px}
+.capa-pratos div:first-child b{color:var(--kcal)}
+.capa-pratos div:last-child b{color:#E9D29C}
+.capa-pratos small{font-size:12px;color:var(--fraco)}
+#capa.passou .capa-pratos div:first-child b{color:#FFB38A}
+.capa-estado{font-family:"Fraunces",Georgia,serif;font-size:19px;line-height:1.35;text-align:center;max-width:330px;min-height:52px;margin-top:18px}
+.capa-toque{font-size:12px;color:var(--fraco);margin-top:14px;animation:toque 2.6s ease-in-out infinite}
+@keyframes toque{0%,100%{opacity:.4}50%{opacity:1}}
 </style>
 </head>
-<body>
+<body class="com-capa">
+
+<section id="capa" aria-label="Balança do dia">
+  <div class="capa-topo"><div class="capa-marca">Garfada</div><div class="capa-data" id="capaData"></div></div>
+  <svg id="balanca" viewBox="0 0 360 330" role="img" aria-label="Balança do dia"></svg>
+  <div class="capa-pratos">
+    <div><span>Comeste</span><b class="num" id="capaComi">0</b><small>kcal</small></div>
+    <div><span>Podes comer hoje</span><b class="num" id="capaMeta">0</b><small>kcal</small></div>
+  </div>
+  <p class="capa-estado" id="capaEstado"></p>
+  <p class="capa-toque">Toca para entrar</p>
+</section>
 
 <canvas id="pirilampos" aria-hidden="true"></canvas>
 
@@ -405,7 +440,6 @@ nav.barra .foto{box-shadow:0 0 0 1px rgba(201,168,106,.6),0 0 0 6px var(--bg),0 
     <button class="chip" id="cVoz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Voz</button>
     <button class="chip" id="cDesc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Escrever</button>
     <button class="chip" id="cCod"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path stroke-width="1.8" d="M4 6v12M8 6v12M15 6v12M20 6v12"/><path stroke-width="1" d="M11 6v12M17.5 6v12"/></svg>Código</button>
-    <button class="chip" id="cColar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h14a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H10l-5 4v-4H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>ChatGPT</button>
   </div>
   <div class="repetir" id="repetir" hidden><div class="cab-card"><h3 class="ct">Repetir com um toque</h3><span class="sub dica">mantém premido para remover</span></div><div class="rep-lista" id="repetirLista"></div></div>
   <section class="card agua">
@@ -496,13 +530,6 @@ nav.barra .foto{box-shadow:0 0 0 1px rgba(201,168,106,.6),0 0 0 6px var(--bg),0 
       <button class="bt larg" id="gDesligar" hidden>Desligar neste dispositivo</button>
     </div>
 
-    <h2>Reserva: ChatGPT</h2>
-    <div class="card">
-      <p class="sub">Cria um Projeto no ChatGPT, cola estas instruções e depois usa "Colar do ChatGPT" no ecrã Hoje.</p>
-      <button class="bt larg" id="copiarInstr">Copiar instruções</button>
-      <details><summary>Ver instruções</summary><textarea id="instrTxt" readonly></textarea></details>
-    </div>
-
     <h2>Aspeto</h2>
     <div class="card">
       <div class="campo"><label for="fFundo">Pirilampos no fundo</label><input id="fFundo" type="checkbox"></div>
@@ -534,7 +561,7 @@ nav.barra .foto{box-shadow:0 0 0 1px rgba(201,168,106,.6),0 0 0 6px var(--bg),0 
   <div class="pega"></div>
   <h4 id="txtTitulo"></h4>
   <textarea id="txtIn"></textarea>
-  <div class="linha-bts"><button class="bt" id="txtColar">Colar</button><button class="bt pri" id="txtOk">Estimar</button></div>
+  <div class="linha-bts"><button class="bt pri" id="txtOk">Estimar</button></div>
 </section>
 <section class="sheet" id="shVoz" aria-label="Registar por voz">
   <div class="pega"></div>
@@ -598,9 +625,6 @@ Regras:
 - Se a imagem não mostrar comida nem bebida, responde {"erro": "motivo curto"}.
 Responde APENAS com JSON válido, sem texto antes ou depois, neste formato (números sem unidades):
 {"prato":"nome curto do prato","itens":[{"nome":"...","gramas":0,"kcal":0,"proteina":0,"hidratos":0,"gordura":0}],"total":{"kcal":0,"proteina":0,"hidratos":0,"gordura":0,"fibra":0,"acucar":0,"gordura_saturada":0,"sodio_mg":0},"micros":{"potassio_mg":0,"calcio_mg":0,"ferro_mg":0,"vitamina_c_mg":0},"confianca":"alta|media|baixa","observacao":"uma frase curta, opcional"}`;
-const PROMPT_GPT = PROMPT + `
-
-Apresenta o JSON dentro de um único bloco de código, para eu o copiar e colar na minha app.`;
 
 const REF = [['peq','Pequeno-almoço'],['alm','Almoço'],['lan','Lanche'],['jan','Jantar'],['out','Outro']];
 const refPorHora = h => (h >= 5 && h < 11) ? 'peq' : (h >= 11 && h < 15) ? 'alm' : (h >= 15 && h < 19) ? 'lan' : (h >= 19 && h < 23) ? 'jan' : 'out';
@@ -830,10 +854,6 @@ async function registarTexto(txt){
   }
   finally { carregar(false); }
 }
-async function importarColado(txt){
-  try { depoisDeGuardar(await guardarNova(interpretar(txt), {fonte: 'chatgpt'})); }
-  catch(err){ toast(err.message || 'Não consegui importar.'); }
-}
 
 /* ---------- Ecrã Hoje ---------- */
 function barra(id, v, meta){
@@ -991,7 +1011,7 @@ function toast(msg, acao){
   t.classList.add('vis');
   clearTimeout(tTimer); tTimer = setTimeout(() => t.classList.remove('vis'), acao ? 6000 : 4000);
 }
-function carregar(on, txt){ $('#carregar').hidden = !on; if (txt) $('#carregarTxt').textContent = txt; }
+function carregar(on, txt){ ultimoToque = Date.now(); $('#carregar').hidden = !on; if (txt) $('#carregarTxt').textContent = txt; }
 
 function mostrarVista(v){
   ['vHoje', 'vSemana', 'vPeso', 'vDef'].forEach(id => { $('#' + id).hidden = id !== v; });
@@ -1004,27 +1024,18 @@ function mostrarVista(v){
 }
 document.querySelectorAll('nav .tab').forEach(b => b.onclick = () => mostrarVista(b.dataset.v));
 
-let modoTxt = 'desc';
-function abrirTexto(modo){
-  modoTxt = modo;
-  const desc = modo === 'desc';
-  $('#txtTitulo').textContent = desc ? 'Descrever a refeição' : 'Colar a resposta do ChatGPT';
+function abrirTexto(){
+  $('#txtTitulo').textContent = 'Descrever a refeição';
   $('#txtIn').value = '';
-  $('#txtIn').placeholder = desc ? 'Ex.: 2 pastéis de nata e um galão' : 'Cola aqui o bloco de dados que o ChatGPT devolveu';
-  $('#txtOk').textContent = desc ? 'Estimar' : 'Importar';
-  $('#txtColar').hidden = desc;
+  $('#txtIn').placeholder = 'Ex.: 2 pastéis de nata e um galão';
   abrirSheet('#shTxt');
-  if (desc) setTimeout(() => $('#txtIn').focus(), 250);
+  setTimeout(() => $('#txtIn').focus(), 250);
 }
-$('#txtColar').onclick = async () => {
-  try { $('#txtIn').value = await navigator.clipboard.readText(); }
-  catch(e){ toast('Não consegui ler a área de transferência. Cola à mão.'); }
-};
 $('#txtOk').onclick = async () => {
   const v = $('#txtIn').value.trim();
   if (!v) return;
   fecharSheets();
-  if (modoTxt === 'desc') await registarTexto(v); else await importarColado(v);
+  await registarTexto(v);
 };
 
 /* ---------- Ligações dos botões ---------- */
@@ -1032,7 +1043,6 @@ $('#btnFoto').onclick = () => { notaFoto = ''; $('#inCam').click(); };
 $('#cGal').onclick = () => { notaFoto = ''; $('#inGal').click(); };
 $('#cCod').onclick = () => abrirCodigo();
 $('#cDesc').onclick = () => abrirTexto('desc');
-$('#cColar').onclick = () => abrirTexto('colar');
 ['#inCam', '#inGal'].forEach(id => $(id).onchange = ev => { const f = ev.target.files[0], n = notaFoto; ev.target.value = ''; notaFoto = ''; processarFoto(f, n); });
 $('#atalhoBt').onclick = () => { $('#atalho').hidden = true; notaFoto = ''; $('#inCam').click(); };
 $('#atalhoFechar').onclick = () => { $('#atalho').hidden = true; };
@@ -1074,7 +1084,6 @@ function preencherDef(){
   preencherMetasMan(); verMetas();
   $('#fChave').value = cfg.chave; $('#fMostrar').checked = cfg.mostrar;
   if (!$('#fModelo').options.length) preencherModelos();
-  $('#instrTxt').value = PROMPT_GPT;
   $('#fFundo').checked = cfg.pirilampos !== false;
   $('#fNotas').value = (cfg.notasIA || []).join('\n');
   $('#nOcultos').textContent = (cfg.ocultos || []).length;
@@ -1115,10 +1124,6 @@ $('#testar').onclick = async () => {
 };
 $('#fModelo').onchange = ev => { cfg.modelo = ev.target.value; guardarCfg(); };
 $('#fMostrar').onchange = ev => { cfg.mostrar = ev.target.checked; guardarCfg(); };
-$('#copiarInstr').onclick = async () => {
-  try { await navigator.clipboard.writeText(PROMPT_GPT); toast('Instruções copiadas.'); }
-  catch(e){ $('#instrTxt').closest('details').open = true; toast('Copia à mão o texto abaixo.'); }
-};
 $('#exportar').onclick = async () => {
   try {
     const dados = {app: 'garfada', versao: 1, exportado: new Date().toISOString(), cfg: Object.assign({}, cfg, {chave: ''}), agua, pesos, refeicoes: await DB.todas()};
@@ -2344,16 +2349,174 @@ $('#relatorio').addEventListener('click', ev => {
   else if (ev.target.id === 'relPdf') window.print();
 });
 
+/* ---------- Capa: balança de pratos (esquerda = o que comeste, direita = a meta de hoje) ---------- */
+const PIV = {x: 180, y: 96}, BRACO = 110;
+let capaAtiva = true, ultimoToque = Date.now();
+const B = {th: 0, v: 0, alvo: 0, L: {phi: 0, v: 0}, R: {phi: 0, v: 0}, raf: 0, ult: 0};
+(function construirBalanca(){
+  let ticks = '';
+  for (let a = -25; a <= 25; a += 5){
+    const rad = (a - 90) * Math.PI / 180, r1 = a === 0 ? 39 : Math.abs(a) === 25 ? 41 : 43.5, r2 = 48;
+    ticks += `<line x1="${(PIV.x + r1 * Math.cos(rad)).toFixed(1)}" y1="${(PIV.y + r1 * Math.sin(rad)).toFixed(1)}" x2="${(PIV.x + r2 * Math.cos(rad)).toFixed(1)}" y2="${(PIV.y + r2 * Math.sin(rad)).toFixed(1)}" stroke="#C9A86A" stroke-opacity="${a === 0 ? .95 : .45}" stroke-width="${a === 0 ? 1.4 : 1}"/>`;
+  }
+  const prato = lado => `<g id="prato${lado}">
+    <path d="M0 3L-45 116M0 3L45 116M0 3L0 111" stroke="#C9A86A" stroke-opacity=".8" stroke-width="1.1" stroke-dasharray="2.6 1.6" stroke-linecap="round" fill="none"/>
+    <path d="M-52 116Q0 147 52 116Z" fill="url(#gPrato)"/>
+    <ellipse cx="0" cy="116" rx="52" ry="5.5" fill="#241C11"/>
+    <path d="M-52 116A52 5.5 0 0 1 52 116" fill="none" stroke="#8A6D3B" stroke-width="1"/>
+    <g id="moedas${lado}"></g>
+    <path d="M-52 116A52 5.5 0 0 0 52 116" fill="none" stroke="#F0DCA8" stroke-width="1.3"/>
+    <circle r="3" fill="#E2C88C"/>
+  </g>`;
+  $('#balanca').innerHTML = `<defs>
+    <linearGradient id="gOuro" x1="0" x2="1"><stop offset="0" stop-color="#7A5F33"/><stop offset=".42" stop-color="#E9D29C"/><stop offset=".58" stop-color="#C9A86A"/><stop offset="1" stop-color="#5E4826"/></linearGradient>
+    <linearGradient id="gOuroV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3E1B0"/><stop offset=".5" stop-color="#C9A86A"/><stop offset="1" stop-color="#6E5530"/></linearGradient>
+    <linearGradient id="gPrato" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D9BE84"/><stop offset="1" stop-color="#4E3B1E"/></linearGradient>
+    <linearGradient id="gMoedaL" x1="0" x2="1"><stop offset="0" stop-color="#6FA834"/><stop offset=".5" stop-color="#D9F98A"/><stop offset="1" stop-color="#5F9230"/></linearGradient>
+    <linearGradient id="gMoedaR" x1="0" x2="1"><stop offset="0" stop-color="#8A6A36"/><stop offset=".5" stop-color="#F1DDA6"/><stop offset="1" stop-color="#7A5C2C"/></linearGradient>
+    <radialGradient id="gChao"><stop offset="0" stop-color="#C9A86A" stop-opacity=".16"/><stop offset="1" stop-color="#C9A86A" stop-opacity="0"/></radialGradient>
+    <radialGradient id="gSombra"><stop offset="0" stop-color="#000" stop-opacity=".6"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="180" cy="318" rx="175" ry="18" fill="url(#gChao)"/>
+  <ellipse id="sombraL" cx="70" cy="318" rx="46" ry="6" fill="url(#gSombra)"/>
+  <ellipse id="sombraR" cx="290" cy="318" rx="46" ry="6" fill="url(#gSombra)"/>
+  <ellipse cx="180" cy="317" rx="60" ry="5" fill="url(#gSombra)"/>
+  <path d="M126 316h108l-9-10H135z" fill="url(#gOuro)"/>
+  <path d="M138 306h84l-11-13h-62z" fill="url(#gOuro)" opacity=".9"/>
+  <rect x="148" y="289" width="64" height="5" rx="2.5" fill="url(#gOuroV)"/>
+  <path d="M174 289L176.5 112h7L186 289z" fill="url(#gOuro)"/>
+  <rect x="168" y="252" width="24" height="5" rx="2.5" fill="url(#gOuroV)"/>
+  <rect x="171" y="182" width="18" height="4" rx="2" fill="url(#gOuroV)"/>
+  <path d="M168 116h24l-4-9h-16z" fill="url(#gOuro)"/>
+  <path d="M159.7 52.5A48 48 0 0 1 200.3 52.5" fill="none" stroke="#C9A86A" stroke-opacity=".45"/>
+  ${ticks}
+  <path id="marcaEq" d="M180 38l3.6 4.2-3.6 4.2-3.6-4.2z" fill="#E9D29C"/>
+  <g id="travessao">
+    <path d="M180 96L178.6 55h2.8z" fill="url(#gOuroV)"/>
+    <circle cx="180" cy="54" r="2" fill="#F3E1B0"/>
+    <path d="M66 96Q123 89.5 180 87.5Q237 89.5 294 96Q237 102.5 180 104.5Q123 102.5 66 96Z" fill="url(#gOuroV)"/>
+    <path d="M70 95.2Q125 91 180 90" stroke="#FFF3D0" stroke-opacity=".5" stroke-width=".8" fill="none"/>
+    <circle cx="70" cy="96" r="4.6" fill="none" stroke="#E2C88C" stroke-width="2"/>
+    <circle cx="290" cy="96" r="4.6" fill="none" stroke="#E2C88C" stroke-width="2"/>
+    <circle cx="180" cy="96" r="9" fill="url(#gOuro)" stroke="#F3E1B0" stroke-width="1"/>
+    <circle cx="180" cy="96" r="2.6" fill="#2A2012"/>
+  </g>
+  ${prato('L')}${prato('R')}`;
+})();
+
+function moedasCapa(lado, n, animar, atraso){
+  const G = $('#moedas' + lado), xs = [-9, 9, -27, 27];
+  const topo = lado === 'L' ? '#E6FF94' : '#F4E3B4', borda = lado === 'L' ? '#86C24A' : '#B38E4D';
+  let h = '';
+  for (let i = 0; i < n; i++){
+    const x = xs[i % 4], lvl = Math.floor(i / 4);
+    h += `<g transform="translate(${x} ${(117 - lvl * 3.6).toFixed(1)})"><g class="moeda${animar ? '' : ' on'}" style="transition-delay:${animar ? atraso + i * 55 : 0}ms"><rect x="-9" y="-3.6" width="18" height="3.6" fill="url(#gMoeda${lado})"/><ellipse cy="-3.6" rx="9" ry="2.8" fill="${topo}" stroke="${borda}" stroke-width=".6"/></g></g>`;
+  }
+  G.innerHTML = h;
+  if (animar) requestAnimationFrame(() => requestAnimationFrame(() => G.querySelectorAll('.moeda').forEach(m => m.classList.add('on'))));
+}
+function desenharBalanca(){
+  const s = Math.sin(B.th * Math.PI / 180), c = Math.cos(B.th * Math.PI / 180);
+  $('#travessao').setAttribute('transform', `rotate(${(-B.th).toFixed(3)} ${PIV.x} ${PIV.y})`);
+  const pts = {L: [PIV.x - BRACO * c, PIV.y + BRACO * s], R: [PIV.x + BRACO * c, PIV.y - BRACO * s]};
+  for (const lado of ['L', 'R']){
+    const [x, y] = pts[lado], phi = clamp(B[lado].phi, -9, 9);
+    $('#prato' + lado).setAttribute('transform', `translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${phi.toFixed(2)})`);
+    const perto = clamp((y - 66) / 60, 0, 1);  // quanto mais baixo o prato, maior e mais escura a sombra
+    const sombra = $('#sombra' + lado);
+    sombra.setAttribute('cx', x.toFixed(1));
+    sombra.setAttribute('rx', (40 + perto * 14).toFixed(1));
+    sombra.setAttribute('opacity', (.45 + perto * .45).toFixed(2));
+  }
+}
+function quadroCapa(t){
+  B.raf = requestAnimationFrame(quadroCapa);
+  const dt = Math.min(0.05, (t - (B.ult || t)) / 1000);
+  B.ult = t;
+  if (!dt) return;
+  if (!comMovimento()){ B.th = B.alvo; B.v = 0; desenharBalanca(); cancelAnimationFrame(B.raf); return; }
+  const alvo = B.alvo + Math.sin(t / 1700) * 0.25;  // respiração muito leve, para a balança parecer viva
+  const a = -38 * (B.th - alvo) - 3.4 * B.v;          // mola com pouco amortecimento: oscila e assenta
+  B.v += a * dt; B.th += B.v * dt;
+  for (const lado of ['L', 'R']){
+    const p = B[lado], ap = -24 * p.phi - 2.8 * p.v - a * 0.3;  // os pratos baloiçam com atraso
+    p.v += ap * dt; p.phi += p.v * dt;
+  }
+  desenharBalanca();
+}
+async function atualizarCapa(entrada){
+  const k = chaveData(new Date()), meta = metas().kcal || 2000;
+  let comi = 0;
+  try { (await DB.doDia(k)).forEach(e => { comi += (e.base.kcal || 0) * (e.fator || 1); }); } catch(e){}
+  comi = Math.round(comi);
+  const dif = comi - meta, pct = dif / meta, eq = Math.abs(pct) <= 0.03;
+  const estado = !comi ? 'Ainda não comeste nada hoje. A balança espera pela primeira refeição.'
+    : eq ? 'Equilíbrio perfeito. Chegaste à meta de hoje.'
+    : dif < 0 ? `Faltam ${fmtInt(-dif)} kcal para equilibrar a balança.`
+    : `Passaste ${fmtInt(dif)} kcal. A balança pesa para o teu lado.`;
+  $('#capaData').textContent = new Date().toLocaleDateString('pt-PT', {weekday: 'long', day: 'numeric', month: 'long'}).replace(/^./, x => x.toUpperCase());
+  $('#capaEstado').textContent = estado;
+  $('#balanca').setAttribute('aria-label', `Balança do dia: comeste ${comi} kcal, a meta é ${meta} kcal. ${estado}`);
+  $('#balanca').classList.toggle('equilibrio', eq && comi > 0);
+  $('#capa').classList.toggle('passou', !eq && dif > 0);
+  const unidade = meta / 12, nL = Math.min(24, Math.round(comi / unidade)), nR = 12;
+  const alvo = eq ? 0 : 16 * Math.tanh(2.2 * pct);
+  if (entrada){
+    $('#capaComi').dataset.v = 0; $('#capaMeta').dataset.v = 0;
+    Object.assign(B, {th: 0, v: 0, alvo: 0, L: {phi: 0, v: 0}, R: {phi: 0, v: 0}});
+    moedasCapa('L', nL, true, 150); moedasCapa('R', nR, true, 180);
+    setTimeout(() => { if (capaAtiva) B.alvo = alvo; }, 350 + Math.max(nL, nR) * 55);
+  } else { moedasCapa('L', nL, false, 0); moedasCapa('R', nR, false, 0); B.alvo = alvo; }
+  contar($('#capaComi'), comi); contar($('#capaMeta'), meta);
+  cancelAnimationFrame(B.raf); B.ult = 0;
+  desenharBalanca();
+  B.raf = requestAnimationFrame(quadroCapa);
+}
+function mostrarCapa(){
+  if (capaAtiva) return;
+  fecharSheets();
+  capaAtiva = true;
+  const C = $('#capa');
+  C.hidden = false; C.classList.remove('sair');
+  document.body.classList.add('com-capa');
+  atualizarCapa(true);
+}
+function sairCapa(){
+  if (!capaAtiva) return;
+  capaAtiva = false;
+  ultimoToque = Date.now();
+  const C = $('#capa');
+  C.classList.add('sair');
+  document.body.classList.remove('com-capa');
+  dia = new Date(); dia.setHours(12, 0, 0, 0);
+  mostrarVista('vHoje'); render();
+  setTimeout(() => { if (!capaAtiva){ C.hidden = true; cancelAnimationFrame(B.raf); } }, 550);
+}
+function fecharCapaJa(){
+  capaAtiva = false;
+  $('#capa').hidden = true;
+  document.body.classList.remove('com-capa');
+}
+$('#capa').addEventListener('click', sairCapa);
+// 30 segundos sem mexer na app: volta à balança (exceto a meio de algo: análise, câmara, voz ou relatório).
+['pointerdown', 'keydown', 'wheel', 'touchstart', 'scroll'].forEach(t => addEventListener(t, () => { ultimoToque = Date.now(); }, {passive: true, capture: true}));
+document.addEventListener('visibilitychange', () => { if (!document.hidden) ultimoToque = Date.now(); });
+setInterval(() => {
+  if (capaAtiva || document.hidden || Date.now() - ultimoToque < 30000) return;
+  if (!$('#carregar').hidden || !$('#relatorio').hidden || !$('#atalho').hidden || scanStream || rec || aProcessarFila){ ultimoToque = Date.now(); return; }
+  mostrarCapa();
+}, 1000);
+
 /* ---------- Arranque ---------- */
 (async function iniciar(){
   const p = new URLSearchParams(location.search);
   const partilha = [p.get('title'), p.get('text')].filter(Boolean).join('\n').trim();
   if (p.has('acao') || partilha) history.replaceState(null, '', location.pathname);
+  if (p.has('acao') || partilha) fecharCapaJa(); else atualizarCapa(true);
   await render();
   if (p.get('acao') === 'foto') $('#atalho').hidden = false;
   if (partilha){
-    if (partilha.includes('{')) importarColado(partilha);
-    else if (cfg.chave) registarTexto(partilha);
+    if (cfg.chave) registarTexto(partilha);
     else { abrirTexto('desc'); $('#txtIn').value = partilha; }
   }
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
