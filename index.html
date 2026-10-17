@@ -397,6 +397,9 @@ body.com-capa nav.barra{display:none}
 .capa-estado{font-family:"Fraunces",Georgia,serif;font-size:19px;line-height:1.35;text-align:center;max-width:330px;min-height:52px;margin-top:18px}
 .capa-toque{font-size:12px;color:var(--fraco);margin-top:14px;animation:toque 2.6s ease-in-out infinite}
 @keyframes toque{0%,100%{opacity:.4}50%{opacity:1}}
+.capa-sensor{margin-top:14px;padding:9px 16px;border-radius:99px;border:1px solid rgba(201,168,106,.45);background:rgba(201,168,106,.08);color:#E9D29C;font-size:13px;font-weight:600}
+.passos{margin:10px 0 6px 20px;display:grid;gap:8px;font-size:14px;color:var(--sub)}
+.passos b{color:var(--txt)}
 @media (prefers-reduced-motion: reduce){.moeda{transition:opacity .3s ease,transform .55s cubic-bezier(.34,1.56,.64,1)!important}}
 </style>
 </head>
@@ -411,6 +414,7 @@ body.com-capa nav.barra{display:none}
   </div>
   <p class="capa-estado" id="capaEstado"></p>
   <p class="capa-toque">Toca para entrar</p>
+  <button class="capa-sensor" id="capaSensor" hidden></button>
 </section>
 
 <canvas id="pirilampos" aria-hidden="true"></canvas>
@@ -572,6 +576,19 @@ body.com-capa nav.barra{display:none}
   <div class="voz-mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></div>
   <p class="voz-txt" id="vozTxt"></p>
   <div class="linha-bts"><button class="bt" id="vozEscrever">Escrever</button><button class="bt pri" id="vozDeNovo">Falar outra vez</button></div>
+</section>
+<section class="sheet" id="shSensor" aria-label="Ativar os sensores de movimento">
+  <div class="pega"></div>
+  <h4>Ativar o movimento da balança</h4>
+  <p class="sub">O Chrome está a bloquear os sensores de movimento. Por segurança, só podem ser ligados nas definições do Chrome:</p>
+  <ol class="passos">
+    <li>Abre o <b>Chrome</b> e toca em <b>⋮</b> e depois em <b>Definições</b>.</li>
+    <li>Entra em <b>Definições do site</b> e depois em <b>Sensores de movimento</b>.</li>
+    <li>Liga <b>Permitir que os sites acedam aos sensores</b>. Se <b>danielgog7.github.io</b> estiver na lista de bloqueados, toca nele e escolhe <b>Permitir</b>.</li>
+    <li>Volta à Garfada e toca em <b>Já ativei, testar</b>.</li>
+  </ol>
+  <p class="nota" id="sensorRes"></p>
+  <div class="linha-bts"><button class="bt" id="sensorAdiar">Agora não</button><button class="bt pri" id="sensorTestar">Já ativei, testar</button></div>
 </section>
 <section class="sheet" id="shCod" aria-label="Código de barras">
   <div class="pega"></div>
@@ -2426,7 +2443,7 @@ function desenharBalanca(){
   $('#travessao').setAttribute('transform', `rotate(${(-B.th).toFixed(3)} ${PIV.x} ${PIV.y})`);
   const pts = {L: [PIV.x - BRACO * c, PIV.y + BRACO * s], R: [PIV.x + BRACO * c, PIV.y - BRACO * s]};
   for (const lado of ['L', 'R']){
-    const [x, y] = pts[lado], phi = clamp(B[lado].phi, -32, 32);
+    const [x, y] = pts[lado], phi = clamp(B[lado].phi, -16, 16);
     $('#prato' + lado).setAttribute('transform', `translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${phi.toFixed(2)})`);
     const perto = clamp((y - 66) / 60, 0, 1);  // quanto mais baixo o prato, maior e mais escura a sombra
     const sombra = $('#sombra' + lado);
@@ -2438,7 +2455,7 @@ function desenharBalanca(){
 // Sensores do telemóvel: inclinar faz os pratos procurarem o "chão verdadeiro"; abanar dá-lhes um empurrão.
 const Mov = {ax: 0, roll: 0, ativo: false, visto: 0, visto2: 0, gxF: 0, inv: /iPhone|iPad|iPod/.test(navigator.userAgent) ? -1 : 1};
 function novoRoll(gx, gy){
-  if (Math.abs(gx) + Math.abs(gy) > 2.5){ const r = clamp(Math.atan2(gx, gy) * 180 / Math.PI, -35, 35); Mov.roll += (r - Mov.roll) * 0.15; }
+  if (Math.abs(gx) + Math.abs(gy) > 2.5){ const r = clamp(Math.atan2(gx, gy) * 180 / Math.PI, -25, 25); Mov.roll += (r - Mov.roll) * 0.06; }
   else Mov.roll *= 0.95;  // telemóvel pousado na mesa: a balança endireita
 }
 function aoMover(ev){
@@ -2447,8 +2464,10 @@ function aoMover(ev){
   Mov.visto = Date.now();
   const gx = g.x * Mov.inv, gy = g.y * Mov.inv;
   novoRoll(gx, gy);
-  if (a && a.x != null) Mov.ax = clamp(a.x * Mov.inv, -15, 15);
-  else { Mov.gxF += (gx - Mov.gxF) * 0.2; Mov.ax = clamp((gx - Mov.gxF) * 1.5, -15, 15); }  // sem aceleração "limpa": usa as variações bruscas
+  let ax;
+  if (a && a.x != null) ax = a.x * Mov.inv;
+  else { Mov.gxF += (gx - Mov.gxF) * 0.2; ax = (gx - Mov.gxF) * 1.5; }
+  Mov.ax = Math.abs(ax) < 0.8 ? 0 : clamp(ax, -10, 10);  // ignora o tremor normal da mão  // sem aceleração "limpa": usa as variações bruscas
 }
 function aoOrientar(ev){  // reserva para telemóveis que só enviam a orientação
   if (ev.beta == null || ev.gamma == null || Date.now() - Mov.visto < 1000) return;
@@ -2467,11 +2486,11 @@ function quadroCapa(t){
   const dt = Math.min(0.05, (t - (B.ult || t)) / 1000);
   B.ult = t;
   if (!dt) return;
-  const alvo = B.alvo - Mov.roll * 0.3 + Math.sin(t / 1700) * 0.25;  // respiração leve + parte da inclinação
-  const a = -38 * (B.th - alvo) - 3.4 * B.v + Mov.ax * 4;            // mola com pouco amortecimento
+  const alvo = B.alvo - Mov.roll * 0.12 + Math.sin(t / 1700) * 0.25;  // respiração leve + parte da inclinação
+  const a = -38 * (B.th - alvo) - 3.4 * B.v + Mov.ax * 1.5;            // mola com pouco amortecimento
   B.v += a * dt; B.th += B.v * dt;
   for (const lado of ['L', 'R']){
-    const p = B[lado], ap = -24 * (p.phi - Mov.roll * 0.8) - 2.8 * p.v - a * 0.3 + Mov.ax * 18;  // pratos com inércia
+    const p = B[lado], ap = -24 * (p.phi - Mov.roll * 0.35) - 3.2 * p.v - a * 0.3 + Mov.ax * 6;  // pratos com inércia
     p.v += ap * dt; p.phi += p.v * dt;
   }
   Mov.ax *= 0.85;
@@ -2505,7 +2524,51 @@ async function atualizarCapa(entrada){
   desenharBalanca();
   B.raf = requestAnimationFrame(quadroCapa);
   ligarMovimento(true);
+  if (entrada) verificarSensores();
 }
+
+// Acesso aos sensores: no iPhone pede-se com um toque; no Android o Chrome não deixa pedir
+// (estão ligados por defeito), por isso deteta-se o bloqueio e mostram-se os passos para o desfazer.
+const ehIOS = typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function';
+const ehTelemovel = matchMedia('(pointer: coarse)').matches;
+let modoSensor = '', tSensor;
+async function estadoSensor(){
+  try { if (navigator.permissions) return (await navigator.permissions.query({name: 'accelerometer'})).state; } catch(e){}
+  return '';
+}
+async function verificarSensores(){
+  const bt = $('#capaSensor');
+  bt.hidden = true; clearTimeout(tSensor);
+  if (!ehTelemovel || typeof DeviceMotionEvent === 'undefined') return;
+  if (Date.now() - (LS.get('sensorAdiado', 0) || 0) < 7 * 864e5) return;
+  const mostrar = modo => { if (!capaAtiva || Mov.visto || Mov.visto2) return; modoSensor = modo; bt.textContent = modo === 'pedir' ? 'Ativar o movimento da balança' : 'O movimento da balança está desligado. Ativar'; bt.hidden = false; };
+  if ((await estadoSensor()) === 'denied') return mostrar('bloqueado');
+  tSensor = setTimeout(() => mostrar(ehIOS ? 'pedir' : 'bloqueado'), 2500);  // sem sinal ao fim de 2,5 s
+}
+$('#capaSensor').addEventListener('click', async ev => {
+  ev.stopPropagation();  // não sai da capa
+  if (modoSensor === 'pedir'){
+    try {
+      const r = await DeviceMotionEvent.requestPermission();
+      if (r === 'granted'){ $('#capaSensor').hidden = true; toast('Pronto. Inclina o telemóvel.'); }
+      else toast('Sem autorização. Podes ativar mais tarde nas definições do Safari.');
+    } catch(e){ toast('Não consegui pedir acesso aos sensores.'); }
+    return;
+  }
+  $('#sensorRes').textContent = '';
+  abrirSheet('#shSensor');
+});
+$('#sensorAdiar').onclick = () => { LS.set('sensorAdiado', Date.now()); $('#capaSensor').hidden = true; fecharSheets(); };
+$('#sensorTestar').onclick = async () => {
+  $('#sensorRes').textContent = 'A testar… mexe ligeiramente o telemóvel.';
+  Mov.visto = 0; Mov.visto2 = 0;
+  addEventListener('devicemotion', aoMover); addEventListener('deviceorientation', aoOrientar);
+  setTimeout(async () => {
+    if (!Mov.ativo){ removeEventListener('devicemotion', aoMover); removeEventListener('deviceorientation', aoOrientar); }
+    if (Mov.visto || Mov.visto2){ fecharSheets(); $('#capaSensor').hidden = true; toast('Sensores a funcionar.'); }
+    else $('#sensorRes').textContent = (await estadoSensor()) === 'denied' ? 'Continua bloqueado. Confirma os passos acima e tenta outra vez.' : 'Ainda sem sinal. Confirma os passos acima e tenta outra vez.';
+  }, 2000);
+};
 function mostrarCapa(){
   if (capaAtiva) return;
   fecharSheets();
