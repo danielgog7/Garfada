@@ -2443,7 +2443,7 @@ function desenharBalanca(){
   $('#travessao').setAttribute('transform', `rotate(${(-B.th).toFixed(3)} ${PIV.x} ${PIV.y})`);
   const pts = {L: [PIV.x - BRACO * c, PIV.y + BRACO * s], R: [PIV.x + BRACO * c, PIV.y - BRACO * s]};
   for (const lado of ['L', 'R']){
-    const [x, y] = pts[lado], phi = clamp(B[lado].phi, -16, 16);
+    const [x, y] = pts[lado], phi = clamp(B[lado].phi, -24, 24);
     $('#prato' + lado).setAttribute('transform', `translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${phi.toFixed(2)})`);
     const perto = clamp((y - 66) / 60, 0, 1);  // quanto mais baixo o prato, maior e mais escura a sombra
     const sombra = $('#sombra' + lado);
@@ -2455,7 +2455,7 @@ function desenharBalanca(){
 // Sensores do telemóvel: inclinar faz os pratos procurarem o "chão verdadeiro"; abanar dá-lhes um empurrão.
 const Mov = {ax: 0, roll: 0, ativo: false, visto: 0, visto2: 0, gxF: 0, inv: /iPhone|iPad|iPod/.test(navigator.userAgent) ? -1 : 1};
 function novoRoll(gx, gy){
-  if (Math.abs(gx) + Math.abs(gy) > 2.5){ const r = clamp(Math.atan2(gx, gy) * 180 / Math.PI, -25, 25); Mov.roll += (r - Mov.roll) * 0.06; }
+  if (Math.abs(gx) + Math.abs(gy) > 2.5){ const r = clamp(Math.atan2(gx, gy) * 180 / Math.PI, -25, 25); Mov.roll += (r - Mov.roll) * 0.1; }
   else Mov.roll *= 0.95;  // telemóvel pousado na mesa: a balança endireita
 }
 function aoMover(ev){
@@ -2467,7 +2467,7 @@ function aoMover(ev){
   let ax;
   if (a && a.x != null) ax = a.x * Mov.inv;
   else { Mov.gxF += (gx - Mov.gxF) * 0.2; ax = (gx - Mov.gxF) * 1.5; }
-  Mov.ax = Math.abs(ax) < 0.8 ? 0 : clamp(ax, -10, 10);  // ignora o tremor normal da mão  // sem aceleração "limpa": usa as variações bruscas
+  Mov.ax = Math.abs(ax) < 0.5 ? 0 : clamp(ax, -12, 12);  // ignora o tremor normal da mão  // sem aceleração "limpa": usa as variações bruscas
 }
 function aoOrientar(ev){  // reserva para telemóveis que só enviam a orientação
   if (ev.beta == null || ev.gamma == null || Date.now() - Mov.visto < 1000) return;
@@ -2486,11 +2486,11 @@ function quadroCapa(t){
   const dt = Math.min(0.05, (t - (B.ult || t)) / 1000);
   B.ult = t;
   if (!dt) return;
-  const alvo = B.alvo - Mov.roll * 0.12 + Math.sin(t / 1700) * 0.25;  // respiração leve + parte da inclinação
-  const a = -38 * (B.th - alvo) - 3.4 * B.v + Mov.ax * 1.5;            // mola com pouco amortecimento
+  const alvo = B.alvo - Mov.roll * 0.2 + Math.sin(t / 1700) * 0.25;  // respiração leve + parte da inclinação
+  const a = -38 * (B.th - alvo) - 3.4 * B.v + Mov.ax * 2.6;            // mola com pouco amortecimento
   B.v += a * dt; B.th += B.v * dt;
   for (const lado of ['L', 'R']){
-    const p = B[lado], ap = -24 * (p.phi - Mov.roll * 0.35) - 3.2 * p.v - a * 0.3 + Mov.ax * 6;  // pratos com inércia
+    const p = B[lado], ap = -24 * (p.phi - Mov.roll * 0.55) - 3 * p.v - a * 0.3 + Mov.ax * 11;  // pratos com inércia
     p.v += ap * dt; p.phi += p.v * dt;
   }
   Mov.ax *= 0.85;
