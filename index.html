@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0A1222">
+<meta name="theme-color" content="#0B0D0A">
 <title>Garfada</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="preload" href="bricolage.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fraunces.woff2" as="font" type="font/woff2" crossorigin>
 <style>
 :root{
-  --bg:#0A1222;--card:#131C31;--card2:#1B2640;--linha:#26344F;--vidro:rgba(19,28,49,.92);
-  --txt:#EEF2FA;--sub:#9AA8C3;--fraco:#7381A6;
+  --bg:#0B0D0A;--card:#151812;--card2:#1E221A;--linha:#2C3127;--vidro:rgba(21,24,18,.9);--ouro:#C9A86A;
+  --txt:#F1EEE4;--sub:#A9AB99;--fraco:#80836F;
   --kcal:#c6f36b;--prot:#ff8a65;--hid:#ffd166;--gord:#c792ea;--agua:#4fc3f7;--aviso:#ff5d5d;
   --r:18px;
 }
@@ -260,11 +260,11 @@ nav.barra .foto{flex:none;margin-left:4px;margin-right:4px}
 .grelha b{font-size:17px;font-weight:800;color:var(--txt)}
 .porcao small{display:block;font-size:11px;font-weight:600;opacity:.75}
 /* ---------- Visual: azul-noite, azulejos e água ---------- */
-@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:200 800;font-display:swap;src:url(bricolage.woff2) format("woff2-variations"),url(bricolage.woff2) format("woff2")}
-.tit,#diaTitulo,.hp-num,.anel .grande,.vg-falta,.mt-num,.rv b,.dc-tit,.agua .txt b,.sheet h4{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-optical-sizing:auto}
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:100 900;font-display:swap;src:url(fraunces.woff2) format("woff2-variations"),url(fraunces.woff2) format("woff2")}
+.tit,#diaTitulo,.hp-num,.anel .grande,.vg-falta,.mt-num,.rv b,.dc-tit,.agua .txt b,.sheet h4{font-family:"Fraunces",Georgia,serif;font-optical-sizing:auto;font-weight:600}
 .tit,#diaTitulo{font-size:30px;letter-spacing:-.6px;font-weight:800}
 body{padding-bottom:calc(116px + env(safe-area-inset-bottom))}
-.card{background:var(--vidro);border-color:rgba(120,150,220,.13);border-radius:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.card{background:var(--vidro);border-color:rgba(201,168,106,.13);border-radius:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
 .resumo{background:radial-gradient(120% 140% at 0% 50%,rgba(198,243,107,.09),transparent 55%),var(--vidro)}
 .anel svg{filter:drop-shadow(0 0 7px rgba(198,243,107,.3))}
 .anel .peq{text-transform:none;letter-spacing:0;font-size:12px}
@@ -273,35 +273,24 @@ body{padding-bottom:calc(116px + env(safe-area-inset-bottom))}
 .ct{font-size:15px;font-weight:650;color:var(--txt)}
 .grupo h3{font-size:14px;font-weight:650}
 .sec h2{font-size:14px;font-weight:650;margin-top:26px}
-.chip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:var(--vidro);border-color:rgba(120,150,220,.13);border-radius:16px;padding:12px 4px 10px;color:var(--txt);font-size:12.5px;line-height:1.2}
+.chip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:var(--vidro);border-color:rgba(201,168,106,.13);border-radius:16px;padding:12px 4px 10px;color:var(--txt);font-size:12.5px;line-height:1.2}
 .chip svg{width:22px;height:22px;color:var(--kcal)}
-.ref,.rep,.vazio{background:var(--vidro);border-color:rgba(120,150,220,.11)}
+.ref,.rep,.vazio{background:var(--vidro);border-color:rgba(201,168,106,.11)}
 .vazio{border-style:dashed}
-.hist{border-bottom-color:rgba(120,150,220,.12)}
-nav.barra{left:12px;right:12px;max-width:520px;margin:0 auto;bottom:calc(10px + env(safe-area-inset-bottom));padding:6px;border:1px solid rgba(120,150,220,.16);border-radius:26px;background:rgba(14,22,40,.84);box-shadow:0 12px 32px rgba(0,0,0,.45)}
+.hist{border-bottom-color:rgba(201,168,106,.12)}
+nav.barra{left:12px;right:12px;max-width:520px;margin:0 auto;bottom:calc(10px + env(safe-area-inset-bottom));padding:6px;border:1px solid rgba(201,168,106,.16);border-radius:26px;background:rgba(16,18,13,.9);box-shadow:0 12px 32px rgba(0,0,0,.45)}
 nav.barra .tab.ativo svg{color:var(--kcal)}
 nav.barra .foto{margin-top:-30px;box-shadow:0 8px 26px rgba(198,243,107,.28),0 0 0 6px var(--bg)}
-.sheet{border-top-color:rgba(120,150,220,.18);box-shadow:0 -20px 50px rgba(0,0,0,.45)}
+.sheet{border-top-color:rgba(201,168,106,.18);box-shadow:0 -20px 50px rgba(0,0,0,.45)}
 #veu{backdrop-filter:blur(2px)}
-#toast,.graf-tip{background:#1D2944;border-color:rgba(120,150,220,.22)}
-#carregar{background:rgba(10,18,34,.86)}
+#toast,.graf-tip{background:#1F231B;border-color:rgba(201,168,106,.22)}
+#carregar{background:rgba(11,13,10,.88)}
 .bt,.chip,.ref,.rep,.ic,.tab,.agua .bts button{transition:transform .12s ease,background-color .15s ease}
 .bt:active,.chip:active,.ref:active,.rep:active,.ic:active,.agua .bts button:active{transform:scale(.97)}
 .copo{border-radius:0 0 12px 12px}
 .copo i::before{content:'';position:absolute;left:0;right:0;top:-5px;height:6px;background:radial-gradient(circle at 50% 0,transparent 5px,var(--agua) 5.5px) 0 0/12px 6px repeat-x;animation:copo 2.4s linear infinite}
 .copo i[style*="height: 0%"]::before{display:none}
 @keyframes copo{to{background-position-x:12px}}
-#fundo{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
-#fundoTiles{position:absolute;left:0;top:0;display:grid}
-#fundoTiles i{background-image:var(--azulejo);background-size:100% 100%;opacity:.035;transition:opacity .9s ease,background-color .9s ease}
-#fundoTiles i.on{opacity:.2;background-color:rgba(61,107,224,.26)}
-#fundoTiles i.novo{animation:azulejo 1s cubic-bezier(.2,.8,.2,1)}
-@keyframes azulejo{from{opacity:0;transform:scale(.86) rotate(-4deg)}to{opacity:.2;transform:none}}
-#fundo.excesso #fundoTiles i.on{background-color:rgba(255,138,101,.24)}
-.mar{position:absolute;left:0;right:0;bottom:0;height:var(--nivel-agua,3vh);background:linear-gradient(to top,rgba(79,195,247,.22),rgba(79,195,247,.09));transition:height 1.2s cubic-bezier(.3,.7,.2,1)}
-.onda{position:absolute;left:0;bottom:calc(100% - 1px);width:200%;height:16px;fill:rgba(79,195,247,.09);animation:mar 12s linear infinite}
-.onda.o2{height:11px;fill:rgba(79,195,247,.06);animation-duration:19s;animation-direction:reverse}
-@keyframes mar{to{transform:translateX(-50%)}}
 :focus-visible{outline:2px solid var(--kcal);outline-offset:2px}
 .itens-l{font-size:12px;color:var(--fraco);margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal}
 .dica{font-size:11.5px}
@@ -309,7 +298,7 @@ nav.barra .foto{margin-top:-30px;box-shadow:0 8px 26px rgba(198,243,107,.28),0 0
 .rep img{pointer-events:none}
 .rep::after{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(255,93,93,.3);pointer-events:none}
 .rep.apertar::after{width:100%;transition:width 3s linear}
-.diario{border-top:1px solid rgba(120,150,220,.12)}
+.diario{border-top:1px solid rgba(201,168,106,.12)}
 .diario:first-of-type{border-top:0}
 .diario summary{display:flex;align-items:center;gap:10px;padding:11px 0;cursor:pointer;font-weight:600;list-style:none}
 .diario summary::-webkit-details-marker{display:none}
@@ -323,17 +312,24 @@ nav.barra .foto{margin-top:-30px;box-shadow:0 8px 26px rgba(198,243,107,.28),0 0
 .dia-ref .itens-l{-webkit-line-clamp:4}
 .diario .bt.mini{margin:0 0 12px}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* ---------- Tema noite: pirilampos e ornamentos dourados ---------- */
+body{background:radial-gradient(130% 55% at 50% -8%,rgba(201,168,106,.07),transparent 62%),radial-gradient(90% 50% at 50% 110%,rgba(150,180,90,.05),transparent 60%),var(--bg);background-attachment:fixed}
+#pirilampos{position:fixed;inset:0;z-index:-1;pointer-events:none}
+.tit,#diaTitulo{font-weight:600;font-size:32px;letter-spacing:-.4px}
+.hp-num,.anel .grande,.mt-num,.vg-falta{letter-spacing:-.5px}
+.card,.resumo{background-color:var(--vidro);background-image:var(--c-tl),var(--c-tr),var(--c-bl),var(--c-br);background-repeat:no-repeat;background-size:28px 28px;background-position:left 3px top 3px,right 3px top 3px,left 3px bottom 3px,right 3px bottom 3px;border-color:rgba(201,168,106,.17);border-radius:20px;box-shadow:inset 0 1px 0 rgba(255,240,200,.04),0 10px 30px rgba(0,0,0,.28)}
+.anel svg{filter:drop-shadow(0 0 6px rgba(198,243,107,.2))}
+.chip svg{color:var(--ouro)}
+nav.barra .tab.ativo{color:var(--txt)}
+nav.barra .tab.ativo svg{color:var(--ouro)}
+nav.barra .foto{box-shadow:0 0 0 1px rgba(201,168,106,.6),0 0 0 6px var(--bg),0 8px 26px rgba(198,243,107,.2)}
+.sheet{background:var(--card);border-top:1px solid rgba(201,168,106,.28)}
+.pega{background:rgba(201,168,106,.4)}
 </style>
 </head>
 <body>
 
-<div id="fundo" aria-hidden="true">
-  <div id="fundoTiles"></div>
-  <div class="mar">
-    <svg class="onda o2" viewBox="0 0 1200 40" preserveAspectRatio="none"><path d="M0 20Q75 0 150 20T300 20T450 20T600 20T750 20T900 20T1050 20T1200 20V40H0Z"/></svg>
-    <svg class="onda" viewBox="0 0 1200 40" preserveAspectRatio="none"><path d="M0 20Q75 0 150 20T300 20T450 20T600 20T750 20T900 20T1050 20T1200 20V40H0Z"/></svg>
-  </div>
-</div>
+<canvas id="pirilampos" aria-hidden="true"></canvas>
 
 <header class="topo" id="topo">
   <div class="dia"><div><span id="diaTitulo">Hoje</span><span id="syncPonto" class="ponto" hidden></span></div><div class="sub" id="diaSub"></div></div>
@@ -347,7 +343,7 @@ nav.barra .foto{margin-top:-30px;box-shadow:0 8px 26px rgba(198,243,107,.28),0 0
   <div id="avisoCfg"></div>
   <section class="card resumo">
     <div class="anel">
-      <svg viewBox="0 0 120 120"><defs><linearGradient id="gAnel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E6FF94"/><stop offset="1" stop-color="#7FCF4A"/></linearGradient></defs><circle class="fundo" cx="60" cy="60" r="52" fill="none" stroke-width="10"/><circle class="prog" id="anelProg" cx="60" cy="60" r="52" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73"/></svg>
+      <svg viewBox="0 0 120 120"><defs><linearGradient id="gAnel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E6FF94"/><stop offset="1" stop-color="#7FCF4A"/></linearGradient></defs><circle cx="60" cy="60" r="59.4" fill="none" stroke="#C9A86A" stroke-opacity=".3" stroke-width=".6"/><circle class="fundo" cx="60" cy="60" r="52" fill="none" stroke-width="10"/><circle class="prog" id="anelProg" cx="60" cy="60" r="52" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73"/></svg>
       <div class="centro"><div class="grande num" id="kRest">0</div><div class="peq" id="kRestLbl">restantes</div><div class="tot num" id="kTot"></div></div>
     </div>
     <div>
@@ -451,8 +447,8 @@ nav.barra .foto{margin-top:-30px;box-shadow:0 8px 26px rgba(198,243,107,.28),0 0
 
     <h2>Aspeto</h2>
     <div class="card">
-      <div class="campo"><label for="fFundo">Fundo vivo</label><input id="fFundo" type="checkbox"></div>
-      <p class="nota">Um painel de azulejos vai-se pintando à medida que comes até à meta do dia, e a água no fundo do ecrã sobe com o que bebes. Desliga para poupar bateria.</p>
+      <div class="campo"><label for="fFundo">Pirilampos no fundo</label><input id="fFundo" type="checkbox"></div>
+      <p class="nota">Pirilampos a voar devagar no fundo da app. Desliga para poupar bateria.</p>
       <div class="campo"><label for="mostrarOcultos">Pratos removidos de "Repetir": <span id="nOcultos">0</span></label><button class="bt mini" id="mostrarOcultos">Repor todos</button></div>
     </div>
 
@@ -791,7 +787,6 @@ async function render(){
   $('#aguaTxt').textContent = `${ml} ml`;
   $('#aguaMeta').textContent = `de ${m.agua} ml`;
   $('#aguaNivel').style.height = Math.min(100, m.agua ? ml / m.agua * 100 : 0) + '%';
-  atualizarFundo(k, m.kcal ? t.kcal / m.kcal : 0, m.agua ? ml / m.agua : 0);
   aviso();
   renderPesoMini(k);
 
@@ -1952,58 +1947,59 @@ $('#gDesligar').onclick = () => {
   preencherSync();
 };
 
-/* ---------- Fundo vivo: painel de azulejos (calorias) e água (hidratação) ---------- */
-const AZULEJO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="#A9C1FF" stroke-width="1.5" stroke-linecap="round">
-<rect x="1" y="1" width="98" height="98" rx="2" stroke-opacity=".45"/>
-<g id="c"><circle cx="0" cy="0" r="22"/><circle cx="0" cy="0" r="13"/><path d="M0 31Q13 13 31 0" stroke-opacity=".7"/></g>
-<use href="#c" transform="rotate(90 50 50)"/><use href="#c" transform="rotate(180 50 50)"/><use href="#c" transform="rotate(270 50 50)"/>
-<g id="p"><path d="M50 50C42 41 42 29 50 18C58 29 58 41 50 50Z"/><path d="M50 50C56 44 63 40 72 38C68 46 60 50 50 50Z" stroke-opacity=".7"/></g>
-<use href="#p" transform="rotate(90 50 50)"/><use href="#p" transform="rotate(180 50 50)"/><use href="#p" transform="rotate(270 50 50)"/>
-<circle cx="50" cy="50" r="5"/></svg>`;
-document.documentElement.style.setProperty('--azulejo', `url("data:image/svg+xml,${encodeURIComponent(AZULEJO_SVG)}")`);
-$('#fundo').hidden = cfg.fundo === false;
-let tiles = [], tilesOrdem = [], fundoSeed = '', fundoAcesos = 0, fundoGen = 0, fundoW = 0, fundoH = 0, tFundo;
+/* ---------- Pirilampos e ornamentos ---------- */
 const comMovimento = () => !matchMedia('(prefers-reduced-motion: reduce)').matches;
-function montarFundo(){
-  const F = $('#fundoTiles'), w = innerWidth, cols = w < 640 ? 5 : Math.ceil(w / 120), size = w / cols;
-  const rows = Math.ceil(Math.max(innerHeight, screen.height || 0) / size) + 1;
-  F.style.gridTemplateColumns = `repeat(${cols}, ${size}px)`; F.style.gridAutoRows = size + 'px';
-  F.innerHTML = '<i></i>'.repeat(cols * rows);
-  tiles = [...F.children]; fundoSeed = ''; fundoAcesos = 0; fundoW = w; fundoH = rows * size;
-}
-function baralhar(n, seed){  // ordem diferente (mas fixa) para cada dia
-  let s = 7;
-  for (const c of seed) s = (Math.imul(s, 31) + c.charCodeAt(0)) >>> 0;
-  const a = [...Array(n).keys()];
-  for (let i = n - 1; i > 0; i--){ s = (Math.imul(s, 1103515245) + 12345) >>> 0; const j = s % (i + 1); [a[i], a[j]] = [a[j], a[i]]; }
-  return a;
-}
-function atualizarFundo(k, pKcal, pAgua){
-  if (cfg.fundo === false) return;
-  document.documentElement.style.setProperty('--nivel-agua', (3 + clamp(pAgua, 0, 1) * 27).toFixed(1) + 'vh');
-  $('#fundo').classList.toggle('excesso', pKcal > 1.1);
-  if (!tiles.length) montarFundo();
-  if (fundoSeed !== k){ tilesOrdem = baralhar(tiles.length, k); fundoSeed = k; fundoAcesos = 0; tiles.forEach(t => { t.className = ''; }); }
-  const alvo = Math.round(clamp(pKcal, 0, 1) * tiles.length);
-  if (alvo === fundoAcesos) return;
-  const gen = ++fundoGen, de = Math.min(fundoAcesos, alvo), animar = comMovimento();
-  tilesOrdem.forEach((ix, i) => { if (i < de) tiles[ix].classList.add('on'); else tiles[ix].className = ''; });
-  fundoAcesos = alvo;
-  for (let i = de; i < alvo; i++){
-    const t = tiles[tilesOrdem[i]];
-    if (animar) setTimeout(() => { if (gen === fundoGen) t.className = 'on novo'; }, 80 + (i - de) * 28);
-    else t.className = 'on';
-  }
-}
-addEventListener('resize', () => {
-  clearTimeout(tFundo);
-  tFundo = setTimeout(() => { if (Math.abs(innerWidth - fundoW) > 2 || innerHeight > fundoH){ montarFundo(); render(); } }, 300);
-});
-$('#fFundo').onchange = ev => {
-  cfg.fundo = ev.target.checked; guardarCfg();
-  $('#fundo').hidden = !cfg.fundo;
-  if (cfg.fundo){ fundoSeed = ''; render(); }
-};
+// Ornamento dourado nos cantos das caixas (um desenho, espelhado para cada canto).
+const CANTO = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" fill="none" stroke="#C9A86A" stroke-linecap="round"><g TR><path d="M3 24V12a9 9 0 0 1 9-9h12" stroke-width="1" stroke-opacity=".75"/><path d="M7 19v-5a7 7 0 0 1 7-7h5" stroke-width=".8" stroke-opacity=".4"/><path d="M7.3 5.9l1.4 1.4-1.4 1.4-1.4-1.4z" fill="#C9A86A" fill-opacity=".8" stroke="none"/><circle cx="24" cy="3" r="1" fill="#C9A86A" fill-opacity=".75" stroke="none"/><circle cx="3" cy="24" r="1" fill="#C9A86A" fill-opacity=".75" stroke="none"/></g></svg>`;
+[['tl', ''], ['tr', 'transform="translate(28 0) scale(-1 1)"'], ['bl', 'transform="translate(0 28) scale(1 -1)"'], ['br', 'transform="translate(28 28) scale(-1 -1)"']]
+  .forEach(([n, tr]) => document.documentElement.style.setProperty('--c-' + n, `url("data:image/svg+xml,${encodeURIComponent(CANTO.replace('<g TR>', `<g ${tr}>`))}")`));
+// Pirilampos: poucos, lentos, a acender e apagar devagar. ~30 fps e param quando a app não está à vista.
+const piri = (() => {
+  const cv = $('#pirilampos'), ctx = cv.getContext('2d');
+  let W = 0, H = 0, bichos = [], raf = 0, ultimo = 0, ativo = false;
+  const medir = () => {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    cv.style.width = W + 'px'; cv.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+  const novo = () => ({x: Math.random() * W, y: Math.random() * H, a: Math.random() * 6.28, v: .1 + Math.random() * .16, r: .9 + Math.random() * 1.2, fase: Math.random() * 6.28, ritmo: .5 + Math.random() * .8, giro: (Math.random() - .5) * .016});
+  const pintar = (b, k) => {
+    const R = b.r * 8, g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, R);
+    g.addColorStop(0, `rgba(236,248,170,${.5 * k})`); g.addColorStop(.3, `rgba(206,236,120,${.16 * k})`); g.addColorStop(1, 'rgba(206,236,120,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(b.x, b.y, R, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = `rgba(252,255,220,${.9 * k})`; ctx.beginPath(); ctx.arc(b.x, b.y, b.r * .6, 0, 6.2832); ctx.fill();
+  };
+  const quadro = t => {
+    raf = requestAnimationFrame(quadro);
+    if (t - ultimo < 33) return;
+    const dt = Math.min(t - ultimo, 100) / 16.7; ultimo = t;
+    ctx.clearRect(0, 0, W, H);
+    for (const b of bichos){
+      b.a += b.giro * dt + Math.sin(t / 2600 + b.fase) * .01 * dt;
+      b.x += Math.cos(b.a) * b.v * dt; b.y += Math.sin(b.a) * b.v * dt - .02 * dt;
+      if (b.x < -30) b.x = W + 30; else if (b.x > W + 30) b.x = -30;
+      if (b.y < -30) b.y = H + 30; else if (b.y > H + 30) b.y = -30;
+      const k = Math.pow(Math.max(0, Math.sin(t / 1000 * b.ritmo + b.fase)), 3);
+      if (k > .02) pintar(b, k);
+    }
+  };
+  const iniciar = () => {
+    cancelAnimationFrame(raf);
+    if (!ativo || document.hidden) return;
+    if (comMovimento()){ ultimo = 0; raf = requestAnimationFrame(quadro); }
+    else { ctx.clearRect(0, 0, W, H); bichos.forEach(b => pintar(b, .45)); }
+  };
+  addEventListener('resize', () => { if (ativo){ medir(); iniciar(); } });
+  document.addEventListener('visibilitychange', iniciar);
+  return {
+    ligar(){ ativo = true; cv.hidden = false; medir(); if (!bichos.length) bichos = Array.from({length: Math.round(clamp(W * H / 26000, 10, 24))}, novo); iniciar(); },
+    desligar(){ ativo = false; cancelAnimationFrame(raf); cv.hidden = true; }
+  };
+})();
+$('#fFundo').onchange = ev => { cfg.fundo = ev.target.checked; guardarCfg(); if (cfg.fundo) piri.ligar(); else piri.desligar(); };
+if (cfg.fundo !== false) piri.ligar(); else $('#pirilampos').hidden = true;
 function contar(el, v){  // o número do anel conta até ao novo valor
   const de = +el.dataset.v || 0;
   el.dataset.v = v;
