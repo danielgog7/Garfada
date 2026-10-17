@@ -1,5 +1,5 @@
 // Garfada — service worker: funciona offline e atualiza sozinho quando há ligação.
-const CACHE = 'garfada-v11';
+const CACHE = 'garfada-v12';
 const FICHEIROS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './fraunces.woff2'];
 
 self.addEventListener('install', e => {
@@ -20,7 +20,7 @@ self.addEventListener('fetch', e => {
   // Só a própria app; os pedidos ao Gemini passam diretos.
   if (e.request.method !== 'GET' || u.origin !== location.origin) return;
   e.respondWith(
-    fetch(e.request)
+    fetch(e.request.url, {cache: 'no-cache', credentials: 'same-origin'})  // confirma sempre com o servidor: atualizações chegam logo
       .then(r => {
         const copia = r.clone();
         caches.open(CACHE).then(c => c.put(e.request, copia));

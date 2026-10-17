@@ -535,6 +535,8 @@ body.com-capa nav.barra{display:none}
     <div class="card">
       <div class="campo"><label for="fFundo">Pirilampos no fundo</label><input id="fFundo" type="checkbox"></div>
       <p class="nota">Pirilampos a voar devagar no fundo da app. Desliga para poupar bateria.</p>
+      <div class="campo"><label>Sensor de movimento (balança)</label><span class="sub" id="estSensor">—</span></div>
+      <p class="nota" id="dicaSensor" hidden>Sem sinal dos sensores. Abre a capa, mexe o telemóvel e volta aqui. Se continuar sem sinal, no Chrome vai a Definições → Definições do site → Sensores de movimento e permite.</p>
       <div class="campo"><label for="mostrarOcultos">Pratos removidos de "Repetir": <span id="nOcultos">0</span></label><button class="bt mini" id="mostrarOcultos">Repor todos</button></div>
     </div>
 
@@ -1086,6 +1088,9 @@ function preencherDef(){
   $('#fChave').value = cfg.chave; $('#fMostrar').checked = cfg.mostrar;
   if (!$('#fModelo').options.length) preencherModelos();
   $('#fFundo').checked = cfg.pirilampos !== false;
+  const sensorOk = Mov.visto || Mov.visto2;
+  $('#estSensor').textContent = Mov.visto ? 'a funcionar' : Mov.visto2 ? 'a funcionar (orientação)' : 'sem sinal';
+  $('#dicaSensor').hidden = !!sensorOk;
   $('#fNotas').value = (cfg.notasIA || []).join('\n');
   $('#nOcultos').textContent = (cfg.ocultos || []).length;
   $('#mostrarOcultos').disabled = !(cfg.ocultos || []).length;
@@ -2431,20 +2436,31 @@ function desenharBalanca(){
   }
 }
 // Sensores do telemóvel: inclinar faz os pratos procurarem o "chão verdadeiro"; abanar dá-lhes um empurrão.
-const Mov = {ax: 0, roll: 0, ativo: false, inv: /iPhone|iPad|iPod/.test(navigator.userAgent) ? -1 : 1};
+const Mov = {ax: 0, roll: 0, ativo: false, visto: 0, visto2: 0, gxF: 0, inv: /iPhone|iPad|iPod/.test(navigator.userAgent) ? -1 : 1};
+function novoRoll(gx, gy){
+  if (Math.abs(gx) + Math.abs(gy) > 2.5){ const r = clamp(Math.atan2(gx, gy) * 180 / Math.PI, -35, 35); Mov.roll += (r - Mov.roll) * 0.15; }
+  else Mov.roll *= 0.95;  // telemóvel pousado na mesa: a balança endireita
+}
 function aoMover(ev){
   const g = ev.accelerationIncludingGravity, a = ev.acceleration;
-  if (g && g.x != null && g.y != null && Math.abs(g.x) + Math.abs(g.y) > 3){
-    const roll = clamp(Math.atan2(g.x * Mov.inv, g.y * Mov.inv) * 180 / Math.PI, -35, 35);
-    Mov.roll += (roll - Mov.roll) * 0.12;
-  } else Mov.roll *= 0.95;
-  if (a && a.x != null) Mov.ax = clamp(a.x * Mov.inv, -12, 12);
+  if (!g || g.x == null || g.y == null) return;
+  Mov.visto = Date.now();
+  const gx = g.x * Mov.inv, gy = g.y * Mov.inv;
+  novoRoll(gx, gy);
+  if (a && a.x != null) Mov.ax = clamp(a.x * Mov.inv, -15, 15);
+  else { Mov.gxF += (gx - Mov.gxF) * 0.2; Mov.ax = clamp((gx - Mov.gxF) * 1.5, -15, 15); }  // sem aceleração "limpa": usa as variações bruscas
+}
+function aoOrientar(ev){  // reserva para telemóveis que só enviam a orientação
+  if (ev.beta == null || ev.gamma == null || Date.now() - Mov.visto < 1000) return;
+  Mov.visto2 = Date.now();
+  const b = ev.beta * Math.PI / 180, gm = ev.gamma * Math.PI / 180;
+  novoRoll(-Math.cos(b) * Math.sin(gm) * 9.8, Math.sin(b) * 9.8);
 }
 function ligarMovimento(on){
   if (on === Mov.ativo) return;
   Mov.ativo = on;
-  if (on) addEventListener('devicemotion', aoMover);
-  else { removeEventListener('devicemotion', aoMover); Mov.ax = 0; Mov.roll = 0; }
+  if (on){ addEventListener('devicemotion', aoMover); addEventListener('deviceorientation', aoOrientar); }
+  else { removeEventListener('devicemotion', aoMover); removeEventListener('deviceorientation', aoOrientar); Mov.ax = 0; Mov.roll = 0; }
 }
 function quadroCapa(t){
   B.raf = requestAnimationFrame(quadroCapa);
@@ -2452,10 +2468,10 @@ function quadroCapa(t){
   B.ult = t;
   if (!dt) return;
   const alvo = B.alvo - Mov.roll * 0.3 + Math.sin(t / 1700) * 0.25;  // respiração leve + parte da inclinação
-  const a = -38 * (B.th - alvo) - 3.4 * B.v + Mov.ax * 2;            // mola com pouco amortecimento
+  const a = -38 * (B.th - alvo) - 3.4 * B.v + Mov.ax * 4;            // mola com pouco amortecimento
   B.v += a * dt; B.th += B.v * dt;
   for (const lado of ['L', 'R']){
-    const p = B[lado], ap = -24 * (p.phi - Mov.roll * 0.8) - 2.8 * p.v - a * 0.3 + Mov.ax * 9;  // pratos com inércia
+    const p = B[lado], ap = -24 * (p.phi - Mov.roll * 0.8) - 2.8 * p.v - a * 0.3 + Mov.ax * 18;  // pratos com inércia
     p.v += ap * dt; p.phi += p.v * dt;
   }
   Mov.ax *= 0.85;
