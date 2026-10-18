@@ -573,6 +573,7 @@ body.com-capa nav.barra{display:none}
     <div class="card">
       <label for="fChave" class="sub">Chave da API do Gemini (fica guardada só neste dispositivo)</label>
       <div class="chave"><input id="fChave" type="password" autocomplete="off" spellcheck="false" placeholder="Cola aqui a chave"><button class="bt" id="verChave">Ver</button></div>
+      <p class="sub" id="fChaveOrigem" style="margin-top:6px"></p>
       <button class="bt larg" id="testar">Testar ligação</button>
       <div class="campo"><label for="fModelo">Modelo</label><select id="fModelo"></select></div>
       <div class="campo"><label for="fMostrar">Mostrar o resultado logo após a foto</label><input id="fMostrar" type="checkbox"></div>
@@ -720,6 +721,8 @@ const chaveData = d => { const z = n => String(n).padStart(2, '0'); return `${d.
 
 const DEF = {sexo:'H', idade:30, altura:175, peso:75, atividade:'1.375', objetivo:'manter', perfilOk:false, manual:false, metas:null, chave:'', modelo:'gemini-flash-latest', mostrar:false};
 let cfg = Object.assign({}, DEF, LS.get('cfg', {}));
+// Há IA: a chave própria, a de outra app deste aparelho (ia-comum.js) ou a do Groq.
+const temIA = () => IA.temIA(cfg.chave);
 const guardarCfg = () => LS.set('cfg', cfg);
 let agua = LS.get('agua', {});
 // Água de um dia: a registada à mão mais a dos chás e infusões (campo aguaMl das refeições).
@@ -840,7 +843,7 @@ function interpretar(txt){
   }, pergunta ? {pergunta} : {});
 }
 async function perguntarGemini({imagem, texto, nota}){
-  if (!cfg.chave) throw new Error('Falta a chave do Gemini em Definições.');
+  if (!temIA()) throw new Error('Falta a chave da IA: põe a do Gemini (ou a do Groq) em Definições.');
   const parts = [];
   if (imagem) parts.push({inline_data: {mime_type: 'image/jpeg', data: imagem.split(',')[1]}});
   let pedido = PROMPT;
@@ -852,7 +855,7 @@ async function perguntarGemini({imagem, texto, nota}){
 }
 // Chamada genérica ao Gemini. Os erros de rede e de limite levam "rede: true" para a refeição ir para a fila.
 async function geminiTexto(parts, json = true){
-  if (!cfg.chave) throw new Error('Falta a chave do Gemini em Definições.');
+  if (!temIA()) throw new Error('Falta a chave da IA: põe a do Gemini (ou a do Groq) em Definições.');
   // ia-comum.js: troca de modelo quando um esgota, espera nos limites por minuto e Groq de reserva.
   try { return await IA.pedir({parts, json, chave: cfg.chave, modelo: cfg.modelo, temperatura: json ? .2 : .5}); }
   catch(e){ if (e instanceof IA.ErroLimite) e.rede = true; throw e; }
@@ -901,7 +904,7 @@ function semChave(){ toast('Falta a chave do Gemini.', {txt: 'Configurar', fn: (
 
 async function processarFoto(file, nota){
   if (!file) return;
-  if (!cfg.chave){ semChave(); return; }
+  if (!temIA()){ semChave(); return; }
   carregar(true, 'A analisar o prato…');
   let imagem, thumb;
   try {
@@ -920,7 +923,7 @@ async function processarFoto(file, nota){
   finally { carregar(false); }
 }
 async function registarTexto(txt){
-  if (!cfg.chave){ semChave(); return; }
+  if (!temIA()){ semChave(); return; }
   carregar(true, 'A estimar…');
   try {
     if (!navigator.onLine) throw Object.assign(new Error('Sem ligação à internet.'), {rede: true});
@@ -941,7 +944,7 @@ function barra(id, v, meta){
 function aviso(){
   const falta = [];
   if (!cfg.perfilOk) falta.push('o perfil');
-  if (!cfg.chave) falta.push('a chave do Gemini');
+  if (!temIA()) falta.push('a chave do Gemini');
   $('#avisoCfg').innerHTML = falta.length ? `<div class="aviso"><span>Falta configurar ${falta.join(' e ')}.</span><button id="avisoBt">Configurar</button></div>` : '';
   if (falta.length) $('#avisoBt').onclick = () => mostrarVista('vDef');
 }
@@ -1013,7 +1016,7 @@ $('#lista').addEventListener('click', ev => {
 function abrirDetalhe(e){ atual = e; desenharDetalhe(); abrirSheet('#shDet'); }
 function desenharDetalhe(){
   const e = atual, v = c => Math.round((e.base[c] || 0) * e.fator);
-  const podeRefazer = !!cfg.chave;
+  const podeRefazer = temIA();
   const fLbl = f => f === 0.5 ? '½' : f === 1.5 ? '1½' : String(f);
   $('#shDet').innerHTML = `
     <div class="pega"></div>
@@ -1028,7 +1031,7 @@ function desenharDetalhe(){
     ${e.itens && e.itens.length ? `<div class="itens ed">${e.itens.map((i, ix) => `<div><span>${esc(i.nome)}</span><span class="it-ctl num"><input type="number" inputmode="numeric" min="0" data-it="${ix}" value="${Math.round(i.g * e.fator)}" aria-label="Gramas de ${esc(i.nome)}">g · ${Math.round(i.kcal * e.fator)} kcal<button class="it-del" data-del="${ix}" aria-label="Retirar ${esc(i.nome)}">×</button></span></div>`).join('')}<p class="nota">Muda as gramas ou retira um alimento; os totais ajustam-se sozinhos.</p></div>` : ''}
     <p class="obs">Confiança da estimativa: ${e.confianca === 'alta' ? 'alta' : e.confianca === 'baixa' ? 'baixa' : 'média'}${e.obs ? ' · ' + esc(e.obs) : ''}</p>
     ${podeRefazer ? `<div class="chave"><input id="dNota" placeholder="Corrigir: ex. tinha muito azeite"><button class="bt" id="dRefazer">Refazer</button></div>` : ''}
-    ${cfg.chave ? '<button class="bt larg" id="dSobra">Sobrou comida? Fotografar o prato</button>' : ''}
+    ${temIA() ? '<button class="bt larg" id="dSobra">Sobrou comida? Fotografar o prato</button>' : ''}
     <div class="linha-bts"><button class="bt mau" id="dApagar">Apagar</button><button class="bt pri" id="dFechar">Feito</button></div>`;
 }
 async function salvarAtual(){
@@ -1229,7 +1232,7 @@ function preencherDef(){
   $('#fAtiv').value = cfg.atividade; $('#fObj').value = cfg.objetivo;
   $('#fManual').checked = cfg.manual; $('#metasMan').hidden = !cfg.manual;
   preencherMetasMan(); verMetas();
-  $('#fChave').value = cfg.chave; $('#fMostrar').checked = cfg.mostrar;
+  $('#fChave').value = cfg.chave; $('#fMostrar').checked = cfg.mostrar; origemDaChave();
   $('#iaGroqCaixa').innerHTML = IA.htmlGroq({div: true, pri: 'bt larg', sub: 'sub'});
   if (!$('#fModelo').options.length) preencherModelos();
   $('#fFundo').checked = cfg.pirilampos !== false;
@@ -1260,7 +1263,13 @@ for (const [id, k] of Object.entries(CAMPOS_META)){
     if (x > 0 && cfg.metas){ cfg.metas[k] = x; guardarPerfil(); verMetas(); render(); }
   });
 }
-$('#fChave').addEventListener('change', ev => { cfg.chave = ev.target.value.trim(); guardarCfg(); render(); });
+// Sem chave própria, diz de que app vem a chave que está a ser usada (ou que a IA vai pelo Groq).
+function origemDaChave(){
+  const el = $('#fChaveOrigem'); if (!el) return;
+  const o = IA.origemChave(cfg.chave);
+  el.textContent = cfg.chave ? '' : o ? `Sem chave própria: a usar a chave do Gemini ${o === 'outra app tua' ? 'de outra app tua' : 'da ' + o}, neste aparelho.` : IA.temGroq() ? 'Sem chave do Gemini: a IA usa o Groq de reserva.' : '';
+}
+$('#fChave').addEventListener('change', ev => { cfg.chave = ev.target.value.trim(); guardarCfg(); origemDaChave(); render(); });
 $('#verChave').onclick = () => {
   const i = $('#fChave'); i.type = i.type === 'password' ? 'text' : 'password';
   $('#verChave').textContent = i.type === 'password' ? 'Ver' : 'Ocultar';
@@ -2022,10 +2031,10 @@ function pintarComentario(estado){
   const c = cache && cache.c ? cache.c : comentarioLocal(S);
   const rod = estado === 'carregar' ? 'A IA está a analisar o período…'
     : cache && cache.c ? `Gerado ${cache.dia === chaveData(new Date()) ? 'hoje' : 'a ' + new Date(cache.em).toLocaleDateString('pt-PT', {day: 'numeric', month: 'short'})} às ${new Date(cache.em).toLocaleTimeString('pt-PT', {hour: '2-digit', minute: '2-digit'})}${cache.h !== S.h ? ' · os dados mudaram desde então' : ''}`
-    : estado === 'erro' ? 'A IA não respondeu agora. Este comentário é automático, sem IA.' : cfg.chave ? 'Comentário automático, sem IA.' : 'Comentário automático. Com a chave do Gemini, a IA escreve-o por ti.';
+    : estado === 'erro' ? 'A IA não respondeu agora. Este comentário é automático, sem IA.' : temIA() ? 'Comentário automático, sem IA.' : 'Comentário automático. Com a chave do Gemini, a IA escreve-o por ti.';
   box.innerHTML = `<h3 class="ct">${cache && cache.c ? 'O que a IA diz' : 'Comentário'}</h3><p class="ia-ver">${esc(c.veredito)}</p>
     ${[['bom', 'Correu bem'], ['mau', 'Puxou para baixo'], ['futuro', 'Se continuares assim'], ['acao', 'Próximo passo']].map(([k, n]) => c[k] ? `<div class="ia-l${k === 'acao' ? ' acao' : ''}"><b>${n}</b><p>${esc(c[k])}</p></div>` : '').join('')}
-    <div class="ia-rod"><span class="sub">${rod}</span>${cfg.chave && estado !== 'carregar' ? `<button class="bt mini" data-ia="1">${cache && cache.c ? 'Atualizar' : 'Pedir à IA'}</button>` : ''}</div>`;
+    <div class="ia-rod"><span class="sub">${rod}</span>${temIA() && estado !== 'carregar' ? `<button class="bt mini" data-ia="1">${cache && cache.c ? 'Atualizar' : 'Pedir à IA'}</button>` : ''}</div>`;
 }
 // Sem IA (sem chave, sem rede ou sem quota): frases montadas a partir dos números.
 function comentarioLocal(S){
@@ -2046,7 +2055,7 @@ Se houver avisos, menciona o mais importante em "futuro" ou "mau".
 Responde APENAS com JSON: {"veredito":"uma frase forte, até 14 palavras","bom":"o que correu bem, até 25 palavras","mau":"o que puxou para baixo, até 25 palavras","futuro":"o que acontece se continuar assim, com os números da projeção, até 35 palavras","acao":"uma ação concreta para o próximo período, até 20 palavras"}`;
 // No máximo um pedido automático por dia e por período; o botão força um novo.
 async function gerarComentario(S, forcar){
-  if (!S || !cfg.chave || iaEmCurso === S.chave) return;
+  if (!S || !temIA() || iaEmCurso === S.chave) return;
   const todos = LS.get('comentarios', {}) || {}, cache = todos[S.chave], hoje = chaveData(new Date());
   if (!forcar && cache && (cache.dia === hoje || cache.h === S.h)) return;
   if (!forcar && !navigator.onLine) return;
@@ -2487,7 +2496,7 @@ async function porNaFila(item, err){
 }
 let aProcessarFila = false;
 async function processarFila(){
-  if (aProcessarFila || !navigator.onLine || !cfg.chave) return;
+  if (aProcessarFila || !navigator.onLine || !temIA()) return;
   aProcessarFila = true;
   let feitos = 0;
   try {
@@ -2555,7 +2564,7 @@ function pararVoz(){
 }
 function abrirVoz(){
   if (!Reconhecer){ toast('Este browser não reconhece voz. Escreve a refeição.'); abrirTexto('desc'); return; }
-  if (!cfg.chave){ semChave(); return; }
+  if (!temIA()){ semChave(); return; }
   abrirSheet('#shVoz');
   iniciarVoz();
 }
@@ -2623,7 +2632,7 @@ $('#fNotas').addEventListener('change', ev => {
 let conselhos = LS.get('conselhos', {});
 function renderConselho(k, n){
   const C = $('#conselho');
-  if (!n || !cfg.chave){ C.innerHTML = ''; return; }
+  if (!n || !temIA()){ C.innerHTML = ''; return; }
   const c = conselhos[k];
   C.innerHTML = `<section class="card conselho"><div class="cab-card"><h3 class="ct">Conselho do dia</h3>${c ? '<button class="bt mini" data-acao="conselho">Atualizar</button>' : ''}</div>
     ${c ? `<p class="cs-resumo">${esc(c.resumo)}</p><ul class="dest">${c.sugestoes.map(s => `<li>${esc(s)}</li>`).join('')}</ul>`
@@ -3091,7 +3100,7 @@ setInterval(() => {
   await render();
   if (p.get('acao') === 'foto') $('#atalho').hidden = false;
   if (partilha){
-    if (cfg.chave) registarTexto(partilha);
+    if (temIA()) registarTexto(partilha);
     else { abrirTexto('desc'); $('#txtIn').value = partilha; }
   }
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
