@@ -709,9 +709,10 @@ Regras:
 - Se houver uma nota do utilizador, dá-lhe prioridade sobre o que vês.
 - Nomes em português de Portugal.
 - Se a imagem não mostrar comida nem bebida, responde {"erro": "motivo curto"}.
+- "agua_ml": mililitros de bebidas que contam como água: chá e infusões (quentes ou frias, feitas em casa), tisanas, água simples ou com gás. Põe 0 para café, leite, galão, sumos, refrigerantes (incluindo ice tea de lata), bebidas alcoólicas e sopas.
 - Se a confiança não for alta e um único detalhe mudar o total em 80 kcal ou mais (ex.: frito ou grelhado, com ou sem molho, tamanho da dose, bebida com ou sem açúcar), acrescenta "pergunta" com 2 ou 3 opções curtas. A primeira opção é a que assumiste (diferenças 0); nas outras põe a diferença face à tua estimativa (pode ser negativa). Se não houver uma dúvida assim, não incluas "pergunta".
 Responde APENAS com JSON válido, sem texto antes ou depois, neste formato (números sem unidades):
-{"prato":"nome curto do prato","itens":[{"nome":"...","gramas":0,"kcal":0,"proteina":0,"hidratos":0,"gordura":0}],"total":{"kcal":0,"proteina":0,"hidratos":0,"gordura":0,"fibra":0,"acucar":0,"gordura_saturada":0,"sodio_mg":0},"micros":{"potassio_mg":0,"calcio_mg":0,"ferro_mg":0,"vitamina_c_mg":0},"confianca":"alta|media|baixa","observacao":"uma frase curta, opcional","pergunta":{"texto":"pergunta curta, opcional","opcoes":[{"texto":"...","kcal":0,"proteina":0,"hidratos":0,"gordura":0}]}}`;
+{"prato":"nome curto do prato","itens":[{"nome":"...","gramas":0,"kcal":0,"proteina":0,"hidratos":0,"gordura":0}],"total":{"kcal":0,"proteina":0,"hidratos":0,"gordura":0,"fibra":0,"acucar":0,"gordura_saturada":0,"sodio_mg":0},"micros":{"potassio_mg":0,"calcio_mg":0,"ferro_mg":0,"vitamina_c_mg":0},"agua_ml":0,"confianca":"alta|media|baixa","observacao":"uma frase curta, opcional","pergunta":{"texto":"pergunta curta, opcional","opcoes":[{"texto":"...","kcal":0,"proteina":0,"hidratos":0,"gordura":0}]}}`;
 
 const REF = [['peq','Pequeno-almoço'],['alm','Almoço'],['lan','Lanche'],['jan','Jantar'],['out','Outro']];
 const refPorHora = h => (h >= 5 && h < 11) ? 'peq' : (h >= 11 && h < 15) ? 'alm' : (h >= 15 && h < 19) ? 'lan' : (h >= 19 && h < 23) ? 'jan' : 'out';
@@ -721,6 +722,8 @@ const DEF = {sexo:'H', idade:30, altura:175, peso:75, atividade:'1.375', objetiv
 let cfg = Object.assign({}, DEF, LS.get('cfg', {}));
 const guardarCfg = () => LS.set('cfg', cfg);
 let agua = LS.get('agua', {});
+// Água de um dia: a registada à mão mais a dos chás e infusões (campo aguaMl das refeições).
+const aguaDe = d => (agua[d.k] || 0) + Math.round(d.aguaB || 0);
 let dia = new Date(); dia.setHours(12, 0, 0, 0);
 let seguirHoje = true;
 let memoria = null;  // última imagem enviada, só nesta sessão (para "Refazer")
@@ -832,7 +835,8 @@ function interpretar(txt){
     prato: String(o.prato || 'Refeição').slice(0, 80), itens, base,
     micros: {potassio:n(mi.potassio_mg), calcio:n(mi.calcio_mg), ferro:n(mi.ferro_mg), vitc:n(mi.vitamina_c_mg)},
     confianca: ['alta', 'media', 'baixa'].includes(cf) ? cf : 'media',
-    obs: String(o.observacao || '').slice(0, 200)
+    obs: String(o.observacao || '').slice(0, 200),
+    aguaMl: Math.min(2000, Math.round(n(o.agua_ml)))
   }, pergunta ? {pergunta} : {});
 }
 async function perguntarGemini({imagem, texto, nota}){
@@ -867,7 +871,14 @@ function preencherModelos(nomes){
 }
 
 /* ---------- Registo ---------- */
+const PARECE_CHA = /(?<!\p{L})(ch[aá]s?|infus[aã]o|infus[oõ]es|tisanas?|camomila|cidreira|l[uú]cia-lima|hortel[aã]|rooibos|matcha|[aá]gua)(?!\p{L})/iu;
+const NAO_AGUA = /ice ?tea|caf[eé]|leite|gal[aã]o|sumo|refrigerante|cerveja|vinho|sopa|caldo|batido|latte|frappuccino|bubble/i;
+function aguaDeReserva(est){
+  if (est.aguaMl || (est.base && est.base.kcal > 80)) return est.aguaMl || 0;
+  return (est.itens || []).filter(i => PARECE_CHA.test(i.nome) && !NAO_AGUA.test(i.nome)).reduce((s, i) => s + (i.g || 250), 0);
+}
 async function guardarNova(est, extra){
+  if (est.aguaMl == null || (!est.aguaMl && !(extra && 'aguaMl' in extra))) est.aguaMl = Math.min(2000, aguaDeReserva(est));
   const agora = new Date();
   const d = new Date(dia); d.setHours(agora.getHours(), agora.getMinutes(), 0, 0);
   const e = Object.assign({
@@ -962,9 +973,9 @@ async function render(){
   $('#kTot').textContent = `${Math.round(t.kcal)} de ${m.kcal}`;
   barra('Prot', t.prot, m.prot); barra('Hid', t.hid, m.hid); barra('Gord', t.gord, m.gord);
 
-  const ml = agua[k] || 0;
+  const mlB = Math.round(lista.reduce((s, e) => s + (e.aguaMl || 0) * (e.fator || 1), 0)), ml = (agua[k] || 0) + mlB;
   $('#aguaTxt').textContent = `${ml} ml`;
-  $('#aguaMeta').textContent = `de ${m.agua} ml`;
+  $('#aguaMeta').textContent = `de ${m.agua} ml${mlB ? ` · ${mlB} ml de chá` : ''}`;
   $('#aguaNivel').style.height = Math.min(100, m.agua ? ml / m.agua * 100 : 0) + '%';
   aviso();
   renderPesoMini(k);
@@ -1009,6 +1020,7 @@ function desenharDetalhe(){
     <div class="det-topo">${e.thumb ? `<img src="${e.thumb}" alt="">` : ''}<input id="dPrato" value="${esc(e.prato)}" aria-label="Nome do prato"></div>
     ${perguntaAberta(e) ? `<div class="perg-det"><b>${esc(e.pergunta.texto)}</b><div class="chips">${e.pergunta.opcoes.map((o, i) => `<button data-op="${i}">${esc(o.t)}</button>`).join('')}</div>${podeRefazer ? '<p class="nota">Nenhuma serve? Escreve a correção em baixo e toca em Refazer.</p>' : ''}</div>` : ''}
     <div class="campo"><label for="dRef">Refeição</label><select id="dRef">${REF.map(([id, n]) => `<option value="${id}"${id === e.refeicao ? ' selected' : ''}>${n}</option>`).join('')}</select></div>
+    ${e.aguaMl || PARECE_CHA.test(e.prato + ' ' + (e.itens || []).map(i => i.nome).join(' ')) ? `<div class="campo"><label for="dAgua">Conta para a água (ml)</label><input id="dAgua" type="number" inputmode="numeric" min="0" max="2000" step="50" value="${Math.round((e.aguaMl || 0) * e.fator)}"></div>` : ''}
     <div class="porcao">${[0.5, 1, 1.5, 2].map(f => `<button data-f="${f}" class="${f === e.fator ? 'sel' : ''}">${fLbl(f)}×</button>`).join('')}</div>
     <div class="grelha num">${[['kcal', 'kcal'], ['prot', 'Proteína g'], ['hid', 'Hidratos g'], ['gord', 'Gordura g']].map(([c, n]) => `<label>${n}<input type="number" inputmode="numeric" data-c="${c}" value="${v(c)}"></label>`).join('')}</div>
     <div class="extra num"><div><b>${v('fibra')} g</b>fibra</div><div><b>${v('acucar')} g</b>açúcar</div><div><b>${v('sat')} g</b>saturada</div><div><b>${v('sodio')} mg</b>sódio</div></div>
@@ -1046,6 +1058,7 @@ $('#shDet').addEventListener('change', async ev => {
   if (!atual) return;
   if (t.id === 'dPrato') atual.prato = t.value.trim() || 'Refeição';
   else if (t.id === 'dRef') atual.refeicao = t.value;
+  else if (t.id === 'dAgua'){ const x = parseFloat(t.value); atual.aguaMl = isFinite(x) && x > 0 ? Math.min(2000, x) / atual.fator : 0; }
   else if (t.dataset.c){ const x = parseFloat(t.value); if (isFinite(x) && x >= 0) atual.base[t.dataset.c] = x / atual.fator; }
   else if (t.dataset.it != null){ const g = parseFloat(t.value); if (isFinite(g) && g >= 0) ajustarItem(atual, +t.dataset.it, g / atual.fator); await salvarAtual(); desenharDetalhe(); return; }
   else return;
@@ -1353,9 +1366,9 @@ async function resumoDias(desde){
   let lista = [];
   try { lista = await DB.desde(desde); } catch(e){}
   for (const e of lista){
-    const d = r[e.data] || (r[e.data] = {kcal: 0, hid: 0, sodio: 0, massa: 0, tarde: false});
+    const d = r[e.data] || (r[e.data] = {kcal: 0, hid: 0, sodio: 0, massa: 0, tarde: false, aguaB: 0});
     const f = e.fator || 1, b = e.base || {};
-    d.kcal += (b.kcal || 0) * f; d.hid += (b.hid || 0) * f; d.sodio += (b.sodio || 0) * f;
+    d.kcal += (b.kcal || 0) * f; d.hid += (b.hid || 0) * f; d.sodio += (b.sodio || 0) * f; d.aguaB += (e.aguaMl || 0) * f;
     d.massa += (e.itens || []).reduce((s, i) => s + (i.g || 0), 0) * f;
     if (new Date(e.ts).getHours() >= 21) d.tarde = true;
   }
@@ -1418,7 +1431,7 @@ function decoderHTML(an, dias, hojeN, manut){
   const kOntem = numDia(u.t - 1), o = dias[kOntem], base = [];
   for (let t = u.t - 15; t < u.t - 1; t++){ const d = dias[numDia(t)]; if (d && d.kcal >= 1000) base.push(d); }
   const m = base.length >= 3 ? {sodio: media(base, 'sodio'), hid: media(base, 'hid'), massa: media(base, 'massa')} : null;
-  const razoes = [], aguaO = agua[kOntem] || 0;
+  const razoes = [], aguaO = (agua[kOntem] || 0) + (o ? o.aguaB || 0 : 0);
   if (o && m){
     if (dev > 0){
       if (o.sodio > 2300 && o.sodio > 1.3 * m.sodio) razoes.push(`<b>Sal:</b> ${fmtInt(o.sodio)} mg de sódio, contra ${fmtInt(m.sodio)} mg habituais. O sal faz o corpo reter água.`);
@@ -1720,7 +1733,7 @@ $('#repetirLista').addEventListener('click', async ev => {
   if (ignorarClique){ ignorarClique = false; return; }
   const b = ev.target.closest('.rep'), o = b && frequentes[+b.dataset.i];
   if (!o) return;
-  const copia = JSON.parse(JSON.stringify({prato: o.prato, itens: o.itens || [], base: o.base, micros: o.micros || {}, confianca: o.confianca || 'media', obs: o.obs || '', fator: o.fator || 1, thumb: o.thumb || ''}));
+  const copia = JSON.parse(JSON.stringify({prato: o.prato, itens: o.itens || [], base: o.base, micros: o.micros || {}, confianca: o.confianca || 'media', obs: o.obs || '', fator: o.fator || 1, thumb: o.thumb || '', aguaMl: o.aguaMl || 0}));
   if (o.descricao) copia.descricao = o.descricao;
   const e = await guardarNova(copia, {fonte: 'repetido'});
   render(); atualizarFrequentes();
@@ -1768,13 +1781,13 @@ const fmtMic = v => v < 10 ? fmt1(v) : fmtInt(v);
 function inicioSemana(off){ const h = diaNum(chaveData(new Date())); return h - (new Date(h * 864e5).getUTCDay() + 6) % 7 + off * 7; }
 function somarDias(lista, ini, n = 7){
   const dias = [];
-  for (let i = 0; i < n; i++) dias.push({t: ini + i, k: numDia(ini + i), n: 0, kcal: 0, prot: 0, hid: 0, gord: 0, fibra: 0, acucar: 0, sat: 0, sodio: 0, potassio: 0, calcio: 0, ferro: 0, vitc: 0});
+  for (let i = 0; i < n; i++) dias.push({t: ini + i, k: numDia(ini + i), n: 0, aguaB: 0, kcal: 0, prot: 0, hid: 0, gord: 0, fibra: 0, acucar: 0, sat: 0, sodio: 0, potassio: 0, calcio: 0, ferro: 0, vitc: 0});
   const por = Object.fromEntries(dias.map(d => [d.k, d]));
   for (const e of lista){
     const d = por[e.data];
     if (!d) continue;
     const f = e.fator || 1, b = e.base || {}, mi = e.micros || {};
-    d.n++;
+    d.n++; d.aguaB += (e.aguaMl || 0) * f;
     for (const c of ['kcal', 'prot', 'hid', 'gord', 'fibra', 'acucar', 'sat', 'sodio']) d[c] += (b[c] || 0) * f;
     for (const c of ['potassio', 'calcio', 'ferro', 'vitc']) d[c] += (mi[c] || 0) * f;
   }
@@ -1811,7 +1824,7 @@ async function renderSemana(){
   const prev = ant.length ? media(ant, 'kcal') : null;
   const naMeta = comN.filter(d => Math.abs(d.kcal - m.kcal) <= m.kcal * 0.1).length;
   const protOk = comN.filter(d => d.prot >= m.prot * 0.9).length;
-  const aguas = dias.filter(d => d.t <= hojeN && agua[d.k] > 0).map(d => agua[d.k]);
+  const aguas = dias.filter(d => d.t <= hojeN && aguaDe(d) > 0).map(aguaDe);
   const an = analisarPeso();
   const tAt = t => { if (!an) return null; const a = an.ps.filter(p => p.t <= t); return a.length && t - a[a.length - 1].t <= 7 ? a[a.length - 1].tr : null; };
   const w1 = tAt(Math.min(fim, hojeN)), w0 = tAt(ini - 1);
@@ -1875,13 +1888,13 @@ function calcScore(dias, m, hojeN){
   if (!comp.length) return Object.assign(R, {vazio: true});
   const lim = (v, l) => v <= l ? 1 : clamp(2 - v / l, 0, 1);
   const limA = m.kcal * 0.1 / 4, limS = m.kcal * 0.1 / 9;
-  const comAgua = fechados.some(d => agua[d.k] > 0);
+  const comAgua = fechados.some(d => aguaDe(d) > 0);
   const c = {
     calorias: media(comp.map(d => clamp(1 - (Math.abs(d.kcal - m.kcal) / m.kcal - 0.1) / 0.3, 0, 1))),
     proteina: media(comp.map(d => clamp((d.prot / m.prot - 0.5) / 0.4, 0, 1))),  // 90% da meta ou mais = 100; metade ou menos = 0
     registo: comp.length / fechados.length,
     qualidade: media(comp.map(d => (Math.min(1, d.fibra / 25) + lim(d.acucar, limA) + lim(d.sat, limS) + lim(d.sodio, 2000)) / 4)),
-    agua: comAgua ? media(fechados.map(d => Math.min(1, (agua[d.k] || 0) / m.agua))) : null
+    agua: comAgua ? media(fechados.map(d => Math.min(1, aguaDe(d) / m.agua))) : null
   };
   let s = 0, w = 0;
   for (const k in SC_PESOS) if (c[k] != null){ s += SC_PESOS[k] * c[k]; w += SC_PESOS[k]; }
@@ -1983,14 +1996,14 @@ async function pintarScore(){
   const avgC = c => Math.round(media(R.comp, c));
   const tAt = t => { if (!an) return null; const a = an.ps.filter(p => p.t <= t); return a.length ? a[a.length - 1].tr : null; };
   const w1 = tAt(ate), w0 = tAt(P.ini - 1);
-  const aguas = R.fechados.filter(d => agua[d.k] > 0);
+  const aguas = R.fechados.filter(d => aguaDe(d) > 0);
   scoreAtual = {P, R, chave: P.chave, h: `${R.score}|${Math.round(media(R.comp, 'kcal') / 20)}|${R.comp.length}|${R.fechados.length}`, pj: pjInfo, dados: {
     periodo: `${P.nome} (${curta(P.ini)} a ${curta(ate)})`, score: R.score, faixa: fx, variacao_score: Rp.vazio ? null : R.score - Rp.score,
     componentes_0a100: Object.fromEntries(Object.keys(SC_PESOS).filter(k => R.c[k] != null).map(k => [SC_NOMES[k], Math.round(R.c[k] * 100)])),
     dias_completos: R.comp.length, dias_passados: R.fechados.length,
     kcal_media: avgC('kcal'), meta_kcal: m.kcal, proteina_media_g: avgC('prot'), meta_proteina_g: m.prot,
     fibra_media_g: avgC('fibra'), acucar_medio_g: avgC('acucar'), limite_acucar_g: Math.round(m.kcal * 0.1 / 4), sodio_medio_mg: avgC('sodio'),
-    agua_media_l: aguas.length ? Math.round(media(aguas.map(d => agua[d.k])) / 100) / 10 : null, meta_agua_l: m.agua / 1000,
+    agua_media_l: aguas.length ? Math.round(media(aguas.map(aguaDe)) / 100) / 10 : null, meta_agua_l: m.agua / 1000,
     objetivo: cfg.objetivo, peso_tendencia_kg: an ? Math.round(an.tr * 10) / 10 : null, peso_objetivo_kg: G || null,
     variacao_peso_no_periodo_kg: w1 != null && w0 != null ? Math.round((w1 - w0) * 10) / 10 : null,
     projecao: pjInfo ? Object.assign({ingestao_media_kcal: Math.round(pjInfo.ingest), gasto_kcal: pjInfo.gasto, chegada_ao_objetivo: pjInfo.alvo},
@@ -2573,6 +2586,7 @@ $('#vozEscrever').onclick = () => { fecharSheets(); abrirTexto('desc'); };
 
 /* ---------- Bebidas rápidas (valores típicos por dose) ---------- */
 const BEBIDAS = [
+  ['Chá', 250, {kcal: 2, prot: 0, hid: .5, gord: 0}, true],
   ['Café', 30, {kcal: 2, prot: .1, hid: 0, gord: 0}],
   ['Café com açúcar', 35, {kcal: 26, prot: .1, hid: 6, gord: 0, acucar: 6}],
   ['Galão', 250, {kcal: 115, prot: 7, hid: 11, gord: 4.5, acucar: 11, sat: 2.8, sodio: 110}],
@@ -2585,11 +2599,11 @@ $('#bebidas').innerHTML = BEBIDAS.map(([n, ml, v], i) => `<button class="beb" da
 $('#bebidas').addEventListener('click', async ev => {
   const b = ev.target.closest('[data-b]');
   if (!b) return;
-  const [nome, ml, v] = BEBIDAS[+b.dataset.b];
+  const [nome, ml, v, ehAgua] = BEBIDAS[+b.dataset.b];
   const base = Object.assign({kcal: 0, prot: 0, hid: 0, gord: 0, fibra: 0, acucar: 0, sat: 0, sodio: 0}, v);
-  const e = await guardarNova({prato: nome, itens: [{nome, g: ml, kcal: v.kcal, prot: v.prot, hid: v.hid, gord: v.gord}], base, micros: {}, confianca: 'media', obs: 'Valores típicos para uma dose desta bebida.'}, {fonte: 'bebida'});
+  const e = await guardarNova({prato: nome, itens: [{nome, g: ml, kcal: v.kcal, prot: v.prot, hid: v.hid, gord: v.gord}], base, micros: {}, confianca: 'media', obs: 'Valores típicos para uma dose desta bebida.'}, {fonte: 'bebida', aguaMl: ehAgua ? ml : 0});
   render(); atualizarFrequentes();
-  toast(`Registado: ${nome} · ${v.kcal} kcal`, {txt: 'Desfazer', fn: async () => { await apagarRefeicao(e); render(); atualizarFrequentes(); }});
+  toast(`Registado: ${nome} · ${v.kcal} kcal${ehAgua ? ` · +${ml} ml de água` : ''}`, {txt: 'Desfazer', fn: async () => { await apagarRefeicao(e); render(); atualizarFrequentes(); }});
 });
 
 /* ---------- IA que aprende contigo ---------- */
@@ -2625,7 +2639,7 @@ async function pedirConselho(){
   const refs = lista.map(e => `- ${new Date(e.ts).toLocaleTimeString('pt-PT', {hour: '2-digit', minute: '2-digit'})} ${e.prato} (${Math.round(e.base.kcal * e.fator)} kcal, ${Math.round((e.base.prot || 0) * e.fator)} g proteína)`).join('\n');
   const pedido = `És um nutricionista português, prático e simpático. Analisa o dia alimentar e dá conselhos curtos e concretos, com comida portuguesa comum. Não faças diagnósticos médicos.
 Metas diárias: ${m.kcal} kcal, ${m.prot} g proteína, ${m.hid} g hidratos, ${m.gord} g gordura, ${m.agua} ml de água. Objetivo: ${{perder: 'perder peso', ganhar: 'ganhar massa', manter: 'manter o peso'}[cfg.objetivo] || 'manter o peso'}.
-Totais ${ehHoje ? `até agora (são ${hora}h)` : 'do dia'}: ${Math.round(t.kcal)} kcal, ${Math.round(t.prot)} g proteína, ${Math.round(t.hid)} g hidratos, ${Math.round(t.gord)} g gordura, ${Math.round(t.fibra)} g fibra, ${Math.round(t.sodio)} mg sódio, ${agua[k] || 0} ml de água.
+Totais ${ehHoje ? `até agora (são ${hora}h)` : 'do dia'}: ${Math.round(t.kcal)} kcal, ${Math.round(t.prot)} g proteína, ${Math.round(t.hid)} g hidratos, ${Math.round(t.gord)} g gordura, ${Math.round(t.fibra)} g fibra, ${Math.round(t.sodio)} mg sódio, ${(agua[k] || 0) + Math.round(lista.reduce((s, e) => s + (e.aguaMl || 0) * (e.fator || 1), 0))} ml de água (inclui chás e infusões).
 Refeições:
 ${refs}
 ${ehHoje && hora < 21 ? 'Sugere o que comer e beber no resto do dia para fechar bem as metas.' : 'Faz o balanço do dia e sugere o que ajustar amanhã.'}
@@ -2655,7 +2669,7 @@ async function abrirRelatorio(mes){
   const an = analisarPeso();
   const tAt = t => { if (!an) return null; const l = an.ps.filter(p => p.t <= t); return l.length ? l[l.length - 1].tr : null; };
   const w1 = tAt(Math.min(fim, hojeN)), primeiro = an && an.ps.find(p => p.t >= ini), w0 = tAt(ini - 1) ?? (primeiro ? primeiro.tr : null);
-  const aguas = dias.filter(d => agua[d.k] > 0).map(d => agua[d.k]);
+  const aguas = dias.filter(d => aguaDe(d) > 0).map(aguaDe);
   const Rm = calcScore(dias.filter(d => d.t <= hojeN), m, hojeN), com = ((LS.get('comentarios', {}) || {})['M' + mes] || {}).c;
   const blocoScore = Rm.vazio ? '' : `<h2>Score do mês: ${Rm.score} (${faixaScore(Rm.score)[0]})</h2><table>${Object.keys(SC_PESOS).filter(k => Rm.c[k] != null).map(k => `<tr><td>${SC_NOMES[k]}</td><td>${Math.round(Rm.c[k] * 100)} / 100</td></tr>`).join('')}</table>`
     + (com ? `<h2>Comentário da IA</h2><p><b>${esc(com.veredito)}</b></p>${[['bom', 'Correu bem'], ['mau', 'Puxou para baixo'], ['futuro', 'Se continuares assim'], ['acao', 'Próximo passo']].map(([k, n]) => com[k] ? `<p><b>${n}:</b> ${esc(com[k])}</p>` : '').join('')}` : '');
@@ -2674,7 +2688,7 @@ async function abrirRelatorio(mes){
     .map(([nm, v, meta, kc]) => `<tr><td>${nm}</td><td>${fmtInt(v)} g</td><td>${meta} g</td><td>${Math.round(v / meta * 100)}%</td><td>${Math.round(kc / tot * 100)}%</td></tr>`).join('');
   const REFS = [['fibra', 'Fibra', 'g', 25], ['potassio', 'Potássio', 'mg', 2000], ['calcio', 'Cálcio', 'mg', 800], ['ferro', 'Ferro', 'mg', 14], ['vitc', 'Vitamina C', 'mg', 80], ['sodio', 'Sódio (limite)', 'mg', 2000], ['acucar', 'Açúcar (limite)', 'g', m.kcal * 0.1 / 4], ['sat', 'Gordura saturada (limite)', 'g', m.kcal * 0.1 / 9]];
   const mic = REFS.map(([c, nm, u, ref]) => `<tr><td>${nm}</td><td>${fmtMic(avg(c))} ${u}</td><td>${fmtMic(ref)} ${u}</td><td>${Math.round(avg(c) / ref * 100)}%</td></tr>`).join('');
-  const diario = comN.map(d => `<tr><td>${comDia(d.t)}</td><td>${fmtInt(d.kcal)}</td><td>${fmtInt(d.prot)}</td><td>${fmtInt(d.hid)}</td><td>${fmtInt(d.gord)}</td><td>${agua[d.k] ? fmt1(agua[d.k] / 1000) + ' L' : '—'}</td></tr>`).join('');
+  const diario = comN.map(d => `<tr><td>${comDia(d.t)}</td><td>${fmtInt(d.kcal)}</td><td>${fmtInt(d.prot)}</td><td>${fmtInt(d.hid)}</td><td>${fmtInt(d.gord)}</td><td>${aguaDe(d) ? fmt1(aguaDe(d) / 1000) + ' L' : '—'}</td></tr>`).join('');
   $('#relatorio').innerHTML = `<div class="rel-barra"><button class="bt" id="relFechar">Fechar</button><button class="bt pri" id="relPdf">Guardar PDF</button></div>
   <article class="rel">
     <div class="rel-sub">Garfada · relatório mensal</div>
